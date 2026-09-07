@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import type { Playground } from '@/src/core/playground';
 import { characters } from '@/src/characters/registry';
 
-const palette = [
+const basePalette = [
   { name: '芋泥紫', color: '#c6a0df' }, { name: '草莓粉', color: '#f2a4c0' },
   { name: '珊瑚橙', color: '#f69b85' }, { name: '薄荷绿', color: '#9cccbc' },
 ];
@@ -20,6 +20,7 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
   const game = useRef<Playground | null>(null);
   const characterId = initialCharacterId;
   const selected = characters.find(item => item.id === characterId)!;
+  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: selected.id === 'goldmochi' ? '金鱼橙' : '机械蓝', color: selected.color }, ...basePalette.slice(1)];
   const [color, setColor] = useState(selected.defaults.color);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
   const [damping, setDamping] = useState(selected.defaults.damping * 100);

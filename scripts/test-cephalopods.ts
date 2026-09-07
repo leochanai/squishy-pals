@@ -3,7 +3,7 @@ import { Raycaster, Vector3, Mesh } from 'three/webgpu';
 import type { Character } from '../src/characters/types';
 
 const factories: Array<() => Character> = [];
-for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi']]) {
+for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi']]) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);
   factories.push(characterModule[factory]);
 }
@@ -29,7 +29,8 @@ for (const create of factories) {
       }
     });
   };
-  assert.equal(Number(character.diagnostics().armCount) + Number(character.diagnostics().tentacleCount ?? 0), 10, 'eight arms plus two tentacles');
+  if (character.object.name === 'GoldMochi') { assert.equal(character.diagnostics().finCount, 5); assert.equal(character.diagnostics().tailLobes, 2); }
+  else assert.equal(Number(character.diagnostics().armCount) + Number(character.diagnostics().tentacleCount ?? 0), 10, 'eight arms plus two tentacles');
   character.object.updateMatrixWorld(true);
   const hit = character.pick(new Raycaster(new Vector3(0.12, 6, 0.1), new Vector3(0, -1, 0)));
   assert.ok(hit, 'mantle must be pickable');
@@ -71,6 +72,18 @@ for (const create of factories) {
   assert.equal(character.diagnostics().bodyHeight, 0);
   assert.equal(character.diagnostics().pressed, 0);
   assert.equal(character.diagnostics().dragging, false);
+  if (character.object.name === 'GoldMochi') {
+    character.object.updateMatrixWorld(true);
+    const finHit = character.pick(new Raycaster(new Vector3(1.25, 6, 0), new Vector3(0, -1, 0)));
+    assert.ok(finHit && finHit.handle >= 0, 'side fin must be independently pickable');
+    character.beginGrab(finHit);
+    character.moveGrab(finHit.point.clone().add(new Vector3(0.3, 0.5, 0)), true);
+    step(60);
+    assert.ok(Number(character.diagnostics().maxLimbDisplacement) > 0.1, 'fin drag must deform the selected fin');
+    character.endGrab();
+    step(360);
+    assert.ok(Number(character.diagnostics().maxLimbDisplacement) < 0.02, 'fin must recover after release');
+  }
   character.dispose();
   assert.equal(character.object.children.length, 0, 'dispose must remove scene resources');
   console.log(`${create.name} passed: ${frame} frames, press, drag, release, poke, parameter extremes, reset and disposal.`);

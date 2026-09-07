@@ -6,7 +6,8 @@ const { createOctoMochi } = await import(new URL('../src/characters/octomochi.ts
 
 // Runs without a renderer: exercise the actual character solver and deformation
 // buffers, including pointer targets well beyond the visible canvas.
-const character = createOctoMochi();
+const character = createOctoMochi(process.argv.includes('--mechanical'));
+if (process.argv.includes('--mechanical')) assert.equal(character.diagnostics().armorSegments, 40);
 const geometry = (character.object.getObjectByName('continuous-soft-body') as Mesh).geometry;
 const restPositions = new Float32Array(geometry.getAttribute('position').array);
 let frame = 0;

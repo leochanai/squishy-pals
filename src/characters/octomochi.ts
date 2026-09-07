@@ -154,15 +154,15 @@ function skinForPoint(point: THREE.Vector3, arms: Joint[][]) {
   return { arm: armIndex, joint: jointIndex, along, head };
 }
 
-export function createOctoMochi(): Character {
+export function createOctoMochi(mechanical = false): Character {
   const object = new THREE.Group();
-  object.name = 'OctoMochi';
+  object.name = mechanical ? 'MechaOcto' : 'OctoMochi';
   const arms = makeArms();
-  const parameters: CharacterParameters = { color: '#c6a0df', stiffness: 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { color: mechanical ? '#8eafc7' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
-    color: parameters.color, roughness: 0.42, metalness: 0,
+    color: parameters.color, roughness: mechanical ? 0.3 : 0.42, metalness: mechanical ? 0.72 : 0,
     clearcoat: 0.3, clearcoatRoughness: 0.32,
-    transmission: 0.08, thickness: 1.3, ior: 1.38,
+    transmission: mechanical ? 0 : 0.08, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
     // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
     // divide by zero at grazing/back-facing smooth normals, producing black
@@ -210,6 +210,7 @@ export function createOctoMochi(): Character {
   const eyeMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#241d28', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08 });
   const cheekMaterial = new THREE.MeshStandardNodeMaterial({ color: '#ec92b9', roughness: 0.8, transparent: true, opacity: 0.45, depthWrite: false });
   const suckerMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#d7a6cb', roughness: 0.52, clearcoat: 0.2 });
+  if (mechanical) { eyeMaterial.color.set('#7ff5ff'); eyeMaterial.emissive.set('#20bfdc'); eyeMaterial.emissiveIntensity = 1.8; cheekMaterial.color.set('#f7c96b'); cheekMaterial.opacity = 1; suckerMaterial.color.set('#425669'); suckerMaterial.metalness = 0.85; }
   const details: SurfaceDetail[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
   const suckerGeometry = new THREE.TorusGeometry(0.083, 0.032, 7, 14);
@@ -252,6 +253,24 @@ export function createOctoMochi(): Character {
         sucker.scale.setScalar(1.1 - j * 0.055);
         addDetail(sucker, point, normal, 'sucker');
       }
+    }
+  }
+
+  const armor: { mesh: THREE.Mesh; arm: number; joint: number }[] = [];
+  if (mechanical) {
+    const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344859', metalness: 0.85, roughness: 0.32 });
+    for (let a = 0; a < ARM_COUNT; a++) for (let j = 3; j < JOINTS; j++) {
+      const joint = arms[a][j];
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(joint.radius * 1.01, 0.043, 8, 24), trim);
+      ring.castShadow = true;
+      object.add(ring); armor.push({ mesh: ring, arm: a, joint: j });
+    }
+    const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.035, 8, 64), trim);
+    seam.geometry.rotateX(Math.PI / 2); seam.geometry.scale(1.47, 1, 1.27);
+    addDetail(seam, new THREE.Vector3(0, 1.55, 0), new THREE.Vector3(0, 0, 1), 'cheek');
+    for (const side of [-1, 1]) {
+      const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 8), trim);
+      addDetail(bolt, headSurface(side * 0.93, 1.75, 0.06), new THREE.Vector3(side * 0.5, 0.1, 1).normalize(), 'cheek');
     }
   }
 
@@ -424,6 +443,12 @@ export function createOctoMochi(): Character {
     // the mesh a second time every frame.
     geometry.boundingSphere!.center.copy(body).add(new THREE.Vector3(0, 1.5, 0));
     geometry.boundingSphere!.radius = 5;
+    for (const plate of armor) {
+      const joint = arms[plate.arm][plate.joint];
+      plate.mesh.position.copy(joint.position);
+      boneDirection.copy(joint.position).sub(arms[plate.arm][plate.joint - 1].position).normalize();
+      plate.mesh.quaternion.setFromUnitVectors(FRONT, boneDirection);
+    }
     const blinkPhase = time % 5.7;
     const blink = !grab && blinkPhase > 4.9 && blinkPhase < 5.08 ? Math.abs((blinkPhase - 4.99) / 0.09) : 1;
     for (const detail of details) {
@@ -512,7 +537,7 @@ export function createOctoMochi(): Character {
         maxStretch = Math.max(maxStretch, arm[j].position.distanceTo(arm[j - 1].position) / arm[j].rest.distanceTo(arm[j - 1].rest));
         minHeight = Math.min(minHeight, arm[j].position.y - arm[j].radius * 0.88);
       }
-      return { armCount: ARM_COUNT, vertices: positions.count, triangles: geometry.index!.count / 3, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, maxStretch, minHeight, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + maxStretch), frames: frame };
+      return { armCount: ARM_COUNT, mechanical, armorSegments: armor.length, vertices: positions.count, triangles: geometry.index!.count / 3, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, maxStretch, minHeight, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + maxStretch), frames: frame };
     },
     dispose() {
       const geometries = new Set<THREE.BufferGeometry>();
