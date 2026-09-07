@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Hand, MousePointer2, RotateCcw, Check, ArrowUpRight } from 'lucide-react';
@@ -74,7 +73,7 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
           <div className="actions"><Button className="poke-button" disabled={!ready} onClick={() => game.current?.poke()}><Hand size={20} />戳一下<kbd>SPACE</kbd></Button><Button className="reset-button" variant="outline" disabled={!ready} onClick={reset}><RotateCcw size={17} />恢复原状</Button></div>
           <p className="panel-note">不用做得很好，放松就好。</p>
         </aside>
-        <nav className="companions" aria-label="选择伙伴"><div className="eyebrow"><Link href="/pals">小伙伴图鉴 ↗</Link> <span>{String(characters.length).padStart(2, '0')}</span></div><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-pressed={item.id === characterId} onClick={() => { window.location.href = `/pals/${item.id}`; }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={item.image} alt="" width={44} height={44} /></span><span><strong>{item.englishName}</strong><small>{item.name}</small></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
+        <nav className="companions" aria-label="选择伙伴"><div className="eyebrow"><a href="/pals">小伙伴图鉴 ↗</a> <span>{String(characters.length).padStart(2, '0')}</span></div><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-pressed={item.id === characterId} onClick={() => { window.location.href = `/pals/${item.id}`; }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={item.image} alt="" width={44} height={44} /></span><span><strong>{item.englishName}</strong><small>{item.name}</small></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
         <div className="gesture-hints"><span><Hand size={22} /><span>按住 · 轻轻压</span></span><span><MousePointer2 size={21} /><span>拖动 · 拉一拉</span></span><span className="keyboard-gesture"><kbd>Space</kbd><span>弹一下</span></span><span className="touch-gesture"><Hand size={21} /><span>按钮 · 弹一下</span></span></div>
       </section>
       <footer><span>A tiny pal. A softer day.</span><span>慢一点，也很好 <ArrowUpRight size={13} /></span></footer>

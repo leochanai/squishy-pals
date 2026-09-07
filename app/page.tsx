@@ -1,12 +1,11 @@
-import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 
 export default function Home() {
   return (
     <main className="landing-page home-page">
       <header className="topbar">
-        <Link className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></Link>
-        <Link className="landing-nav" href="/pals">小伙伴图鉴 <ArrowUpRight size={15} /></Link>
+        <a className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></a>
+        <a className="landing-nav" href="/pals">小伙伴图鉴 <ArrowUpRight size={15} /></a>
       </header>
       <section className="landing-hero" aria-labelledby="landing-title">
         <div className="landing-copy">
@@ -14,7 +13,7 @@ export default function Home() {
           <h1 id="landing-title"><span>Life gets busy.</span><span>Stay <em>squishy.</em></span></h1>
           <p className="landing-subtitle">让今天，软一点。</p>
           <p className="landing-description">和软软的小动物待一会儿。<br />捏一捏，拉一拉，把紧绷的心情慢慢松开。</p>
-          <Link className="landing-cta" href="/pals">打开小伙伴图鉴 <ArrowUpRight size={20} /></Link>
+          <a className="landing-cta" href="/pals">打开小伙伴图鉴 <ArrowUpRight size={20} /></a>
           <span className="landing-caption">不用下载 · 打开就能放松</span>
         </div>
       </section>
