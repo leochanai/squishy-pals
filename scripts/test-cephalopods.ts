@@ -85,7 +85,7 @@ for (const create of factories) {
   assert.equal(character.diagnostics().dragging, false);
   if (character.diagnostics().finCount !== undefined) {
     character.object.updateMatrixWorld(true);
-    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.25 : 1.15, 6, 0)), new Vector3(0, -1, 0)));
+    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.23 : 1.15, 6, character.object.name === 'GoldMochi' ? 0.44 : 0)), new Vector3(0, -1, 0)));
     assert.ok(finHit && finHit.handle >= 0, 'side fin must be independently pickable');
     character.beginGrab(finHit);
     character.moveGrab(finHit.point.clone().add(new Vector3(0.3, 0.5, 0)), true);

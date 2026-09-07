@@ -158,17 +158,20 @@ export function createOctoMochi(mechanical = false): Character {
   const object = new THREE.Group();
   object.name = mechanical ? 'MechaOcto' : 'OctoMochi';
   const arms = makeArms();
-  const parameters: CharacterParameters = { color: mechanical ? '#8eafc7' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { color: mechanical ? '#758fa2' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
-    color: parameters.color, roughness: mechanical ? 0.3 : 0.42, metalness: mechanical ? 0.72 : 0,
-    clearcoat: 0.3, clearcoatRoughness: 0.32,
+    color: parameters.color, roughness: mechanical ? 0.46 : 0.42, metalness: mechanical ? 0.55 : 0,
+    clearcoat: mechanical ? 0.12 : 0.3, clearcoatRoughness: mechanical ? 0.46 : 0.32,
     transmission: mechanical ? 0 : 0.08, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
     // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
     // divide by zero at grazing/back-facing smooth normals, producing black
     // pixels along silhouettes and tight folds. This gel needs no cloth sheen.
   });
-  const geometry = buildSurface(arms, material);
+  const geometry = mechanical
+    ? new THREE.SphereGeometry(1, 72, 48).scale(HEAD.x, HEAD.y, HEAD.z).translate(0, CENTER_Y, 0)
+    : buildSurface(arms, material);
+  geometry.computeBoundingSphere();
   const surface = new THREE.Mesh(geometry, material);
   surface.name = 'continuous-soft-body';
   surface.castShadow = true;
@@ -176,6 +179,7 @@ export function createOctoMochi(mechanical = false): Character {
   surface.frustumCulled = false;
   object.add(surface);
   const positions = geometry.getAttribute('position') as THREE.BufferAttribute;
+  positions.setUsage(THREE.DynamicDrawUsage);
   const normals = geometry.getAttribute('normal') as THREE.BufferAttribute;
   const smoothNormals = new Float32Array(normals.array.length);
   const triangles = geometry.index!.array;
@@ -204,7 +208,7 @@ export function createOctoMochi(mechanical = false): Character {
   const temp = new THREE.Vector3();
   for (let i = 0; i < positions.count; i++) {
     const weights = skinForPoint(temp.fromBufferAttribute(positions, i), arms);
-    skin.arm[i] = weights.arm; skin.joint[i] = weights.joint; skin.along[i] = weights.along; skin.head[i] = weights.head;
+    skin.arm[i] = weights.arm; skin.joint[i] = weights.joint; skin.along[i] = weights.along; skin.head[i] = mechanical ? 1 : weights.head;
   }
 
   const eyeMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#241d28', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08 });
@@ -225,9 +229,11 @@ export function createOctoMochi(mechanical = false): Character {
     eye.scale.set(0.155, 0.19, 0.095);
     const point = headSurface(side * 0.47, 1.39, 0.041);
     addDetail(eye, point, new THREE.Vector3(side * 0.23, -0.08, 1).normalize(), 'eye');
-    const cheek = new THREE.Mesh(sphere, cheekMaterial);
-    cheek.scale.set(0.2, 0.086, 0.012);
-    addDetail(cheek, headSurface(side * 0.72, 1.19, 0.027), new THREE.Vector3(side * 0.4, -0.13, 1).normalize(), 'cheek');
+    if (!mechanical) {
+      const cheek = new THREE.Mesh(sphere, cheekMaterial);
+      cheek.scale.set(0.2, 0.086, 0.012);
+      addDetail(cheek, headSurface(side * 0.72, 1.19, 0.027), new THREE.Vector3(side * 0.4, -0.13, 1).normalize(), 'cheek');
+    }
   }
   const mouthPoints = Array.from({ length: 17 }, (_, i) => {
     const angle = Math.PI + i / 16 * Math.PI;
@@ -239,7 +245,7 @@ export function createOctoMochi(mechanical = false): Character {
   const surprisedMouth = new THREE.Mesh(new THREE.TorusGeometry(0.067, 0.022, 8, 24), eyeMaterial);
   surprisedMouth.visible = false;
   object.add(surprisedMouth);
-  for (let a = 0; a < ARM_COUNT; a++) {
+  for (let a = 0; a < ARM_COUNT && !mechanical; a++) {
     for (let j = 3; j < JOINTS; j++) {
       const joint = arms[a][j];
       const tangent = joint.rest.clone().sub(arms[a][j - 1].rest).normalize();
@@ -256,19 +262,44 @@ export function createOctoMochi(mechanical = false): Character {
     }
   }
 
-  const armor: { mesh: THREE.Mesh; arm: number; joint: number }[] = [];
-  if (mechanical) {
-    const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344859', metalness: 0.85, roughness: 0.32 });
-    for (let a = 0; a < ARM_COUNT; a++) for (let j = 3; j < JOINTS; j++) {
-      const joint = arms[a][j];
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(joint.radius * 1.01, 0.043, 8, 24), trim);
-      ring.castShadow = true;
-      object.add(ring); armor.push({ mesh: ring, arm: a, joint: j });
-    }
-    const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.035, 8, 64), trim);
-    seam.geometry.rotateX(Math.PI / 2); seam.geometry.scale(1.47, 1, 1.27);
-    addDetail(seam, new THREE.Vector3(0, 1.55, 0), new THREE.Vector3(0, 0, 1), 'cheek');
+  if (mechanical) { cheekMaterial.dispose(); suckerMaterial.dispose(); suckerGeometry.dispose(); }
 
+  const armor: { group: THREE.Group; arm: number; start: number; end: number; radius: number }[] = [];
+  const mechanicalPick: THREE.Mesh[] = [];
+  if (mechanical) {
+    const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344653', metalness: 0.7, roughness: 0.42 });
+    const edge = new THREE.MeshPhysicalNodeMaterial({ color: '#b0bcc2', metalness: 0.72, roughness: 0.4 });
+    const profile = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, -0.5, 0), new THREE.Vector3(0.68, -0.5, 0),
+      new THREE.Vector3(0.94, -0.39, 0), new THREE.Vector3(1, -0.19, 0),
+      new THREE.Vector3(1, 0.19, 0), new THREE.Vector3(0.94, 0.39, 0),
+      new THREE.Vector3(0.68, 0.5, 0), new THREE.Vector3(0, 0.5, 0),
+    ]);
+    const linkGeometry = new THREE.LatheGeometry(profile.getPoints(48).map(point => new THREE.Vector2(Math.max(0, point.x), point.y)), 32);
+    const cuffGeometry = new THREE.TorusGeometry(0.975, 0.075, 10, 32); cuffGeometry.rotateX(Math.PI / 2);
+    const edgeGeometry = new THREE.TorusGeometry(0.965, 0.028, 8, 32); edgeGeometry.rotateX(Math.PI / 2);
+    for (let arm = 0; arm < ARM_COUNT; arm++) for (const [start, end] of [[1, 3], [3, 5], [5, 7]]) {
+      const group = new THREE.Group();
+      const radius = (arms[arm][start].radius + arms[arm][end].radius) * 0.47;
+      const shell = new THREE.Mesh(linkGeometry, material); shell.name = `arm-${arm + 1}-segment-${end}`;
+      shell.castShadow = true; shell.userData.handle = arm * JOINTS + end; group.add(shell); mechanicalPick.push(shell);
+      for (const side of [-1, 1]) {
+        const cuff = new THREE.Mesh(cuffGeometry, trim); cuff.position.y = side * 0.3; group.add(cuff);
+        const lip = new THREE.Mesh(edgeGeometry, edge); lip.position.y = side * 0.22; group.add(lip);
+        cuff.userData.handle = lip.userData.handle = arm * JOINTS + end; mechanicalPick.push(cuff, lip);
+      }
+      // Each arm has three solid rounded shells joined at the existing physics bones.
+      object.add(group); armor.push({ group, arm, start, end, radius });
+    }
+    const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.013, 10, 96), trim);
+    seam.name = 'head-seam';
+    seam.geometry.rotateX(Math.PI / 2); seam.geometry.scale(HEAD.x, 1, HEAD.z);
+    addDetail(seam, new THREE.Vector3(0, 1.55, 0), new THREE.Vector3(0, 0, 1), 'cheek');
+    for (const side of [-1, 1]) {
+      const bezel = new THREE.Mesh(new THREE.TorusGeometry(0.203, 0.027, 12, 36), trim);
+      const normal = new THREE.Vector3(side * 0.23, -0.08, 1).normalize();
+      addDetail(bezel, headSurface(side * 0.47, 1.39, 0.04), normal, 'cheek');
+    }
   }
 
   const body = new THREE.Vector3();
@@ -435,16 +466,17 @@ export function createOctoMochi(mechanical = false): Character {
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
-    smoothSurfaceNormals();
+    if (!mechanical) smoothSurfaceNormals();
     // Broad bounds allow accurate ray picking throughout a pull without scanning
     // the mesh a second time every frame.
     geometry.boundingSphere!.center.copy(body).add(new THREE.Vector3(0, 1.5, 0));
     geometry.boundingSphere!.radius = 5;
     for (const plate of armor) {
-      const joint = arms[plate.arm][plate.joint];
-      plate.mesh.position.copy(joint.position);
-      boneDirection.copy(joint.position).sub(arms[plate.arm][plate.joint - 1].position).normalize();
-      plate.mesh.quaternion.setFromUnitVectors(FRONT, boneDirection);
+      const start = arms[plate.arm][plate.start].position, end = arms[plate.arm][plate.end].position;
+      plate.group.position.copy(start).add(end).multiplyScalar(0.5);
+      boneDirection.copy(end).sub(start);
+      plate.group.scale.set(plate.radius, boneDirection.length() + 0.16, plate.radius);
+      plate.group.quaternion.setFromUnitVectors(UP, boneDirection.normalize());
     }
     const blinkPhase = time % 5.7;
     const blink = !grab && blinkPhase > 4.9 && blinkPhase < 5.08 ? Math.abs((blinkPhase - 4.99) / 0.09) : 1;
@@ -453,6 +485,7 @@ export function createOctoMochi(mechanical = false): Character {
       skinRotation.slerpQuaternions(arms[detail.arm][detail.joint].rotation, arms[detail.arm][detail.joint + 1].rotation, detail.along);
       detailNormal.copy(detail.normal).applyQuaternion(skinRotation).lerp(detail.normal, detail.head).normalize();
       detail.mesh.quaternion.setFromUnitVectors(FRONT, detailNormal);
+      if (detail.mesh.name === 'head-seam') detail.mesh.scale.set(1 + squash * 0.38, 1 - squash, 1 + squash * 0.38);
       if (detail.kind === 'eye') detail.mesh.scale.set(0.155 * (1 + squash * 0.25), 0.19 * Math.max(0.08, blink) * (1 - squash) * (1 + surprise * 0.15), 0.095);
       if (detail.kind === 'mouth') {
         detail.mesh.visible = surprise < 0.45;
@@ -475,6 +508,13 @@ export function createOctoMochi(mechanical = false): Character {
   return {
     object,
     pick(raycaster) {
+      if (mechanical) {
+        const hit = raycaster.intersectObjects([surface, ...mechanicalPick], false)[0];
+        if (!hit) return null;
+        const handle = hit.object === surface ? -1 : Number(hit.object.userData.handle);
+        const normal = (hit.face?.normal.clone() ?? UP.clone()).transformDirection(hit.object.matrixWorld).transformDirection(object.matrixWorld.clone().invert());
+        return { point: hit.point.clone(), normal, part: handle < 0 ? 'head' : `arm-${Math.floor(handle / JOINTS) + 1}`, handle };
+      }
       const result = raycaster.intersectObject(surface, false)[0];
       if (!result) return null;
       const point = object.worldToLocal(result.point.clone());

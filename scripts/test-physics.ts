@@ -7,7 +7,17 @@ const { createOctoMochi } = await import(new URL('../src/characters/octomochi.ts
 // Runs without a renderer: exercise the actual character solver and deformation
 // buffers, including pointer targets well beyond the visible canvas.
 const character = createOctoMochi(process.argv.includes('--mechanical'));
-if (process.argv.includes('--mechanical')) assert.equal(character.diagnostics().armorSegments, 40);
+if (process.argv.includes('--mechanical')) {
+  assert.equal(character.diagnostics().armorSegments, 24);
+  const eyes: Mesh[] = [];
+  character.object.traverse(node => { if (node.name === 'left-eye' || node.name === 'right-eye') eyes.push(node as Mesh); });
+  assert.equal(eyes.length, 2, 'mechanical octopus must have exactly one pair of eyes');
+  for (const eye of eyes) {
+    const material = eye.material as import('three/webgpu').MeshPhysicalNodeMaterial;
+    assert.ok(material.color.r < 0.01 && material.color.g < 0.01 && material.color.b < 0.01, 'eyes must stay black');
+    assert.equal(material.emissive.getHex(), 0, 'eyes must not glow');
+  }
+}
 const geometry = (character.object.getObjectByName('continuous-soft-body') as Mesh).geometry;
 const restPositions = new Float32Array(geometry.getAttribute('position').array);
 let frame = 0;
@@ -23,6 +33,7 @@ const assertContinuousSurface = (label: string, limit: number) => {
     for (let edge = 0; edge < 3; edge++) {
       const a = index.getX(i + edge), b = index.getX(i + (edge + 1) % 3);
       const restLength = Math.hypot(restPositions[a * 3] - restPositions[b * 3], restPositions[a * 3 + 1] - restPositions[b * 3 + 1], restPositions[a * 3 + 2] - restPositions[b * 3 + 2]);
+      if (restLength < 0.000001) continue;
       const length = Math.hypot(positions.getX(a) - positions.getX(b), positions.getY(a) - positions.getY(b), positions.getZ(a) - positions.getZ(b));
       maximum = Math.max(maximum, length / restLength);
     }

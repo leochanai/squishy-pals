@@ -1,9 +1,10 @@
 import * as THREE from 'three/webgpu';
+import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { Character, CharacterParameters, GrabHit } from './types';
 
 const clamp = THREE.MathUtils.clamp;
-const CENTER = new THREE.Vector3(0, 1.16, 0.25);
-const RADII = new THREE.Vector3(0.96, 1.04, 1.24);
+const CENTER = new THREE.Vector3(0, 1.28, 0.2);
+const RADII = new THREE.Vector3(1.03, 1.18, 1.09);
 interface Part {
   mesh: THREE.Mesh;
   rest: Float32Array;
@@ -16,10 +17,10 @@ interface Part {
 export function createGoldMochi(): Character {
   const object = new THREE.Group();
   object.name = 'GoldMochi';
-  const parameters: CharacterParameters = { color: '#f5ad52', stiffness: 0.48, damping: 0.42 };
-  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.3, transmission: 0.08, thickness: 1.1, ior: 1.38, attenuationColor: new THREE.Color('#ffe1a6'), attenuationDistance: 2.2 });
-  const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#203c39', roughness: 0.2, clearcoat: 0.8 });
-  const blush = new THREE.MeshStandardNodeMaterial({ color: '#e6a8b5', roughness: 0.75 });
+  object.rotation.y = -0.72;
+  const parameters: CharacterParameters = { color: '#f08610', stiffness: 0.48, damping: 0.42 };
+  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.52, clearcoat: 0.14, clearcoatRoughness: 0.5 });
+  const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#110d08', roughness: 0.16, clearcoat: 0.7 });
   const parts: Part[] = [];
   const limbs: { tip: THREE.Vector3; root: THREE.Vector3; shift: THREE.Vector3; velocity: THREE.Vector3 }[] = [];
   const vector = new THREE.Vector3();
@@ -39,43 +40,68 @@ export function createGoldMochi(): Character {
   mantle.scale(RADII.x, RADII.y, RADII.z).translate(CENTER.x, CENTER.y, CENTER.z);
   add(mantle);
 
-  const finMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#ffd18a', roughness: 0.4, clearcoat: 0.35, side: THREE.DoubleSide });
-  function fan(root: THREE.Vector3, tip: THREE.Vector3, width: THREE.Vector3) {
+  const finMaterial = new THREE.MeshPhysicalNodeMaterial({ vertexColors: true, roughness: 0.52, clearcoat: 0.12, clearcoatRoughness: 0.5 });
+  const finColors: { colors: THREE.BufferAttribute; progress: THREE.BufferAttribute }[] = [];
+  function colorFins() {
+    const root = new THREE.Color(parameters.color), tip = root.clone().lerp(new THREE.Color('#ffe49a'), 0.28), mixed = new THREE.Color();
+    for (const fin of finColors) {
+      for (let i = 0; i < fin.colors.count; i++) { mixed.copy(root).lerp(tip, THREE.MathUtils.smoothstep(fin.progress.getX(i), 0.08, 1)); fin.colors.setXYZ(i, mixed.r, mixed.g, mixed.b); }
+      fin.colors.needsUpdate = true;
+    }
+  }
+  // Two gently corrugated surfaces meet at a rounded rim, giving every fan
+  // volume and soft highlights rather than rendering it as a flat triangle.
+  function fan(root: THREE.Vector3, tip: THREE.Vector3, width: THREE.Vector3, label: string, thickness: number) {
     const handle = limbs.length;
     limbs.push({ root, tip, shift: new THREE.Vector3(), velocity: new THREE.Vector3() });
-    const vertices: number[] = [], indices: number[] = [];
-    const rows = 24, columns = 24;
-    for (let i = 0; i <= rows; i++) {
+    const vertices: number[] = [], indices: number[] = [], progress: number[] = [];
+    const rows = 40, columns = 40, layerSize = (rows + 1) * (columns + 1);
+    const direction = tip.clone().sub(root), normal = new THREE.Vector3().crossVectors(direction, width).normalize();
+    for (let layer = 0; layer < 2; layer++) for (let i = 0; i <= rows; i++) {
       const t = i / rows;
       for (let j = 0; j <= columns; j++) {
-        const v = j / columns * 2 - 1;
-        vector.copy(root).lerp(tip, t).addScaledVector(width, v * Math.sin(t * Math.PI / 2));
-        vector.z += 0.08 * Math.cos(v * Math.PI * 5) * t * t;
-        vertices.push(vector.x, vector.y, vector.z);
-        if (i < rows && j < columns) { const a = i * (columns + 1) + j, b = a + columns + 1; indices.push(a, a + 1, b, b, a + 1, b + 1); }
+        const v = j / columns * 2 - 1, angle = v * 1.14;
+        const notch = label.startsWith('tail') ? 1 - 0.19 * Math.exp(-((v / 0.21) ** 2)) : 1;
+        const scallop = 1 + 0.016 * Math.cos(v * Math.PI * 5);
+        const length = t * Math.cos(angle * 0.72) * notch * scallop;
+        vector.copy(root).addScaledVector(direction, length).addScaledVector(width, Math.sin(angle) * t);
+        const envelope = Math.pow(Math.sin(Math.PI * t), 0.55) * Math.pow(Math.max(0, 1 - v * v), 0.4);
+        const grooves = 0.005 * Math.cos(v * Math.PI * 6) * Math.sin(Math.PI * t) * (1 - v * v);
+        vector.addScaledVector(normal, grooves + (layer === 0 ? 1 : -1) * thickness * envelope);
+        vertices.push(vector.x, vector.y, vector.z); progress.push(t);
+        if (i < rows && j < columns) {
+          const a = layer * layerSize + i * (columns + 1) + j, b = a + columns + 1;
+          if (layer === 0) indices.push(a, b, a + 1, b, b + 1, a + 1);
+          else indices.push(a, a + 1, b, b, a + 1, b + 1);
+        }
       }
     }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); geometry.setIndex(indices);
-    add(geometry, handle, true);
-    parts[parts.length - 1].mesh.material = finMaterial;
+    const source = new THREE.BufferGeometry(); source.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); source.setAttribute('finProgress', new THREE.Float32BufferAttribute(progress, 1)); source.setIndex(indices);
+    const geometry = mergeVertices(source, 0.00001); source.dispose();
+    const colors = new THREE.Float32BufferAttribute(new Float32Array(geometry.getAttribute('position').count * 3), 3);
+    geometry.setAttribute('color', colors);
+    finColors.push({ colors, progress: geometry.getAttribute('finProgress') as THREE.BufferAttribute });
+    add(geometry, handle, true); parts[parts.length - 1].mesh.material = finMaterial; parts[parts.length - 1].mesh.name = label;
   }
-  // Two broad lobes spread behind the body; no cephalopod arms.
   for (const side of [-1, 1]) {
-    fan(new THREE.Vector3(side * 0.1, 1.05, -0.75), new THREE.Vector3(side * 0.65, 1.18, -2.05), new THREE.Vector3(side * 0.36, 0.73, 0));
-    fan(new THREE.Vector3(side * 0.72, 1.02, 0.35), new THREE.Vector3(side * 1.47, 0.63, -0.02), new THREE.Vector3(0, 0.28, 0.44));
+    fan(new THREE.Vector3(side * 0.08, 1.21, -0.66), new THREE.Vector3(side * 0.26, 1.24, -2.43), new THREE.Vector3(0, 1.27, 0), `tail-${side}`, 0.075);
+    fan(new THREE.Vector3(side * 0.78, 1.05, 0.37), new THREE.Vector3(side * 1.53, 0.87, 0.48), new THREE.Vector3(0, 0.42, -0.12), `pectoral-fin-${side}`, 0.09);
   }
-  fan(new THREE.Vector3(0, 1.9, -0.13), new THREE.Vector3(0, 2.56, -0.36), new THREE.Vector3(0, -0.13, 0.64));
-  const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean }[] = [];
+  fan(new THREE.Vector3(0, 2.02, -0.3), new THREE.Vector3(0, 3.07, -0.46), new THREE.Vector3(0, 0, 0.9), 'dorsal-fin', 0.065);
+  colorFins();
+  const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
-  function facePoint(x: number, y: number) { return new THREE.Vector3(x, y, CENTER.z + RADII.z * Math.sqrt(Math.max(0, 1 - (x / RADII.x) ** 2 - ((y - CENTER.y) / RADII.y) ** 2)) + 0.035); }
-  function detail(mesh: THREE.Mesh, rest: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, eye }); }
-  for (const side of [-1, 1]) {
-    const eye = new THREE.Mesh(sphere, dark); eye.scale.set(0.12, 0.155, 0.07); detail(eye, facePoint(side * 0.4, 1.14), true);
-    const cheek = new THREE.Mesh(sphere, blush); cheek.scale.set(0.15, 0.058, 0.025); detail(cheek, facePoint(side * 0.59, 0.96));
+  function facePoint(x: number, y: number) {
+    const radius = Math.sqrt(Math.max(0, 1 - ((y - CENTER.y) / RADII.y) ** 2));
+    const angle = Math.asin(x / (RADII.x * radius)) + 0.2;
+    return new THREE.Vector3((RADII.x * radius + 0.035) * Math.sin(angle), y, CENTER.z + (RADII.z * radius + 0.035) * Math.cos(angle));
   }
-  const smile = new THREE.CatmullRomCurve3(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos(Math.PI + i / 16 * Math.PI) * 0.125, Math.sin(Math.PI + i / 16 * Math.PI) * 0.07, 0)));
-  const mouth = new THREE.Mesh(new THREE.TubeGeometry(smile, 20, 0.02, 8, false), dark); detail(mouth, facePoint(0, 1.01));
+  function detail(mesh: THREE.Mesh, rest: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, eye, normal: new THREE.Vector3(rest.x / RADII.x ** 2, (rest.y - CENTER.y) / RADII.y ** 2, (rest.z - CENTER.z) / RADII.z ** 2).normalize() }); }
+  for (const side of [-1, 1]) {
+    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.14, 0.17, 0.09); detail(eye, facePoint(side * 0.42, 1.31), true);
+  }
+  const smile = new THREE.Shape(); smile.moveTo(-0.17, 0.02); smile.quadraticCurveTo(-0.04, -0.005, 0, 0.015); smile.quadraticCurveTo(0.05, -0.005, 0.17, 0.02); smile.quadraticCurveTo(0.12, -0.145, 0, -0.145); smile.quadraticCurveTo(-0.12, -0.145, -0.17, 0.02);
+  const mouth = new THREE.Mesh(new THREE.ShapeGeometry(smile, 24), dark); detail(mouth, facePoint(0, 1.12));
   const surprised = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.019, 8, 20), dark); object.add(surprised); surprised.visible = false;
   const body = new THREE.Vector3(), velocity = new THREE.Vector3(), delta = new THREE.Vector3();
   const pressPoint = new THREE.Vector3(), pressNormal = new THREE.Vector3();
@@ -111,11 +137,13 @@ export function createGoldMochi(): Character {
     for (const item of face) {
       const { x, y, z } = item.rest;
       deform(x, y, z, item.mesh.position, time);
-      deform(x + 0.02, y, z, tangentX, time); tangentX.sub(item.mesh.position);
-      deform(x, y + 0.02, z, tangentY, time); tangentY.sub(item.mesh.position);
+      const tangent = new THREE.Vector3(1, 0, 0).cross(item.normal).normalize();
+      const bitangent = new THREE.Vector3().crossVectors(item.normal, tangent);
+      deform(x + tangent.x * 0.02, y + tangent.y * 0.02, z + tangent.z * 0.02, tangentX, time); tangentX.sub(item.mesh.position);
+      deform(x + bitangent.x * 0.02, y + bitangent.y * 0.02, z + bitangent.z * 0.02, tangentY, time); tangentY.sub(item.mesh.position);
       faceNormal.crossVectors(tangentX, tangentY).normalize();
       item.mesh.quaternion.setFromUnitVectors(front, faceNormal);
-      if (item.eye) item.mesh.scale.y = 0.155 * blink * (1 - squash);
+      if (item.eye) item.mesh.scale.y = 0.17 * blink * (1 - squash);
     }
     surprised.position.copy(mouth.position); surprised.quaternion.copy(mouth.quaternion); surprised.visible = Boolean(grab?.drag) || clock > 0.13 && clock < 0.5; mouth.visible = !surprised.visible;
   }
@@ -165,7 +193,7 @@ export function createGoldMochi(): Character {
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
-    setParameters(next) { if (next.color) { parameters.color = next.color; gel.color.set(next.color); gel.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.4); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
+    setParameters(next) { if (next.color) { parameters.color = next.color; gel.color.set(next.color); colorFins(); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
     diagnostics() { return { finCount: 5, tailLobes: 2, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
     dispose() { const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
