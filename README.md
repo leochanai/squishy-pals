@@ -1,6 +1,6 @@
 # Squishy Pals · 软软伙伴
 
-在浏览器里捏、拉、戳一只软软的 OctoMochi · 糯糯八爪鱼。
+在浏览器里捏、拉、戳软软的海洋伙伴：糯糯八爪鱼、绵绵小墨鱼和啵啵小鱿鱼。
 
 ## 运行
 
@@ -26,16 +26,19 @@ npm run dev
 - `src/core/playground.ts`：WebGPU 生命周期、镜头、动画循环与尺寸适配。
 - `src/core/lighting.ts`：共用摄影棚灯光、环境与接触阴影。
 - `src/core/input.ts`：射线拾取、按压/拖动区分、指针捕获和键盘。
-- `app/page.tsx`、`app/globals.css`：共用控制面板与响应式页面。
+- `app/page.tsx`、`app/pals/page.tsx`：品牌落地页与小伙伴图鉴。
+- `src/core/PlaygroundPage.tsx`、`app/globals.css`：共用控制面板、角色选择与响应式页面。
 - `src/characters/types.ts`：精简角色接口。
 - `src/characters/octomochi.ts`：连续隐式表面、八组腕足弹簧链、蒙皮、表情、吸盘和专属动作。
+- `src/characters/cuttlemochi.ts`：宽椭圆墨鱼、沿身体两侧的波浪鳍与十条腕足。
+- `src/characters/squidmochi.ts`：细长鱿鱼、尾部三角鳍与十条腕足。
 - `src/characters/registry.ts`：当前可选角色及默认参数。
 
 新增伙伴时实现 `Character`，登记名称、默认参数及工厂即可。身体结构、可抓部位、形变、表情和专属动作由各角色定义，共用逻辑不依赖八条腕足。`diagnostics` 中的 `bodyX/bodyZ/bodyHeight` 可选值供接触阴影跟随。
 
 ## 实现边界与性能
 
-外形在初始化时由平滑联合距离场生成闭合网格；运行时用低分辨率弹簧节点驱动高分辨率表面。采用弹性上限、桌面约束、阻尼与落地压缩，侧重解压玩具手感，并非完整的体积有限元模拟。固定上限 1/120 秒物理子步；像素比封顶 1.6，避免高分屏过度填充。右上角 FPS 为实际动画帧间隔采样，目标约 60，具体取决于设备与浏览器。
+八爪鱼在初始化时由平滑联合距离场生成闭合网格，运行时以弹簧链驱动表面；墨鱼和鱿鱼使用独立腕足弹簧与覆盖身体、鳍和表情的连续形变场，受力时局部拉伸，释放后惯性形变逐渐衰减。采用弹性上限、桌面约束、阻尼与落地压缩，侧重解压玩具手感，并非完整的体积有限元模拟。固定上限 1/120 秒物理子步；像素比封顶 1.6，避免高分屏过度填充。右上角 FPS 为实际动画帧间隔采样，目标约 60，具体取决于设备与浏览器。
 
 ```sh
 npm run typecheck
@@ -43,7 +46,7 @@ npm run test:physics
 npm run build
 ```
 
-物理测试覆盖所有八条腕足、软硬/阻尼极值、超范围拉伸、局部压痕、抬起落地、戳跳和重置。
+物理测试覆盖章鱼八条腕足，以及墨鱼和鱿鱼的按压、拖拽、释放、软硬/阻尼极值、超范围拖动、戳跳、重置和资源释放。
 
 目标图：`docs/target-reference.png`。生成方式和最终提示词：`docs/visual-reference.md`。
 
@@ -51,7 +54,8 @@ npm run build
 
 ### 首页与角色入口
 
-- `/`：静态落地页与伙伴列表，不初始化 WebGPU。
+- `/`：品牌落地页，只提供图鉴入口，不展示具体角色、不初始化 WebGPU。
+- `/pals`：小伙伴图鉴，展示全部角色并进入各自试玩。
 - `/pals/[id]`：对应角色的独立游玩页，例如 `/pals/octomochi`；未知角色返回 404。
 - 新增动物：实现 `Character` 接口，在 `src/characters/registry.ts` 登记名称、介绍、封面、图标、默认参数与 `load` 动态加载函数。首页和游玩入口自动读取此列表，不需要修改首页或通用场景。
-- `public/pals/octomochi.png` 是现有 WebGPU 角色的实际渲染截图，用作静态封面。
+- `public/pals/*.png` 是 WebGPU 角色的实际渲染截图，用作图鉴封面及选择器缩略图。

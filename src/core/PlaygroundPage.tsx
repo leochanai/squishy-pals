@@ -1,5 +1,7 @@
 'use client';
 
+import Link from 'next/link';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { Hand, MousePointer2, RotateCcw, Check, ArrowUpRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
@@ -14,20 +16,33 @@ const palette = [
 
 export default function PlaygroundPage({ initialCharacterId }: { initialCharacterId: string }) {
   const host = useRef<HTMLDivElement>(null);
+  const activeCompanion = useRef<HTMLButtonElement>(null);
   const game = useRef<Playground | null>(null);
-  const [color, setColor] = useState(palette[0].color);
-  const [stiffness, setStiffness] = useState(45);
-  const [damping, setDamping] = useState(40);
+  const characterId = initialCharacterId;
+  const selected = characters.find(item => item.id === characterId)!;
+  const [color, setColor] = useState(selected.defaults.color);
+  const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
+  const [damping, setDamping] = useState(selected.defaults.damping * 100);
   const [status, setStatus] = useState('正在唤醒伙伴…');
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [fps, setFps] = useState(0);
-  const [characterId] = useState(initialCharacterId);
-  const selected = characters.find(item => item.id === characterId)!;
+  useEffect(() => {
+    const button = activeCompanion.current;
+    const list = button?.parentElement;
+    if (!button || !list) return;
+    const keepSelectedVisible = () => { list.scrollLeft = Math.max(0, button.offsetLeft + button.offsetWidth - list.clientWidth); };
+    keepSelectedVisible();
+    const observer = new ResizeObserver(keepSelectedVisible);
+    observer.observe(list);
+    return () => observer.disconnect();
+  }, [characterId]);
   useEffect(() => {
     let cancelled = false;
     import('@/src/core/playground').then(async ({ createPlayground }) => {
-      const instance = await createPlayground(host.current!, { ...selected, create: await selected.load() }, { onStatus: setStatus, onFps: setFps });
+      const create = await selected.load();
+      if (cancelled || !host.current) return;
+      const instance = await createPlayground(host.current, { ...selected, create }, { onStatus: setStatus, onFps: setFps });
       if (cancelled) { instance.dispose(); return; }
       game.current = instance;
       const defaults = selected.defaults;
@@ -39,7 +54,7 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
   useEffect(() => { game.current?.setParameters({ color, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, stiffness, damping]);
   const reset = () => { game.current?.reset(); setColor(selected.defaults.color); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
   return (
-    <main className="playground-page">
+    <main className="playground-page" data-pal={characterId} style={{ '--pal-accent': color } as React.CSSProperties}>
       <header className="topbar">
         <a className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></a>
         <div className="live-label"><i className={ready ? 'online' : ''} />{ready ? 'LIVE · WEBGPU' : 'WEBGPU'}{ready && <span className="fps">{fps} FPS</span>}</div>
@@ -58,8 +73,8 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
           <div className="actions"><Button className="poke-button" disabled={!ready} onClick={() => game.current?.poke()}><Hand size={20} />戳一下<kbd>SPACE</kbd></Button><Button className="reset-button" variant="outline" disabled={!ready} onClick={reset}><RotateCcw size={17} />恢复原状</Button></div>
           <p className="panel-note">不用做得很好，放松就好。</p>
         </aside>
-        <nav className="companions" aria-label="选择伙伴"><div className="eyebrow">MEET YOUR PALS <span>{String(characters.length).padStart(2, '0')}</span></div><div>{characters.map(item => <button className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-pressed={item.id === characterId} onClick={() => { window.location.href = `/pals/${item.id}`; }}><span className="companion-icon" aria-hidden="true">{item.icon}</span><span><strong>{item.englishName}</strong><small>{item.name}</small></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
-        <div className="gesture-hints"><span><Hand size={22} /><span>按住 · 轻轻压</span></span><span><MousePointer2 size={21} /><span>拖动 · 拉一拉</span></span><span><kbd>Space</kbd><span>弹一下</span></span></div>
+        <nav className="companions" aria-label="选择伙伴"><div className="eyebrow"><Link href="/pals">小伙伴图鉴 ↗</Link> <span>{String(characters.length).padStart(2, '0')}</span></div><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-pressed={item.id === characterId} onClick={() => { window.location.href = `/pals/${item.id}`; }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={item.image} alt="" width={44} height={44} /></span><span><strong>{item.englishName}</strong><small>{item.name}</small></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
+        <div className="gesture-hints"><span><Hand size={22} /><span>按住 · 轻轻压</span></span><span><MousePointer2 size={21} /><span>拖动 · 拉一拉</span></span><span className="keyboard-gesture"><kbd>Space</kbd><span>弹一下</span></span><span className="touch-gesture"><Hand size={21} /><span>按钮 · 弹一下</span></span></div>
       </section>
       <footer><span>A tiny pal. A softer day.</span><span>慢一点，也很好 <ArrowUpRight size={13} /></span></footer>
     </main>

@@ -8,12 +8,12 @@ export function createLighting(scene: Scene) {
   // backdrop without a visible horizon or transparent black edge samples.
   const floor = new Mesh(new PlaneGeometry(200, 200), new MeshBasicMaterial({ color: new Color().setRGB(2.520125, 2.319882, 1.979641) }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = -.035; scene.add(floor);
-  const ambient = new AmbientLight('#ffffff', 1.15);
-  const key = new DirectionalLight('#fff4ee', 2.8);
+  const ambient = new AmbientLight('#ffffff', 0.5);
+  const key = new DirectionalLight('#fff4ee', 2.4);
   key.position.set(-3, 7, 5);
-  const rim = new DirectionalLight('#e8ddff', 2.4);
+  const rim = new DirectionalLight('#e8ddff', 1.2);
   rim.position.set(4, 4, -3);
-  const fill = new DirectionalLight('#ffffff', 1.2);
+  const fill = new DirectionalLight('#ffffff', 0.5);
   fill.position.set(1, 2, 6);
   scene.add(ambient, key, rim, fill);
   const canvas = document.createElement('canvas');

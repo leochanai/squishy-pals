@@ -32,7 +32,7 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
   const pmrem = new PMREMGenerator(renderer);
   const envMap = pmrem.fromScene(environment, .04);
   scene.environment = envMap.texture;
-  scene.environmentIntensity = .55;
+  scene.environmentIntensity = .3;
   environment.dispose(); pmrem.dispose();
   const character = definition.create();
   scene.add(character.object);
@@ -47,7 +47,7 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
     const width = host.clientWidth, height = host.clientHeight;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    camera.fov = camera.aspect < 1.15 ? 39 : 32;
+    camera.fov = 32;
     camera.updateProjectionMatrix();
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();

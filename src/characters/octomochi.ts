@@ -160,8 +160,8 @@ export function createOctoMochi(): Character {
   const arms = makeArms();
   const parameters: CharacterParameters = { color: '#c6a0df', stiffness: 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
-    color: parameters.color, roughness: 0.27, metalness: 0,
-    clearcoat: 0.55, clearcoatRoughness: 0.22,
+    color: parameters.color, roughness: 0.42, metalness: 0,
+    clearcoat: 0.3, clearcoatRoughness: 0.32,
     transmission: 0.08, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
     // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
@@ -176,6 +176,27 @@ export function createOctoMochi(): Character {
   surface.frustumCulled = false;
   object.add(surface);
   const positions = geometry.getAttribute('position') as THREE.BufferAttribute;
+  const normals = geometry.getAttribute('normal') as THREE.BufferAttribute;
+  const smoothNormals = new Float32Array(normals.array.length);
+  const triangles = geometry.index!.array;
+  function smoothSurfaceNormals() {
+    // Smooth shading across the animated triangles without changing the solver
+    // or the surface positions used for grabbing and elastic-limit checks.
+    smoothNormals.set(normals.array);
+    for (let i = 0; i < triangles.length; i += 3) {
+      const a = triangles[i] * 3, b = triangles[i + 1] * 3, c = triangles[i + 2] * 3;
+      for (let axis = 0; axis < 3; axis++) {
+        smoothNormals[a + axis] += normals.array[b + axis] + normals.array[c + axis];
+        smoothNormals[b + axis] += normals.array[a + axis] + normals.array[c + axis];
+        smoothNormals[c + axis] += normals.array[a + axis] + normals.array[b + axis];
+      }
+    }
+    for (let i = 0; i < normals.count; i++) {
+      const n = i * 3, length = Math.hypot(smoothNormals[n], smoothNormals[n + 1], smoothNormals[n + 2]) || 1;
+      normals.setXYZ(i, smoothNormals[n] / length, smoothNormals[n + 1] / length, smoothNormals[n + 2] / length);
+    }
+    normals.needsUpdate = true;
+  }
   const skin: Skin = {
     rest: new Float32Array(positions.array), arm: new Uint8Array(positions.count), joint: new Uint8Array(positions.count),
     along: new Float32Array(positions.count), head: new Float32Array(positions.count),
@@ -188,7 +209,7 @@ export function createOctoMochi(): Character {
 
   const eyeMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#241d28', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08 });
   const cheekMaterial = new THREE.MeshStandardNodeMaterial({ color: '#ec92b9', roughness: 0.8, transparent: true, opacity: 0.45, depthWrite: false });
-  const suckerMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#f1c2da', roughness: 0.35, clearcoat: 0.4 });
+  const suckerMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#d7a6cb', roughness: 0.52, clearcoat: 0.2 });
   const details: SurfaceDetail[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
   const suckerGeometry = new THREE.TorusGeometry(0.083, 0.032, 7, 14);
@@ -398,6 +419,7 @@ export function createOctoMochi(): Character {
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
+    smoothSurfaceNormals();
     // Broad bounds allow accurate ray picking throughout a pull without scanning
     // the mesh a second time every frame.
     geometry.boundingSphere!.center.copy(body).add(new THREE.Vector3(0, 1.5, 0));
