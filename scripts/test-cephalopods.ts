@@ -3,15 +3,23 @@ import { Raycaster, Vector3, Mesh } from 'three/webgpu';
 import type { Character } from '../src/characters/types';
 
 const factories: Array<() => Character> = [];
-for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'], ['oceanmochi', 'createWhaleMochi'], ['oceanmochi', 'createSharkMochi']]) {
+for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'], ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi']]) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);
   factories.push(characterModule[factory]);
 }
 
 for (const create of factories) {
+  if (process.argv[2] && create.name !== process.argv[2]) continue;
   const character = create();
   const mantle = character.object.children.find(node => node instanceof Mesh) as Mesh;
   const rest = new Float32Array(mantle.geometry.getAttribute('position').array);
+  if (['WhaleMochi', 'SharkMochi'].includes(character.object.name)) {
+    const index = mantle.geometry.index!, position = mantle.geometry.getAttribute('position');
+    const a = new Vector3(), b = new Vector3(), c = new Vector3();
+    let volume = 0;
+    for (let i = 0; i < index.count; i += 3) { a.fromBufferAttribute(position, index.getX(i)); b.fromBufferAttribute(position, index.getX(i + 1)); c.fromBufferAttribute(position, index.getX(i + 2)); volume += a.dot(b.cross(c)) / 6; }
+    assert.ok(volume > 1, 'sculpted body must be closed with outward-facing triangles');
+  }
   let frame = 0;
   const step = (count: number) => {
     for (let i = 0; i < count; i++) {
@@ -29,12 +37,14 @@ for (const create of factories) {
       }
     });
   };
-  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, 5); assert.equal(character.diagnostics().tailLobes, 2); }
+  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, character.object.name === 'WhaleMochi' ? 4 : character.object.name === 'SharkMochi' ? 6 : 5); assert.equal(character.diagnostics().tailLobes, 2); }
   else assert.equal(Number(character.diagnostics().armCount) + Number(character.diagnostics().tentacleCount ?? 0), 10, 'eight arms plus two tentacles');
   if (character.object.name === 'WhaleMochi' || character.object.name === 'SharkMochi') { assert.equal(character.diagnostics().eyeCount, 2); assert.equal(character.diagnostics().tailPlane, character.object.name === 'WhaleMochi' ? 'horizontal' : 'vertical'); }
   character.object.updateMatrixWorld(true);
-  const hit = character.pick(new Raycaster(new Vector3(0.12, 6, 0.1), new Vector3(0, -1, 0)));
+  const bodyOrigin = ['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? character.object.localToWorld(new Vector3(-0.95, 6, 0.35)) : new Vector3(0.12, 6, 0.1);
+  const hit = character.pick(new Raycaster(bodyOrigin, new Vector3(0, -1, 0)));
   assert.ok(hit, 'mantle must be pickable');
+  assert.ok(hit.handle < 0, 'body ray must select the body, not a fin');
   character.beginGrab(hit);
   character.moveGrab(hit.point, false);
   step(40);
@@ -75,7 +85,7 @@ for (const create of factories) {
   assert.equal(character.diagnostics().dragging, false);
   if (character.diagnostics().finCount !== undefined) {
     character.object.updateMatrixWorld(true);
-    const finHit = character.pick(new Raycaster(character.object.localToWorld(new Vector3(character.object.name === 'GoldMochi' ? 1.25 : 1.15, 6, 0)), new Vector3(0, -1, 0)));
+    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.25 : 1.15, 6, 0)), new Vector3(0, -1, 0)));
     assert.ok(finHit && finHit.handle >= 0, 'side fin must be independently pickable');
     character.beginGrab(finHit);
     character.moveGrab(finHit.point.clone().add(new Vector3(0.3, 0.5, 0)), true);

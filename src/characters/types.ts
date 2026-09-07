@@ -34,5 +34,6 @@ export interface CharacterDefinition {
   englishName: string;
   color: string;
   defaults: CharacterParameters;
+  camera?: { position: [number, number, number]; target: [number, number, number] };
   create(): Character;
 }

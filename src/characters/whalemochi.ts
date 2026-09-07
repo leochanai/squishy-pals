@@ -10,20 +10,17 @@ interface Part {
   along: Float32Array;
 }
 
-export function createWhaleMochi(): Character { return createOceanMochi(false); }
-export function createSharkMochi(): Character { return createOceanMochi(true); }
-
-/** Shared swimming-body physics with species-specific silhouettes and tail planes. */
-function createOceanMochi(shark: boolean): Character {
-  const CENTER = new THREE.Vector3(0, 1.13, 0.12);
-  const RADII = new THREE.Vector3(shark ? 0.88 : 1.12, 0.94, 1.68);
+/** Broad-headed baleen whale, sculpted in side profile to match its catalogue portrait. */
+export function createWhaleMochi(): Character {
+  const CENTER = new THREE.Vector3(0, 1.24, 0);
   const object = new THREE.Group();
-  object.name = shark ? 'SharkMochi' : 'WhaleMochi';
-  object.rotation.y = -0.5;
-  const parameters: CharacterParameters = { color: shark ? '#7294ad' : '#3e719e', stiffness: 0.48, damping: 0.42 };
-  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.3, transmission: 0.08, thickness: 1.1, ior: 1.38, attenuationColor: new THREE.Color('#aecce0'), attenuationDistance: 2.2 });
-  const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#203c39', roughness: 0.2, clearcoat: 0.8 });
-  const bellyMaterial = new THREE.MeshStandardNodeMaterial({ color: '#dce9ef', roughness: 0.6 });
+  object.name = 'WhaleMochi';
+  object.rotation.y = 0.22;
+  const parameters: CharacterParameters = { color: '#304b7b', stiffness: 0.48, damping: 0.42 };
+  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.5, clearcoat: 0.12, clearcoatRoughness: 0.5 });
+  const bodyMaterial = new THREE.MeshPhysicalNodeMaterial({ vertexColors: true, roughness: 0.5, clearcoat: 0.12, clearcoatRoughness: 0.5 });
+  const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#080a10', roughness: 0.13, clearcoat: 0.7 });
+  const mouthMaterial = new THREE.MeshStandardNodeMaterial({ color: '#14243e', roughness: 0.65 });
   const parts: Part[] = [];
   const limbs: { tip: THREE.Vector3; root: THREE.Vector3; shift: THREE.Vector3; velocity: THREE.Vector3 }[] = [];
   const vector = new THREE.Vector3();
@@ -39,76 +36,104 @@ function createOceanMochi(shark: boolean): Character {
     for (let i = 0; i < along.length; i++) along[i] = handle < 0 ? 0 : clamp(vector.fromBufferAttribute(attribute, i).distanceTo(limbs[handle].root) / limbs[handle].root.distanceTo(limbs[handle].tip), 0, 1);
     parts.push({ mesh, rest: new Float32Array(attribute.array), handle, fin, along });
   }
-  const mantle = new THREE.SphereGeometry(1, 64, 40);
-  mantle.scale(RADII.x, RADII.y, RADII.z).translate(CENTER.x, CENTER.y, CENTER.z);
-  // Rounded wide whale head versus the shark's narrower tapered snout.
-  const mantlePosition = mantle.getAttribute('position');
-  for (let i = 0; i < mantlePosition.count; i++) {
-    const z = (mantlePosition.getZ(i) - CENTER.z) / RADII.z;
-    const taper = shark ? 0.78 - 0.22 * z : 0.8 + 0.2 * z;
-    mantlePosition.setX(i, mantlePosition.getX(i) * taper);
+  // Longitudinal cross-sections: blunt forehead, broad belly, tapered raised peduncle.
+  const stations = [
+    [-1.92, 1.30, 0, 0], [-1.87, 1.31, 0.40, 0.45],
+    [-1.64, 1.33, 0.90, 0.86], [-1.17, 1.34, 1.13, 1.02],
+    [-0.52, 1.27, 1.16, 1.05], [0.14, 1.11, 1.00, 0.93],
+    [0.73, 0.97, 0.69, 0.70], [1.18, 1.05, 0.43, 0.46],
+    [1.51, 1.31, 0.31, 0.32], [1.76, 1.58, 0.24, 0.25],
+    [1.98, 1.73, 0.15, 0.19], [2.12, 1.75, 0, 0],
+  ];
+  function section(t: number) {
+    const scaled = clamp(t, 0, 1) * (stations.length - 1), i = Math.min(stations.length - 2, Math.floor(scaled)), f = scaled - i;
+    return stations[0].map((_, axis) => {
+      const a = stations[Math.max(0, i - 1)][axis], b = stations[i][axis], c = stations[i + 1][axis], d = stations[Math.min(stations.length - 1, i + 2)][axis];
+      const value = 0.5 * (2 * b + (c - a) * f + (2 * a - 5 * b + 4 * c - d) * f * f + (-a + 3 * b - 3 * c + d) * f * f * f);
+      return axis > 1 ? Math.max(0, value) : value;
+    });
   }
-  add(mantle);
-  const belly = new THREE.SphereGeometry(1, 48, 28);
-  belly.scale(shark ? 0.59 : 0.76, 0.46, 1.24).translate(0, 0.67, 0.34);
-  add(belly); parts[parts.length - 1].mesh.material = bellyMaterial;
-
-  const finMaterial = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.4, clearcoat: 0.35, side: THREE.DoubleSide });
-  function fan(root: THREE.Vector3, tip: THREE.Vector3, width: THREE.Vector3) {
-    const handle = limbs.length;
-    limbs.push({ root, tip, shift: new THREE.Vector3(), velocity: new THREE.Vector3() });
-    const vertices: number[] = [], indices: number[] = [];
-    const rows = 24, columns = 16;
-    const normal = new THREE.Vector3().crossVectors(tip.clone().sub(root), width).normalize();
-    for (let i = 0; i <= rows; i++) {
-      const t = i / rows;
-      for (let j = 0; j <= columns; j++) {
-        const angle = j / columns * Math.PI * 2;
-        const envelope = Math.sin(Math.PI * t);
-        vector.copy(root).lerp(tip, t).addScaledVector(width, Math.cos(angle) * envelope);
-        vector.addScaledVector(normal, Math.sin(angle) * envelope * 0.09);
-        vertices.push(vector.x, vector.y, vector.z);
-        if (i < rows && j < columns) { const a = i * (columns + 1) + j, b = a + columns + 1; indices.push(a, a + 1, b, b, a + 1, b + 1); }
+  const vertices: number[] = [], indices: number[] = [], bellyWeights: number[] = [];
+  const rows = 112, columns = 72;
+  for (let i = 0; i <= rows; i++) {
+    const [x, centerY, height, width] = section(i / rows);
+    for (let j = 0; j <= columns; j++) {
+      const theta = j / columns * Math.PI * 2;
+      const belly = 1 - THREE.MathUtils.smoothstep(Math.sin(theta), -0.25, -0.19);
+      const pleat = 0.008 * Math.cos(theta * 28) * belly * THREE.MathUtils.smoothstep(-x, -0.3, 0.5);
+      vertices.push(x, centerY + (height + pleat) * Math.sin(theta), (width + pleat) * Math.cos(theta));
+      bellyWeights.push(belly);
+      if (i < rows && j < columns) {
+        const a = i * (columns + 1) + j, c = i * (columns + 1) + (j + 1) % columns;
+        const b = (i + 1) * (columns + 1) + j, d = (i + 1) * (columns + 1) + (j + 1) % columns;
+        indices.push(a, b, c, b, d, c);
       }
     }
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); geometry.setIndex(indices);
-    add(geometry, handle, true);
-    parts[parts.length - 1].mesh.material = finMaterial;
   }
-  // Flukes move horizontally on whales, vertically on sharks.
-  for (const side of [-1, 1]) {
-    fan(new THREE.Vector3(0, 1.03, -1.26), shark
-      ? new THREE.Vector3(0, 1.03 + side * (side > 0 ? 1.12 : 0.66), -2.43)
-      : new THREE.Vector3(side * 1.15, 1.1, -2.3),
-      shark ? new THREE.Vector3(0, 0.1, 0.4) : new THREE.Vector3(0.12, 0, 0.45));
-    fan(new THREE.Vector3(side * 0.62, 0.88, 0.45), new THREE.Vector3(side * 1.8, 0.42, -0.55), new THREE.Vector3(0.12, 0, shark ? 0.4 : 0.3));
+  const mantle = new THREE.BufferGeometry();
+  mantle.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); mantle.setIndex(indices);
+  const bodyColors = new THREE.Float32BufferAttribute(new Float32Array(vertices.length), 3);
+  mantle.setAttribute('color', bodyColors);
+  const ivory = new THREE.Color('#cbdfe9'), coat = new THREE.Color(parameters.color), mixed = new THREE.Color();
+  function colorBody() {
+    coat.set(parameters.color);
+    for (let i = 0; i < bodyColors.count; i++) { mixed.copy(coat).lerp(ivory, bellyWeights[i]); bodyColors.setXYZ(i, mixed.r, mixed.g, mixed.b); }
+    bodyColors.needsUpdate = true;
   }
-  fan(new THREE.Vector3(0, 1.89, -0.25), new THREE.Vector3(0, shark ? 2.64 : 2.19, -0.58), new THREE.Vector3(0, 0, shark ? 0.58 : 0.32));
-  const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean }[] = [];
-  const sphere = new THREE.SphereGeometry(1, 24, 16);
-  function facePoint(x: number, y: number) {
-    let low = 0, high = 1;
-    for (let i = 0; i < 24; i++) {
-      const z = (low + high) / 2, taper = shark ? 0.78 - 0.22 * z : 0.8 + 0.2 * z;
-      if ((x / (RADII.x * taper)) ** 2 + ((y - CENTER.y) / RADII.y) ** 2 + z * z > 1) high = z; else low = z;
-    }
-    return new THREE.Vector3(x, y, CENTER.z + RADII.z * low + 0.045);
-  }
-  function detail(mesh: THREE.Mesh, rest: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, eye }); }
-  for (const side of [-1, 1]) {
-    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.12, 0.155, 0.07); detail(eye, facePoint(side * 0.4, 1.14), true);
+  colorBody(); add(mantle); parts[0].mesh.material = bodyMaterial;
+  parts[0].mesh.name = 'whale-body';
 
+  // Closed swept paddles have rounded leading edges and gently curled tips.
+  function paddle(root: THREE.Vector3, middle: THREE.Vector3, tip: THREE.Vector3, width: number, thickness: number, label: string) {
+    const handle = limbs.length;
+    limbs.push({ root, tip, shift: new THREE.Vector3(), velocity: new THREE.Vector3() });
+    const curve = new THREE.CatmullRomCurve3([root, middle, tip]);
+    const frames = curve.computeFrenetFrames(40, false);
+    const vertices: number[] = [], indices: number[] = [];
+    const wide = new THREE.Vector3(), thin = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i <= 40; i++) {
+      const t = i / 40, point = curve.getPoint(t), tangent = curve.getTangent(t);
+      wide.crossVectors(up, tangent).normalize();
+      if (wide.lengthSq() < 0.001) wide.copy(frames.normals[i]);
+      thin.crossVectors(tangent, wide).normalize();
+      const envelope = Math.pow(Math.sin(Math.PI * t), 0.65);
+      for (let j = 0; j <= 24; j++) {
+        const angle = j / 24 * Math.PI * 2;
+        vector.copy(point).addScaledVector(wide, Math.cos(angle) * width * envelope).addScaledVector(thin, Math.sin(angle) * thickness * envelope);
+        vertices.push(vector.x, vector.y, vector.z);
+        if (i < 40 && j < 24) { const a = i * 25 + j, c = i * 25 + (j + 1) % 24, b = (i + 1) * 25 + j, d = (i + 1) * 25 + (j + 1) % 24; indices.push(a, c, b, b, c, d); }
+      }
+    }
+    const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); geometry.setIndex(indices);
+    add(geometry, handle, true); parts[parts.length - 1].mesh.name = label;
   }
-  if (shark) for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
-    const x = side * (0.46 + i * 0.045);
-    const rest = facePoint(x, 0.96);
-    const points = Array.from({ length: 9 }, (_, j) => facePoint(x, 0.85 + j / 8 * 0.22).sub(rest));
-    detail(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 12, 0.013, 6, false), dark), rest);
+  // The fluke roots overlap the narrow tail stalk, and sweep out in a horizontal plane.
+  for (const side of [-1, 1]) {
+    paddle(new THREE.Vector3(1.71, 1.57, 0), new THREE.Vector3(2.05, 1.71, side * 0.55), new THREE.Vector3(2.43, 1.95, side * 1.08), 0.43, 0.15, `tail-fluke-${side}`);
+    paddle(new THREE.Vector3(-0.14, 0.81, side * 0.71), new THREE.Vector3(0.13, 0.51, side * 1.11), new THREE.Vector3(0.68, 0.28, side * 1.43), 0.40, 0.15, `flipper-${side}`);
   }
-  const smile = new THREE.CatmullRomCurve3(Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos(Math.PI + i / 16 * Math.PI) * 0.125, Math.sin(Math.PI + i / 16 * Math.PI) * 0.07, 0)));
-  const mouth = new THREE.Mesh(new THREE.TubeGeometry(smile, 20, 0.02, 8, false), dark); detail(mouth, facePoint(0, 1.01));
-  const surprised = new THREE.Mesh(new THREE.TorusGeometry(0.052, 0.019, 8, 20), dark); object.add(surprised); surprised.visible = false;
+  const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
+  const sphere = new THREE.SphereGeometry(1, 32, 24);
+  function sidePoint(x: number, y: number, side: number, offset = 0.025) {
+    let low = 0, high = 1;
+    for (let i = 0; i < 28; i++) { const mid = (low + high) / 2; if (section(mid)[0] < x) low = mid; else high = mid; }
+    const [, cy, ry, rz] = section((low + high) / 2);
+    return new THREE.Vector3(x, y, side * (rz * Math.sqrt(Math.max(0, 1 - ((y - cy) / ry) ** 2)) + offset));
+  }
+  function detail(mesh: THREE.Mesh, rest: THREE.Vector3, normal: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, normal, eye }); }
+  for (const side of [-1, 1]) {
+    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.17, 0.19, 0.11);
+    detail(eye, sidePoint(-0.7, 1.23, side, 0.045), new THREE.Vector3(-0.08, 0, side).normalize(), true);
+    const points = Array.from({ length: 40 }, (_, i) => {
+      const t = i / 39, x = -1.875 + t * 0.96, y = 1.22 - 0.13 * Math.sin(t * Math.PI * 0.75) + 0.07 * t ** 10;
+      return sidePoint(x, y, side, 0.023);
+    });
+    const curve = new THREE.CatmullRomCurve3(points);
+    const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.019, 8, false), mouthMaterial);
+    // Keep the smile in body coordinates so it can share the body deformation exactly.
+    add(mesh.geometry); parts[parts.length - 1].mesh.material = mouthMaterial;
+    parts[parts.length - 1].mesh.name = 'smile';
+  }
   const body = new THREE.Vector3(), velocity = new THREE.Vector3(), delta = new THREE.Vector3();
   const pressPoint = new THREE.Vector3(), pressNormal = new THREE.Vector3();
   const stretch = new THREE.Vector3(), stretchVelocity = new THREE.Vector3();
@@ -126,7 +151,7 @@ function createOceanMochi(shark: boolean): Character {
     const reach = (x - pressPoint.x) ** 2 + (y - pressPoint.y) ** 2 + (z - pressPoint.z) ** 2;
     out.addScaledVector(stretch, Math.exp(-reach / 1.65));
     out.addScaledVector(wobble, clamp((y - 0.18) / 1.65, 0, 1) * (0.75 + 0.25 * Math.cos(z - CENTER.z)));
-    if (fin) { const swim = 0.065 * Math.sin(time * 2.2 + z * 2.5) * along * along; if (shark) out.x += swim; else out.y += swim; }
+    if (fin) out.y += 0.035 * Math.sin(time * 1.5 + x * 1.2) * along * along;
     if (handle >= 0) { out.addScaledVector(limbs[handle].shift, along * along); out.y += Math.sin(time * 1.7 + handle * 0.8) * 0.025 * along * along; }
     const distance = (x - pressPoint.x) ** 2 + (y - pressPoint.y) ** 2 + (z - pressPoint.z) ** 2;
     out.addScaledVector(pressNormal, -press * Math.exp(-distance / 0.32));
@@ -143,13 +168,15 @@ function createOceanMochi(shark: boolean): Character {
     for (const item of face) {
       const { x, y, z } = item.rest;
       deform(x, y, z, item.mesh.position, time);
-      deform(x + 0.02, y, z, tangentX, time); tangentX.sub(item.mesh.position);
-      deform(x, y + 0.02, z, tangentY, time); tangentY.sub(item.mesh.position);
+      const tangent = new THREE.Vector3(1, 0, 0).cross(item.normal).normalize();
+      const bitangent = new THREE.Vector3().crossVectors(item.normal, tangent);
+      deform(x + tangent.x * 0.02, y + tangent.y * 0.02, z + tangent.z * 0.02, tangentX, time); tangentX.sub(item.mesh.position);
+      deform(x + bitangent.x * 0.02, y + bitangent.y * 0.02, z + bitangent.z * 0.02, tangentY, time); tangentY.sub(item.mesh.position);
       faceNormal.crossVectors(tangentX, tangentY).normalize();
       item.mesh.quaternion.setFromUnitVectors(front, faceNormal);
-      if (item.eye) item.mesh.scale.y = 0.155 * blink * (1 - squash);
+      if (item.eye) item.mesh.scale.y = 0.19 * blink * (1 - squash);
     }
-    surprised.position.copy(mouth.position); surprised.quaternion.copy(mouth.quaternion); surprised.visible = Boolean(grab?.drag) || clock > 0.13 && clock < 0.5; mouth.visible = !surprised.visible;
+
   }
   function simulate(dt: number) {
     previousVelocity.copy(velocity);
@@ -197,8 +224,8 @@ function createOceanMochi(shark: boolean): Character {
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
-    setParameters(next) { if (next.color) { parameters.color = next.color; gel.color.set(next.color); finMaterial.color.set(next.color); gel.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.4); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
-    diagnostics() { return { finCount: 5, tailLobes: 2, tailPlane: shark ? 'vertical' : 'horizontal', eyeCount: face.filter(item => item.eye).length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
+    setParameters(next) { if (next.color) { parameters.color = next.color; gel.color.set(next.color); colorBody(); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
+    diagnostics() { return { finCount: 4, tailLobes: 2, tailPlane: 'horizontal', eyeCount: face.filter(item => item.eye).length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
     dispose() { const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
 }

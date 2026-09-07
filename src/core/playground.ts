@@ -25,8 +25,8 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
   const scene = new Scene();
   const camera = new PerspectiveCamera(34, 1, .1, 60);
-  camera.position.set(0, 5.7, 10.1);
-  camera.lookAt(0, 1.35, 0);
+  camera.position.set(...(definition.camera?.position ?? [0, 5.7, 10.1]));
+  camera.lookAt(...(definition.camera?.target ?? [0, 1.35, 0]));
   const lighting = createLighting(scene);
   const environment = new RoomEnvironment();
   const pmrem = new PMREMGenerator(renderer);
