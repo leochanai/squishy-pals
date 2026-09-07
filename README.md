@@ -48,3 +48,10 @@ npm run build
 目标图：`docs/target-reference.png`。生成方式和最终提示词：`docs/visual-reference.md`。
 
 技术依据：[Three.js WebGPU](https://threejs.org/manual/en/webgpurenderer)、[物理材质](https://threejs.org/docs/pages/MeshPhysicalMaterial.html)。
+
+### 首页与角色入口
+
+- `/`：静态落地页与伙伴列表，不初始化 WebGPU。
+- `/pals/[id]`：对应角色的独立游玩页，例如 `/pals/octomochi`；未知角色返回 404。
+- 新增动物：实现 `Character` 接口，在 `src/characters/registry.ts` 登记名称、介绍、封面、图标、默认参数与 `load` 动态加载函数。首页和游玩入口自动读取此列表，不需要修改首页或通用场景。
+- `public/pals/octomochi.png` 是现有 WebGPU 角色的实际渲染截图，用作静态封面。
