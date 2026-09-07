@@ -1,0 +1,9 @@
+# 目标效果图
+
+使用内置 imagegen 生成，图片见 `target-reference.png`。
+
+## 最终提示词
+
+Use case: ui-mockup
+Asset type: target visual reference for a real interactive browser application, landscape 1536x1024.
+Create a polished, exceptionally charming minimal desktop app named "Squishy Pals" with small Chinese "软软伙伴" on the top left. Light warm gray/off-white background, large elegant bold sans-serif headline upper left "A little softer." with small supporting text "捏一捏，把今天放轻松。". The main hero is a real-looking stylized 3D soft jelly baby octopus in lavender pink: huge round plump slightly translucent squishy mantle, seamlessly flowing organic skirt into exactly eight distinct short chubby arms in a radial spread; natural little curled up tips and tiny pale pink underside suction cups. Bean black glossy eyes and tiny smiling mouth on front of mantle, blush cheeks. Three-quarter elevated front view, broad soft studio highlights, delicate contact shadow on an invisible tabletop. Body centered in the left 70% of image, fills about half image height. It must feel cohesive like a single soft sculpted animal, not a sphere with stuck-on tubes. One modest floating label near it "糯糯八爪鱼" and small "OctoMochi". Minimal cream-white rounded panel on right with heading "Make it yours", color swatches lilac / pink / coral / mint, two sliders labeled "软硬" and "阻尼", dark pill primary button "戳一下", subtle outlined "恢复原状". Bottom left a single selected companion tile with octopus icon and text "OctoMochi"; no placeholder animals. Bottom center understated gesture hints for press / drag / spacebar. Top right tiny green dot and "LIVE · WEBGPU". Clean editorial typography, expansive breathing space, muted warm gray lettering, fine borders, premium playful calm. No extra decorative props, no gradients on the page, no visible desk or horizon. Render the entire interface and hero as an attainable high fidelity design reference.
