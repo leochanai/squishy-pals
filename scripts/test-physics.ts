@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { Raycaster, Vector3 } from 'three/webgpu';
+import { Raycaster, Vector3, type Mesh } from 'three/webgpu';
 // A URL keeps Node's native TypeScript runner compatible with the app's
 // bundler-resolution tsconfig (which intentionally uses extensionless imports).
 const { createOctoMochi } = await import(new URL('../src/characters/octomochi.ts', import.meta.url).href) as typeof import('../src/characters/octomochi');
@@ -7,8 +7,27 @@ const { createOctoMochi } = await import(new URL('../src/characters/octomochi.ts
 // Runs without a renderer: exercise the actual character solver and deformation
 // buffers, including pointer targets well beyond the visible canvas.
 const character = createOctoMochi();
+const geometry = (character.object.getObjectByName('continuous-soft-body') as Mesh).geometry;
+const restPositions = new Float32Array(geometry.getAttribute('position').array);
 let frame = 0;
 let worstStretch = 0;
+const assertContinuousSurface = (label: string, limit: number) => {
+  const positions = geometry.getAttribute('position');
+  const normals = geometry.getAttribute('normal');
+  assert.ok(Array.from(positions.array).every(Number.isFinite), `${label}: surface positions must be finite`);
+  assert.ok(Array.from(normals.array).every(Number.isFinite), `${label}: surface normals must be finite`);
+  const index = geometry.index!;
+  let maximum = 0;
+  for (let i = 0; i < index.count; i += 3) {
+    for (let edge = 0; edge < 3; edge++) {
+      const a = index.getX(i + edge), b = index.getX(i + (edge + 1) % 3);
+      const restLength = Math.hypot(restPositions[a * 3] - restPositions[b * 3], restPositions[a * 3 + 1] - restPositions[b * 3 + 1], restPositions[a * 3 + 2] - restPositions[b * 3 + 2]);
+      const length = Math.hypot(positions.getX(a) - positions.getX(b), positions.getY(a) - positions.getY(b), positions.getZ(a) - positions.getZ(b));
+      maximum = Math.max(maximum, length / restLength);
+    }
+  }
+  assert.ok(maximum < limit, `${label}: neighboring skin vertices must stay continuous (maximum edge ratio ${maximum.toFixed(2)})`);
+};
 const step = (count: number) => {
   for (let i = 0; i < count; i++) {
     character.update(1 / 60, frame++ / 60);
@@ -71,5 +90,27 @@ character.reset();
 assert.equal(character.diagnostics().bodyX, 0);
 assert.equal(character.diagnostics().bodyZ, 0);
 assert.equal(character.diagnostics().pressed, 0);
+
+// The solver's segment limit alone cannot catch a discontinuous skin binding:
+// neighboring vertices previously jumped between tapered bones or arm roots.
+const angle = Math.PI / 8 + 0.3;
+character.beginGrab({ point: new Vector3(Math.sin(angle) * 2.42, 0.75, Math.cos(angle) * 2.42), normal: new Vector3(0, 1, 0), part: 'arm-1', handle: 7 });
+character.moveGrab(new Vector3(Math.sin(angle) * 1.4, 3, Math.cos(angle) * 1.4), true);
+step(60);
+assertContinuousSurface('curled arm tip', 4);
+
+character.reset();
+character.beginGrab({ point: new Vector3(0.8, 0.55, 1.65), normal: new Vector3(0, 1, 0), part: 'arm-1', handle: 4 });
+character.moveGrab(new Vector3(2.4, 2.8, 1.65), true);
+step(60);
+assertContinuousSurface('pulled arm middle', 16);
+
+character.reset();
+character.beginGrab({ point: new Vector3(0, 2.7, 0.45), normal: new Vector3(0, 1, 0), part: 'head', handle: -1 });
+character.moveGrab(new Vector3(1, 8, 0.45), true);
+step(120);
+character.endGrab();
+step(24);
+assertContinuousSurface('falling belly', 6);
 character.dispose();
 console.log(`Physics passed: ${frame} frames, 8 independent arms, maximum segment stretch ${worstStretch.toFixed(4)}, landing squash ${impactSquash.toFixed(3)}, poke height ${jumpHeight.toFixed(3)}.`);

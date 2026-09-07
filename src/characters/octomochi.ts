@@ -132,7 +132,21 @@ function skinForPoint(point: THREE.Vector3, arms: Joint[][]) {
       const dx = b.rest.x - a.rest.x, dy = b.rest.y - a.rest.y, dz = b.rest.z - a.rest.z;
       const t = clamp(((point.x - a.rest.x) * dx + (point.y - a.rest.y) * dy + (point.z - a.rest.z) * dz) / (dx * dx + dy * dy + dz * dz), 0, 1);
       const distance = Math.hypot(point.x - a.rest.x - dx * t, point.y - a.rest.y - dy * t, point.z - a.rest.z - dz * t) - THREE.MathUtils.lerp(a.radius, b.radius, t);
-      if (distance < best) { best = distance; armIndex = arm; jointIndex = j; along = t; }
+      if (distance < best) { best = distance; armIndex = arm; }
+    }
+  }
+  // The taper determines which arm owns the point, but must not choose its
+  // joint: subtracting the radius makes adjacent vertices jump between bones.
+  // These arms grow monotonically outwards, so radius gives a continuous bind
+  // coordinate along their curved centerlines, including at joint boundaries.
+  const radius = Math.hypot(point.x, point.z);
+  for (let j = 0; j < JOINTS - 1; j++) {
+    const a = arms[armIndex][j].rest, b = arms[armIndex][j + 1].rest;
+    const start = Math.hypot(a.x, a.z), end = Math.hypot(b.x, b.z);
+    if (radius <= end || j === JOINTS - 2) {
+      jointIndex = j;
+      along = clamp((radius - start) / (end - start), 0, 1);
+      break;
     }
   }
   const hd = headDistance(point.x, point.y, point.z);
@@ -150,7 +164,9 @@ export function createOctoMochi(): Character {
     clearcoat: 0.55, clearcoatRoughness: 0.22,
     transmission: 0.08, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
-    sheen: 0.3, sheenColor: new THREE.Color('#ffe7f4'), sheenRoughness: 0.65,
+    // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
+    // divide by zero at grazing/back-facing smooth normals, producing black
+    // pixels along silhouettes and tight folds. This gel needs no cloth sheen.
   });
   const geometry = buildSurface(arms, material);
   const surface = new THREE.Mesh(geometry, material);
@@ -371,6 +387,9 @@ export function createOctoMochi(): Character {
       boneRestDirection.copy(after.rest).sub(before.rest).normalize();
       boneDirection.copy(after.position).sub(before.position).normalize();
       arm[j].rotation.setFromUnitVectors(boneRestDirection, boneDirection);
+      // The shared belly follows the body. Rotating each pinned arm root would
+      // pull neighboring belly vertices in eight different directions.
+      if (j === 0) arm[j].rotation.identity();
     }
     for (let i = 0; i < positions.count; i++) {
       sourcePoint.fromArray(skin.rest, i * 3);
