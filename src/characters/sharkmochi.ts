@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import type { Character, CharacterParameters, GrabHit } from './types';
+import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
 const clamp = THREE.MathUtils.clamp;
 interface Part {
@@ -16,6 +16,7 @@ export function createSharkMochi(): Character {
   const object = new THREE.Group();
   object.name = 'SharkMochi';
   object.rotation.y = Math.PI - 0.18;
+  let movementConstraint: MovementConstraint | undefined;
   const parameters: CharacterParameters = { color: '#5f7d92', stiffness: 0.48, damping: 0.42 };
   const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.5, clearcoat: 0.12, clearcoatRoughness: 0.5 });
   const bodyMaterial = new THREE.MeshPhysicalNodeMaterial({ vertexColors: true, roughness: 0.5, clearcoat: 0.12, clearcoatRoughness: 0.5 });
@@ -234,8 +235,11 @@ export function createSharkMochi(): Character {
     }
     body.addScaledVector(velocity, dt);
     if (body.y < 0) { const impact = Math.max(0, -velocity.y); body.y = 0; velocity.y = impact > 0.6 ? impact * (0.25 - parameters.damping * 0.12) : 0; squashVelocity += impact > 0.6 ? impact * 0.8 : 0; }
-    for (const axis of ['x', 'z'] as const) if (Math.abs(body[axis]) > 2.6) { body[axis] = clamp(body[axis], -2.6, 2.6); velocity[axis] *= 0.1; }
-    if (body.y > 3.5) { body.y = 3.5; velocity.y = Math.min(0, velocity.y); }
+    if (movementConstraint) movementConstraint(body, velocity);
+    else {
+      for (const axis of ['x', 'z'] as const) if (Math.abs(body[axis]) > 2.6) { body[axis] = clamp(body[axis], -2.6, 2.6); velocity[axis] *= 0.1; }
+      if (body.y > 3.5) { body.y = 3.5; velocity.y = Math.min(0, velocity.y); }
+    }
     const targetSquash = clock >= 0 && clock < 0.15 ? 0.27 : 0;
     squashVelocity += ((targetSquash - squash) * (100 + parameters.stiffness * 100) - squashVelocity * (7 + parameters.damping * 10)) * dt;
     squash = clamp(squash + squashVelocity * dt, -0.18, 0.42); press += (pressTarget - press) * Math.min(1, dt * 14);
@@ -264,9 +268,10 @@ export function createSharkMochi(): Character {
   reset();
   return {
     object,
+    setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? 'body' : `fin-${part.handle + 1}`, handle: part.handle }; },
     beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); grab = { handle: hit.handle, target: local.clone(), offset: local.clone().sub(anchor), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
-    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
+    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) { grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); } grab.target.y = Math.max(0.08, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,

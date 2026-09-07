@@ -14,8 +14,12 @@ export interface GrabHit {
   handle: number;
 }
 
+/** Constrains body translation in character-local coordinates, including inertia. */
+export type MovementConstraint = (position: Vector3, velocity?: Vector3) => void;
+
 export interface Character {
   object: Group;
+  setMovementConstraint(constraint: MovementConstraint): void;
   pick(raycaster: Raycaster): GrabHit | null;
   beginGrab(hit: GrabHit): void;
   moveGrab(worldPoint: Vector3, isDrag: boolean): void;

@@ -43,10 +43,13 @@ npm run dev
 ```sh
 npm run typecheck
 npm run test:physics
+npm run test:stage
 npm run build
 ```
 
 物理测试覆盖章鱼八条腕足，以及墨鱼和鱿鱼的按压、拖拽、释放、软硬/阻尼极值、超范围拖动、戳跳、重置和资源释放。
+
+舞台测试覆盖全部七种伙伴的桌面、手机和窄屏取景、边缘拖动及释放。互动区按角色轮廓自动取景，扩大画布时保留移动余量；拖动边界随镜头更新，角色本地坐标中的移动约束同时作用于身体和松手后的惯性。
 
 目标图：`docs/target-reference.png`。生成方式和最终提示词：`docs/visual-reference.md`。
 

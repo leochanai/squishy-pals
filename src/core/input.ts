@@ -1,5 +1,6 @@
 import { Camera, Plane, Raycaster, Vector2, Vector3 } from 'three/webgpu';
 import type { Character } from '../characters/types';
+import { softenPointer } from './stage';
 
 export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: Character, onStatus: (value: string) => void) {
   const raycaster = new Raycaster();
@@ -8,9 +9,10 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: 
   const plane = new Plane();
   let active: number | null = null;
   let originX = 0, originY = 0, dragging = false;
-  function ray(event: PointerEvent) {
+  function ray(event: PointerEvent, resist = false) {
     const rect = canvas.getBoundingClientRect();
     pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1);
+    if (resist) pointer.set(softenPointer(pointer.x), softenPointer(pointer.y));
     raycaster.setFromCamera(pointer, camera);
   }
   const down = (event: PointerEvent) => {
@@ -31,11 +33,10 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: 
   };
   const move = (event: PointerEvent) => {
     if (event.pointerId !== active) return;
-    ray(event);
+    ray(event, true);
     if (Math.hypot(event.clientX - originX, event.clientY - originY) > 5) dragging = true;
     if (raycaster.ray.intersectPlane(plane, point)) {
-      point.y = Math.max(.16, Math.min(5.1, point.y));
-      point.x = Math.max(-4.5, Math.min(4.5, point.x));
+      point.y = Math.max(.08, point.y);
       character.moveGrab(point, dragging);
       if (dragging) onStatus('哇——轻一点点！');
     }

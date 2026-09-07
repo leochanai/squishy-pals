@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu';
 import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
-import type { Character, CharacterParameters, GrabHit } from './types';
+import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
 const ARM_COUNT = 8;
 const JOINTS = 8;
@@ -302,6 +302,7 @@ export function createOctoMochi(mechanical = false): Character {
     }
   }
 
+  let movementConstraint: MovementConstraint | undefined;
   const body = new THREE.Vector3();
   const velocity = new THREE.Vector3();
   let squash = 0, squashVelocity = 0, press = 0, pressTarget = 0;
@@ -352,7 +353,8 @@ export function createOctoMochi(mechanical = false): Character {
     const damping = 2.8 + parameters.damping * 10;
     if (grab?.drag && grab.hit.handle < 0) {
       goal.copy(grab.target).sub(grab.offset);
-      goal.x = clamp(goal.x, -2.6, 2.6); goal.z = clamp(goal.z, -2.6, 2.6); goal.y = clamp(goal.y, 0, 3.5);
+      if (movementConstraint) movementConstraint(goal);
+      else { goal.x = clamp(goal.x, -2.6, 2.6); goal.z = clamp(goal.z, -2.6, 2.6); goal.y = clamp(goal.y, 0, 3.5); }
       velocity.addScaledVector(delta.copy(goal).sub(body), dt * 100);
       velocity.multiplyScalar(Math.exp(-dt * 12));
     } else {
@@ -370,10 +372,13 @@ export function createOctoMochi(mechanical = false): Character {
       if (impact > 0.6) { velocity.y = impact * (0.24 - parameters.damping * 0.1); squashVelocity += impact * 1.1; }
       else velocity.y = 0;
     }
-    for (const axis of ['x', 'z'] as const) {
-      if (Math.abs(body[axis]) > 2.6) { body[axis] = clamp(body[axis], -2.6, 2.6); velocity[axis] *= 0.1; }
+    if (movementConstraint) movementConstraint(body, velocity);
+    else {
+      for (const axis of ['x', 'z'] as const) {
+        if (Math.abs(body[axis]) > 2.6) { body[axis] = clamp(body[axis], -2.6, 2.6); velocity[axis] *= 0.1; }
+      }
+      if (body.y > 3.5) { body.y = 3.5; velocity.y = Math.min(velocity.y, 0); }
     }
-    if (body.y > 3.5) { body.y = 3.5; velocity.y = Math.min(velocity.y, 0); }
     if (grab?.drag && grab.hit.handle >= 0) {
       const a = Math.floor(grab.hit.handle / JOINTS), j = grab.hit.handle % JOINTS;
       delta.copy(grab.target).sub(grab.offset).sub(arms[a][j].position);
@@ -507,6 +512,7 @@ export function createOctoMochi(mechanical = false): Character {
   reset();
   return {
     object,
+    setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {
       if (mechanical) {
         const hit = raycaster.intersectObjects([surface, ...mechanicalPick], false)[0];
@@ -547,9 +553,12 @@ export function createOctoMochi(mechanical = false): Character {
     moveGrab(worldPoint, isDrag) {
       if (!grab) return;
       grab.target.copy(worldPoint); object.worldToLocal(grab.target);
-      grab.target.x = clamp(grab.target.x, -4.5, 4.5);
-      grab.target.z = clamp(grab.target.z, -4.5, 4.5);
-      grab.target.y = clamp(grab.target.y, 0.08, 5.5);
+      if (!movementConstraint) {
+        grab.target.x = clamp(grab.target.x, -4.5, 4.5);
+        grab.target.z = clamp(grab.target.z, -4.5, 4.5);
+        grab.target.y = clamp(grab.target.y, 0.08, 5.5);
+      }
+      grab.target.y = Math.max(0.08, grab.target.y);
       grab.drag = isDrag;
       if (isDrag) pressTarget = grab.hit.handle < 0 ? 0.16 : 0;
     },

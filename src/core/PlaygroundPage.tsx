@@ -60,11 +60,13 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
         <div className="live-label"><i className={ready ? 'online' : ''} />{ready ? 'LIVE · WEBGPU' : 'WEBGPU'}{ready && <span className="fps">{fps} FPS</span>}</div>
       </header>
       <section className="experience" aria-label="软软伙伴互动区">
-        <div className="intro"><span className="eyebrow">A SMALL MOMENT, JUST FOR YOU</span><h1>A little softer<span>.</span></h1><p>捏一捏，把今天放轻松。</p></div>
+        <div className="play-stage">
+        <div className="intro"><h1>A little softer<span>.</span></h1><p>捏一捏，把今天放轻松。</p></div>
         <div className="scene-host" ref={host} />
         {!ready && <div className="loading-card" role="status">{error ? <><strong>需要支持 WebGPU 的浏览器</strong><p>{error}</p><small>请在开启硬件加速的新版 Chrome、Edge 或 Safari 中打开。</small></> : <><span className="loading-dot" />正在揉好你的软软伙伴…</>}</div>}
         <div className="character-label"><span className="label-dot" /><div><strong>{selected.name}</strong><span>{selected.englishName}</span></div></div>
         <div className="mood" aria-live="polite"><span />{status}</div>
+        </div>
         <aside className="control-panel" aria-label="伙伴设置">
           <div className="panel-title"><span className="eyebrow">YOUR PAL, YOUR WAY</span><h2>Make it yours</h2></div>
           <div className="color-section"><div className="control-label"><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className="swatches">{palette.map(item => <button key={item.color} className={`swatch ${color === item.color ? 'selected' : ''}`} style={{ '--swatch': item.color } as React.CSSProperties} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>

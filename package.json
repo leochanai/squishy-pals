@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test:physics": "node --experimental-strip-types scripts/test-physics.ts && node --experimental-strip-types scripts/test-cephalopods.ts && node --experimental-strip-types scripts/test-physics.ts --mechanical",
+    "test:stage": "node --experimental-strip-types scripts/test-stage.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

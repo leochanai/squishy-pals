@@ -276,3 +276,35 @@ body:has(.catalogue-page){background:#f3f2f0}
  .playground-page[data-pal="cuttlemochi"] .scene-host{top:90px;height:440px}
  .playground-page[data-pal="cuttlemochi"] .character-label{top:188px}
 }
+
+/* Give the interaction the full left column; copy floats above the stage. */
+.playground-page .topbar{height:76px}
+.playground-page footer{height:44px}
+.playground-page .experience{display:grid;grid-template-columns:minmax(0,1fr) 280px;grid-template-rows:minmax(440px,1fr) auto auto;gap:12px 28px;height:calc(100svh - 120px);min-height:680px;max-height:none;max-width:none;padding:16px 0 20px;margin:0}
+.play-stage{position:relative;grid-column:1;grid-row:1;min-width:0;isolation:isolate}
+.playground-page .play-stage .scene-host{inset:0;width:100%;height:100%}
+.playground-page .play-stage .intro{top:20px;left:20px;width:auto;text-align:left}
+.playground-page .play-stage .intro h1{font-size:38px;letter-spacing:-1.5px;margin:0 0 9px}
+.playground-page .play-stage .intro p{font-size:14px;letter-spacing:.5px}
+.playground-page .play-stage .character-label{left:20px;right:auto;top:auto;bottom:22px;transform:none;text-align:left;z-index:2}
+.playground-page .play-stage .mood{left:auto;right:20px;top:auto;bottom:25px;transform:none;z-index:2}
+.playground-page .play-stage .loading-card{left:50%;top:50%;width:min(90%,390px)}
+.playground-page .experience .control-panel{position:relative;grid-column:2;grid-row:1/4;align-self:center;inset:auto;transform:none;width:100%;margin:0}
+.playground-page .experience .companions{position:relative;grid-column:1;grid-row:3;inset:auto;transform:none;min-width:0;max-width:100%;width:100%;margin:0}
+.playground-page .experience .gesture-hints{position:relative;grid-column:1;grid-row:2;inset:auto;transform:none;width:auto;justify-content:center;flex-wrap:wrap;gap:8px 22px}
+@media(min-width:1450px){.playground-page .experience{grid-template-columns:minmax(0,1fr) 300px;column-gap:36px}}
+@media(min-width:761px) and (max-width:1050px){.playground-page .experience{grid-template-columns:minmax(0,1fr) 245px;column-gap:16px}.playground-page .play-stage .intro h1{font-size:32px}.playground-page .play-stage .mood{bottom:8px;right:auto;left:20px}.playground-page .play-stage .character-label{bottom:36px}}
+@media(max-width:760px){
+ .playground-page{padding:0 18px}
+ .playground-page .topbar{height:68px}
+ .playground-page .experience{grid-template-columns:minmax(0,1fr);grid-template-rows:clamp(460px,68svh,650px) auto auto auto;height:auto;min-height:0;padding:8px 0 22px;gap:14px}
+ .playground-page .play-stage{margin-inline:-18px}
+ .playground-page .play-stage .intro{top:16px;left:22px}
+ .playground-page .play-stage .intro h1{font-size:30px;letter-spacing:-1px}
+ .playground-page .play-stage .intro p{font-size:13px}
+ .playground-page .play-stage .character-label{left:50%;bottom:38px;transform:translateX(-50%);text-align:center}
+ .playground-page .play-stage .mood{left:50%;right:auto;bottom:12px;transform:translateX(-50%)}
+ .playground-page .experience .gesture-hints{gap:8px 14px}
+ .playground-page .experience .control-panel{grid-column:1;grid-row:4}
+ .playground-page .experience .companions{grid-row:3}
+}

@@ -1,5 +1,5 @@
 import * as THREE from 'three/webgpu';
-import type { Character, CharacterParameters, GrabHit } from './types';
+import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
 const clamp = THREE.MathUtils.clamp;
 const FRONT = new THREE.Vector3(0, 0, 1);
@@ -11,6 +11,7 @@ export function createSquidMochi(): Character {
   const material = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.32, transmission: 0.08, thickness: 1, ior: 1.38 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#342426', roughness: 0.2, clearcoat: 0.6 });
   const blush = new THREE.MeshStandardNodeMaterial({ color: '#eb786e', roughness: 0.75 });
+  let movementConstraint: MovementConstraint | undefined;
   const body = new THREE.Vector3();
   const velocity = new THREE.Vector3();
   const pull = new THREE.Vector3(), pullVelocity = new THREE.Vector3();
@@ -173,7 +174,8 @@ export function createSquidMochi(): Character {
     if (grab?.drag) {
       goal.copy(grab.target).sub(grab.anchor);
       if (grab.hit.handle < 0) {
-        goal.x = clamp(goal.x, -2, 2); goal.y = clamp(goal.y, 0, 3); goal.z = clamp(goal.z, -2, 2);
+        if (movementConstraint) movementConstraint(goal);
+        else { goal.x = clamp(goal.x, -2, 2); goal.y = clamp(goal.y, 0, 3); goal.z = clamp(goal.z, -2, 2); }
         velocity.addScaledVector(delta.copy(goal).sub(body), dt * (18 + parameters.stiffness * 28)).multiplyScalar(Math.exp(-dt * (4 + parameters.damping * 5)));
         velocity.y -= 9.8 * dt;
       } else velocity.addScaledVector(delta.copy(goal).sub(body).clampLength(0, 1.6), dt * 9);
@@ -185,8 +187,11 @@ export function createSquidMochi(): Character {
     }
     body.addScaledVector(velocity, dt);
     if (body.y < 0) { const impact = -velocity.y; body.y = 0; velocity.y = impact > 0.6 ? impact * (0.24 - parameters.damping * 0.1) : 0; if (impact > 0.6) squashVelocity += impact; }
-    body.x = clamp(body.x, -2.3, 2.3); body.z = clamp(body.z, -2.3, 2.3);
-    if (body.y > 3) { body.y = 3; velocity.y = Math.min(0, velocity.y); }
+    if (movementConstraint) movementConstraint(body, velocity);
+    else {
+      body.x = clamp(body.x, -2.3, 2.3); body.z = clamp(body.z, -2.3, 2.3);
+      if (body.y > 3) { body.y = 3; velocity.y = Math.min(0, velocity.y); }
+    }
     fieldGoal.set(0, 0, 0);
     if (grab?.drag) fieldGoal.copy(grab.target).sub(grab.anchor).sub(body).multiplyScalar(grab.hit.handle < 0 ? 0.92 : 0.38).clampLength(0, 1.05);
     pullVelocity.addScaledVector(delta.copy(fieldGoal).sub(pull), dt * (45 + parameters.stiffness * 65));
@@ -218,6 +223,7 @@ export function createSquidMochi(): Character {
   reset();
   return {
     object,
+    setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {
       const hit = raycaster.intersectObjects(surfaces.map(surface => surface.mesh), false)[0];
       if (!hit) return null;
@@ -225,7 +231,7 @@ export function createSquidMochi(): Character {
       return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: handle < 0 ? 'mantle' : `${handle < 8 ? 'arm' : 'tentacle'}-${handle + 1}`, handle };
     },
     beginGrab(hit) { const local = object.worldToLocal(hit.point.clone()); grab = { hit, target: local.clone(), anchor: local.clone().sub(body), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
-    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); grab.target.clamp(new THREE.Vector3(-4, 0.05, -4), new THREE.Vector3(4, 5, 4)); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
+    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) grab.target.clamp(new THREE.Vector3(-4, 0.05, -4), new THREE.Vector3(4, 5, 4)); grab.target.y = Math.max(0.05, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05); const steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps, time); render(time); frames++; },
     poke() { grab = null; pressTarget = 0; pokeClock = 0; },

@@ -1,8 +1,9 @@
-import { ACESFilmicToneMapping, PerspectiveCamera, PMREMGenerator, Scene, SRGBColorSpace, Renderer, WebGPUBackend, StandardNodeLibrary } from 'three/webgpu';
+import { ACESFilmicToneMapping, Box3, PerspectiveCamera, PMREMGenerator, Scene, SRGBColorSpace, Renderer, WebGPUBackend, StandardNodeLibrary, Vector3 } from 'three/webgpu';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { CharacterDefinition, CharacterParameters } from '../characters/types';
 import { createLighting } from './lighting';
 import { bindInput } from './input';
+import { createMovementConstraint, frameCharacter } from './stage';
 
 export interface Playground {
   poke(): void;
@@ -36,6 +37,7 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
   environment.dispose(); pmrem.dispose();
   const character = definition.create();
   scene.add(character.object);
+  const restingBounds = new Box3().setFromObject(character.object, true);
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
   canvas.setAttribute('aria-label', `${definition.name}，按住按压，拖动拉伸，空格弹跳`);
@@ -45,12 +47,14 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
   const input = bindInput(canvas, camera, character, callbacks.onStatus);
   function resize() {
     const width = host.clientWidth, height = host.clientHeight;
+    if (!width || !height) return;
+    input.release();
     renderer.setSize(width, height, false);
-    camera.aspect = width / height;
-    camera.fov = 32;
-    camera.updateProjectionMatrix();
+    frameCharacter(camera, restingBounds, width, height);
+    character.setMovementConstraint(createMovementConstraint(camera, character.object, restingBounds, width, height));
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();
+  const shadowPosition = new Vector3();
   let previous = performance.now(), total = 0, frames = 0, elapsed = 0, disposed = false;
   renderer.setAnimationLoop(() => {
     if (disposed) return;
@@ -62,7 +66,9 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
     character.update(dt, elapsed);
     const diagnostics = character.diagnostics();
     const lift = Number(diagnostics.bodyHeight ?? 0);
-    lighting.shadow.position.set(Number(diagnostics.bodyX ?? 0), 0, Number(diagnostics.bodyZ ?? 0));
+    shadowPosition.set(Number(diagnostics.bodyX ?? 0), 0, Number(diagnostics.bodyZ ?? 0));
+    character.object.localToWorld(shadowPosition);
+    lighting.shadow.position.set(shadowPosition.x, 0, shadowPosition.z);
     lighting.shadow.scale.setScalar(1 + lift * .10);
     lighting.material.opacity = 1 / (1 + lift * .7);
     renderer.render(scene, camera);
