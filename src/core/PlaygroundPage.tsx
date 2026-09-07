@@ -19,7 +19,7 @@ export default function PlaygroundPage({ initialCharacterId }: { initialCharacte
   const game = useRef<Playground | null>(null);
   const characterId = initialCharacterId;
   const selected = characters.find(item => item.id === characterId)!;
-  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: selected.id === 'goldmochi' ? '金鱼橙' : '机械蓝', color: selected.color }, ...basePalette.slice(1)];
+  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', mechaocto: '机械蓝', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
   const [color, setColor] = useState(selected.defaults.color);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
   const [damping, setDamping] = useState(selected.defaults.damping * 100);

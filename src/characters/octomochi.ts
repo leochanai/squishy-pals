@@ -210,7 +210,7 @@ export function createOctoMochi(mechanical = false): Character {
   const eyeMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#241d28', roughness: 0.14, clearcoat: 1, clearcoatRoughness: 0.08 });
   const cheekMaterial = new THREE.MeshStandardNodeMaterial({ color: '#ec92b9', roughness: 0.8, transparent: true, opacity: 0.45, depthWrite: false });
   const suckerMaterial = new THREE.MeshPhysicalNodeMaterial({ color: '#d7a6cb', roughness: 0.52, clearcoat: 0.2 });
-  if (mechanical) { eyeMaterial.color.set('#7ff5ff'); eyeMaterial.emissive.set('#20bfdc'); eyeMaterial.emissiveIntensity = 1.8; cheekMaterial.color.set('#f7c96b'); cheekMaterial.opacity = 1; suckerMaterial.color.set('#425669'); suckerMaterial.metalness = 0.85; }
+  if (mechanical) { eyeMaterial.color.set('#111111'); cheekMaterial.color.set('#f7c96b'); cheekMaterial.opacity = 1; suckerMaterial.color.set('#425669'); suckerMaterial.metalness = 0.85; }
   const details: SurfaceDetail[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
   const suckerGeometry = new THREE.TorusGeometry(0.083, 0.032, 7, 14);
@@ -268,10 +268,7 @@ export function createOctoMochi(mechanical = false): Character {
     const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.035, 8, 64), trim);
     seam.geometry.rotateX(Math.PI / 2); seam.geometry.scale(1.47, 1, 1.27);
     addDetail(seam, new THREE.Vector3(0, 1.55, 0), new THREE.Vector3(0, 0, 1), 'cheek');
-    for (const side of [-1, 1]) {
-      const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 8), trim);
-      addDetail(bolt, headSurface(side * 0.93, 1.75, 0.06), new THREE.Vector3(side * 0.5, 0.1, 1).normalize(), 'cheek');
-    }
+
   }
 
   const body = new THREE.Vector3();
