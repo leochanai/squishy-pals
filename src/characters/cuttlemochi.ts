@@ -113,7 +113,7 @@ export function createCuttleMochi(): Character {
   const previousVelocity = new THREE.Vector3(), force = new THREE.Vector3(), softTarget = new THREE.Vector3();
   const tangentX = new THREE.Vector3(), tangentY = new THREE.Vector3(), faceNormal = new THREE.Vector3();
   const front = new THREE.Vector3(0, 0, 1);
-  let squash = 0, squashVelocity = 0, press = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
+  let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
   let grab: { handle: number; target: THREE.Vector3; offset: THREE.Vector3; drag: boolean } | null = null;
   function deform(x: number, y: number, z: number, out: THREE.Vector3, time: number, fin = false, handle = -1, along = 0) {
     out.set(x * (1 + squash * 0.35), 0.18 + (y - 0.18) * (1 - squash), z * (1 + squash * 0.22)).add(body);
@@ -149,45 +149,57 @@ export function createCuttleMochi(): Character {
     surprised.position.copy(mouth.position); surprised.quaternion.copy(mouth.quaternion); surprised.visible = Boolean(grab?.drag) || clock > 0.13 && clock < 0.5; mouth.visible = !surprised.visible;
   }
   function simulate(dt: number) {
+    // Stiffness controls compliance; damping is a ratio of critical damping.
+    const compliance = 1.6 - parameters.stiffness * 1.35;
+    const dampingRatio = 0.24 + parameters.damping * 0.76;
+    const bodySpring = 32 + parameters.stiffness * 64;
+    const shapeSpring = 50 + parameters.stiffness * 100;
+    const shapeDamping = 2 * Math.sqrt(shapeSpring) * dampingRatio;
+    const limbLimit = 0.95 - parameters.stiffness * 0.7;
     previousVelocity.copy(velocity);
     if (grab?.drag && grab.handle < 0) {
-      delta.copy(grab.target).sub(grab.offset).sub(body); velocity.addScaledVector(delta, dt * 38); velocity.y -= 11 * dt; velocity.multiplyScalar(Math.exp(-dt * 8));
+      delta.copy(grab.target).sub(grab.offset).sub(body); velocity.addScaledVector(delta, dt * bodySpring); velocity.y -= 11 * dt; velocity.multiplyScalar(Math.exp(-dt * 2 * Math.sqrt(bodySpring) * (0.72 + parameters.damping * 0.28)));
     } else {
-      velocity.y -= 13 * dt; velocity.x -= body.x * dt * 2; velocity.z -= body.z * dt * 2;
-      velocity.x *= Math.exp(-dt * 3); velocity.z *= Math.exp(-dt * 3);
+      velocity.y -= 13 * dt; velocity.x -= body.x * dt * 6; velocity.z -= body.z * dt * 6;
+      velocity.x *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio); velocity.z *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio);
     }
     body.addScaledVector(velocity, dt);
-    if (body.y < 0) { const impact = Math.max(0, -velocity.y); body.y = 0; velocity.y = impact > 0.6 ? impact * (0.25 - parameters.damping * 0.12) : 0; squashVelocity += impact > 0.6 ? impact * 0.8 : 0; }
+    if (body.y < 0) { const impact = Math.max(0, -velocity.y); body.y = 0; velocity.y = impact > 0.6 ? impact * (0.42 - parameters.damping * 0.36) : 0; squashVelocity += impact > 0.6 ? impact * 0.8 * compliance : 0; }
     if (movementConstraint) movementConstraint(body, velocity);
     else {
       for (const axis of ['x', 'z'] as const) if (Math.abs(body[axis]) > 2.6) { body[axis] = clamp(body[axis], -2.6, 2.6); velocity[axis] *= 0.1; }
       if (body.y > 3.5) { body.y = 3.5; velocity.y = Math.min(0, velocity.y); }
     }
-    const targetSquash = clock >= 0 && clock < 0.15 ? 0.27 : 0;
-    squashVelocity += ((targetSquash - squash) * (100 + parameters.stiffness * 100) - squashVelocity * (7 + parameters.damping * 10)) * dt;
-    squash = clamp(squash + squashVelocity * dt, -0.18, 0.42); press += (pressTarget - press) * Math.min(1, dt * 14);
+    const targetSquash = clock >= 0 && clock < 0.15 ? 0.27 * compliance : 0;
+    const squashSpring = 80 + parameters.stiffness * 160;
+    squashVelocity += ((targetSquash - squash) * squashSpring - squashVelocity * 2 * Math.sqrt(squashSpring) * dampingRatio) * dt;
+    squash = clamp(squash + squashVelocity * dt, -0.18, 0.42);
+    const pressSpring = 120 + parameters.stiffness * 120;
+    pressVelocity += ((pressTarget * compliance - press) * pressSpring - pressVelocity * 2 * Math.sqrt(pressSpring) * (grab ? Math.max(0.85, dampingRatio) : dampingRatio)) * dt;
+    press += pressVelocity * dt;
     for (let i = 0; i < limbs.length; i++) {
       const limb = limbs[i]; delta.copy(limb.shift).negate();
-      if (grab?.drag && grab.handle === i) { delta.copy(grab.target).sub(grab.offset).sub(body).sub(limb.tip).clampLength(0, 0.85).sub(limb.shift); velocity.addScaledVector(delta, dt * 8); }
-      limb.velocity.addScaledVector(delta, dt * (28 + parameters.stiffness * 65)); limb.velocity.multiplyScalar(Math.exp(-dt * (3 + parameters.damping * 10))); limb.shift.addScaledVector(limb.velocity, dt).clampLength(0, 0.85);
+      if (grab?.drag && grab.handle === i) { delta.copy(grab.target).sub(grab.offset).sub(body).sub(limb.tip).clampLength(0, limbLimit).sub(limb.shift); velocity.addScaledVector(delta, dt * 8); }
+      limb.velocity.addScaledVector(delta, dt * shapeSpring); limb.velocity.multiplyScalar(Math.exp(-dt * shapeDamping)); limb.shift.addScaledVector(limb.velocity, dt).clampLength(0, limbLimit);
     }
     if (clock >= 0) { const previous = clock; clock += dt; if (previous < 0.15 && clock >= 0.15) velocity.y = 3.5; if (clock > 1.3) clock = -1; }
     softTarget.set(0, 0, 0);
     if (grab?.drag) {
       softTarget.copy(grab.target).sub(grab.offset).sub(body);
       if (grab.handle >= 0) softTarget.sub(limbs[grab.handle].tip).multiplyScalar(0.55);
-      softTarget.multiplyScalar(1.5 - parameters.stiffness * 0.55).clampLength(0, 0.95);
+      softTarget.multiplyScalar(compliance * 1.6).clampLength(0, 1.05 - parameters.stiffness * 0.75);
     }
-    const spring = 38 + parameters.stiffness * 55, drag = 4 + parameters.damping * 7;
+    const spring = shapeSpring, drag = shapeDamping;
     force.copy(softTarget).sub(stretch).multiplyScalar(spring).addScaledVector(stretchVelocity, -drag);
-    stretchVelocity.addScaledVector(force, dt); stretch.addScaledVector(stretchVelocity, dt).clampLength(0, 1.05);
+    stretchVelocity.addScaledVector(force, dt); stretch.addScaledVector(stretchVelocity, dt).clampLength(0, 1.15 - parameters.stiffness * 0.8);
     // Acceleration excites a separate, slower mantle mode. It survives release,
     // so throw/landing energy visibly travels through the animal before settling.
-    softTarget.copy(previousVelocity).sub(velocity).multiplyScalar(0.014 / Math.max(dt, 0.0001)).clampLength(0, 0.45);
-    force.copy(softTarget).sub(wobble).multiplyScalar(24 + parameters.stiffness * 30).addScaledVector(wobbleVelocity, -(3 + parameters.damping * 6));
+    softTarget.copy(previousVelocity).sub(velocity).multiplyScalar(0.014 * compliance / Math.max(dt, 0.0001)).clampLength(0, 0.45);
+    const wobbleSpring = 24 + parameters.stiffness * 30;
+    force.copy(softTarget).sub(wobble).multiplyScalar(wobbleSpring).addScaledVector(wobbleVelocity, -2 * Math.sqrt(wobbleSpring) * dampingRatio);
     wobbleVelocity.addScaledVector(force, dt); wobble.addScaledVector(wobbleVelocity, dt).clampLength(0, 0.5);
   }
-  function reset() { stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); }
+  function reset() { stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressVelocity = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); }
   reset();
   return {
     object,

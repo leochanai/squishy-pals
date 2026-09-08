@@ -1,4 +1,4 @@
-import { Box3, Matrix3, PerspectiveCamera, Plane, Vector3, type Group } from 'three/webgpu';
+import { Box3, Matrix3, Matrix4, PerspectiveCamera, Plane, Vector3, type Group } from 'three/webgpu';
 import type { MovementConstraint } from '../characters/types';
 
 function corners(bounds: Box3) {
@@ -40,7 +40,7 @@ export function softenPointer(value: number) {
 /** Keep the resting envelope plus a deformation margin inside the camera's side planes.
  * Half-spaces also handle rotated animals, unlike an axis-aligned local movement box.
  */
-export function createMovementConstraint(camera: PerspectiveCamera, object: Group, bounds: Box3, width: number, height: number): MovementConstraint {
+export function createMovementConstraint(camera: PerspectiveCamera, object: Group, bounds: Box3, width: number, height: number, restTransform = object.matrixWorld.clone()): MovementConstraint {
   const forward = camera.getWorldDirection(new Vector3());
   const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
   const up = new Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
@@ -52,19 +52,31 @@ export function createMovementConstraint(camera: PerspectiveCamera, object: Grou
     right.clone().addScaledVector(forward, horizontal), right.clone().negate().addScaledVector(forward, horizontal),
     up.clone().negate().addScaledVector(forward, top), up.clone().addScaledVector(forward, bottom),
   ];
-  const points = corners(bounds);
-  const toLocalNormal = new Matrix3().setFromMatrix4(object.matrixWorld).transpose();
-  const planes = normals.map(normal => {
-    normal.normalize();
-    const constant = Math.min(...points.map(point => normal.dot(point.clone().sub(camera.position)))) - .3;
-    const localNormal = normal.applyMatrix3(toLocalNormal);
-    const length = localNormal.length();
-    return new Plane(localNormal.divideScalar(length), constant / length);
-  });
+  normals.forEach(normal => normal.normalize());
+  const inverseRest = restTransform.clone().invert();
+  const points = corners(bounds).map(point => point.applyMatrix4(inverseRest));
+  const toLocalNormal = new Matrix3(), worldPoint = new Vector3();
+  const planes = normals.map(() => new Plane());
+  let previousTransform: Matrix4 | undefined;
   // Floor handling (impact and squash) stays inside each character's solver.
   const floor = new Plane(new Vector3(0, 1, 0), 0);
   planes.push(floor);
   return (position, velocity) => {
+    // The rest envelope turns with the pal. Retain its original bind transform
+    // across resize, and refresh camera constraints whenever the heading changes.
+    if (!previousTransform?.equals(object.matrixWorld)) {
+      previousTransform ??= new Matrix4();
+      previousTransform.copy(object.matrixWorld);
+      toLocalNormal.setFromMatrix4(object.matrixWorld).transpose();
+      for (let i = 0; i < normals.length; i++) {
+        let constant = Infinity;
+        for (const point of points) constant = Math.min(constant, normals[i].dot(worldPoint.copy(point).applyMatrix4(object.matrixWorld).sub(camera.position)));
+        const normal = planes[i].normal.copy(normals[i]).applyMatrix3(toLocalNormal);
+        const length = normal.length();
+        normal.divideScalar(length);
+        planes[i].constant = (constant - .3) / length;
+      }
+    }
     for (let pass = 0; pass < 8; pass++) {
       let corrected = false;
       for (const plane of planes) {

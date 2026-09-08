@@ -24,7 +24,7 @@ export function createSquidMochi(): Character {
   const surfaces: { mesh: THREE.Mesh; rest: Float32Array; weights: Float32Array; handle: number }[] = [];
   const details: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean }[] = [];
   let grab: { hit: GrabHit; target: THREE.Vector3; anchor: THREE.Vector3; drag: boolean } | null = null;
-  let squash = 0, squashVelocity = 0, press = 0, pressTarget = 0, pokeClock = -1, frames = 0, lastTime = 0;
+  let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, pokeClock = -1, frames = 0, lastTime = 0;
   const pressPoint = new THREE.Vector3(), pressNormal = new THREE.Vector3();
   const point = new THREE.Vector3(), goal = new THREE.Vector3(), delta = new THREE.Vector3();
 
@@ -171,52 +171,63 @@ export function createSquidMochi(): Character {
     }
   }
   function simulate(dt: number, time: number) {
+    // Stiffness controls compliance; damping is a ratio of critical damping.
+    const compliance = 1.6 - parameters.stiffness * 1.35;
+    const dampingRatio = 0.24 + parameters.damping * 0.76;
+    const bodySpring = 32 + parameters.stiffness * 64;
+    const shapeSpring = 50 + parameters.stiffness * 100;
+    const shapeDamping = 2 * Math.sqrt(shapeSpring) * dampingRatio;
+    const limbLimit = 1.1 - parameters.stiffness * 0.8;
     if (grab?.drag) {
       goal.copy(grab.target).sub(grab.anchor);
       if (grab.hit.handle < 0) {
         if (movementConstraint) movementConstraint(goal);
         else { goal.x = clamp(goal.x, -2, 2); goal.y = clamp(goal.y, 0, 3); goal.z = clamp(goal.z, -2, 2); }
-        velocity.addScaledVector(delta.copy(goal).sub(body), dt * (18 + parameters.stiffness * 28)).multiplyScalar(Math.exp(-dt * (4 + parameters.damping * 5)));
+        velocity.addScaledVector(delta.copy(goal).sub(body), dt * bodySpring).multiplyScalar(Math.exp(-dt * 2 * Math.sqrt(bodySpring) * (0.72 + parameters.damping * 0.28)));
         velocity.y -= 9.8 * dt;
       } else velocity.addScaledVector(delta.copy(goal).sub(body).clampLength(0, 1.6), dt * 9);
     }
     if (!grab?.drag || grab.hit.handle >= 0) {
       velocity.y -= dt * 13;
-      velocity.x -= body.x * dt * 3; velocity.z -= body.z * dt * 3;
-      velocity.x *= Math.exp(-dt * 3); velocity.z *= Math.exp(-dt * 3);
+      velocity.x -= body.x * dt * 6; velocity.z -= body.z * dt * 6;
+      velocity.x *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio); velocity.z *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio);
     }
     body.addScaledVector(velocity, dt);
-    if (body.y < 0) { const impact = -velocity.y; body.y = 0; velocity.y = impact > 0.6 ? impact * (0.24 - parameters.damping * 0.1) : 0; if (impact > 0.6) squashVelocity += impact; }
+    if (body.y < 0) { const impact = -velocity.y; body.y = 0; velocity.y = impact > 0.6 ? impact * (0.42 - parameters.damping * 0.36) : 0; if (impact > 0.6) squashVelocity += impact * compliance; }
     if (movementConstraint) movementConstraint(body, velocity);
     else {
       body.x = clamp(body.x, -2.3, 2.3); body.z = clamp(body.z, -2.3, 2.3);
       if (body.y > 3) { body.y = 3; velocity.y = Math.min(0, velocity.y); }
     }
     fieldGoal.set(0, 0, 0);
-    if (grab?.drag) fieldGoal.copy(grab.target).sub(grab.anchor).sub(body).multiplyScalar(grab.hit.handle < 0 ? 0.92 : 0.38).clampLength(0, 1.05);
-    pullVelocity.addScaledVector(delta.copy(fieldGoal).sub(pull), dt * (45 + parameters.stiffness * 65));
-    pullVelocity.multiplyScalar(Math.exp(-dt * (3.2 + parameters.damping * 7)));
-    pull.addScaledVector(pullVelocity, dt).clampLength(0, 1.15);
-    fieldGoal.copy(velocity).multiplyScalar(-0.13).clampLength(0, 0.58);
-    swayVelocity.addScaledVector(delta.copy(fieldGoal).sub(sway), dt * (16 + parameters.stiffness * 30));
-    swayVelocity.multiplyScalar(Math.exp(-dt * (2.5 + parameters.damping * 6)));
+    if (grab?.drag) fieldGoal.copy(grab.target).sub(grab.anchor).sub(body).multiplyScalar(compliance * (grab.hit.handle < 0 ? 1.6 : 0.7)).clampLength(0, 1.05 - parameters.stiffness * 0.75);
+    pullVelocity.addScaledVector(delta.copy(fieldGoal).sub(pull), dt * shapeSpring);
+    pullVelocity.multiplyScalar(Math.exp(-dt * shapeDamping));
+    pull.addScaledVector(pullVelocity, dt).clampLength(0, 1.15 - parameters.stiffness * 0.8);
+    fieldGoal.copy(velocity).multiplyScalar(-0.13 * compliance).clampLength(0, 0.58);
+    const swaySpring = 16 + parameters.stiffness * 30;
+    swayVelocity.addScaledVector(delta.copy(fieldGoal).sub(sway), dt * swaySpring);
+    swayVelocity.multiplyScalar(Math.exp(-dt * 2 * Math.sqrt(swaySpring) * dampingRatio));
     sway.addScaledVector(swayVelocity, dt).clampLength(0, 0.65);
     deformationAmplitude = pull.length() + sway.length();
-    squashVelocity += ((pokeClock >= 0 && pokeClock < 0.15 ? 0.27 : 0) - squash) * 150 * dt - squashVelocity * (8 + parameters.damping * 8) * dt;
+    const squashSpring = 80 + parameters.stiffness * 160;
+    squashVelocity += (((pokeClock >= 0 && pokeClock < 0.15 ? 0.27 * compliance : 0) - squash) * squashSpring - squashVelocity * 2 * Math.sqrt(squashSpring) * dampingRatio) * dt;
     squash = clamp(squash + squashVelocity * dt, -0.18, 0.4);
-    press += (pressTarget - press) * Math.min(1, dt * 16);
+    const pressSpring = 120 + parameters.stiffness * 120;
+    pressVelocity += ((pressTarget * compliance - press) * pressSpring - pressVelocity * 2 * Math.sqrt(pressSpring) * (grab ? Math.max(0.85, dampingRatio) : dampingRatio)) * dt;
+    press += pressVelocity * dt;
     for (let i = 0; i < limbs.length; i++) {
       const limb = limbs[i];
       goal.set(Math.sin(time * 1.5 + i) * 0.025, Math.sin(time * 1.9 + i * 0.6) * 0.028 + Math.max(0, -velocity.y) * 0.03, 0);
-      if (grab?.drag && grab.hit.handle === i) goal.copy(grab.target).sub(grab.anchor).sub(body).clampLength(0, 1.1);
-      limb.velocity.addScaledVector(delta.copy(goal).sub(limb.offset), dt * (28 + parameters.stiffness * 70));
-      limb.velocity.multiplyScalar(Math.exp(-dt * (3 + parameters.damping * 11)));
-      limb.offset.addScaledVector(limb.velocity, dt).clampLength(0, 1.15);
+      if (grab?.drag && grab.hit.handle === i) goal.copy(grab.target).sub(grab.anchor).sub(body).clampLength(0, limbLimit);
+      limb.velocity.addScaledVector(delta.copy(goal).sub(limb.offset), dt * shapeSpring);
+      limb.velocity.multiplyScalar(Math.exp(-dt * shapeDamping));
+      limb.offset.addScaledVector(limb.velocity, dt).clampLength(0, 1.15 - parameters.stiffness * 0.8);
     }
     if (pokeClock >= 0) { const previous = pokeClock; pokeClock += dt; if (previous < 0.15 && pokeClock >= 0.15) velocity.y = 3.6; if (pokeClock > 1.2) pokeClock = -1; }
   }
   function reset() {
-    body.set(0, 0, 0); velocity.set(0, 0, 0); squash = 0; squashVelocity = 0; press = 0; pressTarget = 0; grab = null; pokeClock = -1;
+    body.set(0, 0, 0); velocity.set(0, 0, 0); squash = 0; squashVelocity = 0; press = 0; pressVelocity = 0; pressTarget = 0; grab = null; pokeClock = -1;
     pull.set(0, 0, 0); pullVelocity.set(0, 0, 0); sway.set(0, 0, 0); swayVelocity.set(0, 0, 0); deformationAmplitude = 0;
     limbs.forEach(limb => { limb.offset.set(0, 0, 0); limb.velocity.set(0, 0, 0); }); render(lastTime);
   }

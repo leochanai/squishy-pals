@@ -62,7 +62,7 @@ for (let arm = 0; arm < 8; arm++) {
 // Both parameter extremes, all eight independently addressable arm tips.
 for (let arm = 0; arm < 8; arm++) {
   character.reset();
-  character.setParameters({ stiffness: arm % 2, damping: (arm + 1) % 2 });
+  character.setParameters({ stiffness: Math.floor(arm / 2) % 2, damping: arm % 2 });
   const angle = arm * Math.PI / 4 + Math.PI / 8 + 0.3;
   character.beginGrab({
     point: new Vector3(Math.sin(angle) * 2.42, 0.75, Math.cos(angle) * 2.42),

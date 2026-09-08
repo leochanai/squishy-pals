@@ -38,6 +38,7 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
   const character = definition.create();
   scene.add(character.object);
   const restingBounds = new Box3().setFromObject(character.object, true);
+  const restingTransform = character.object.matrixWorld.clone();
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
   canvas.setAttribute('aria-label', `${definition.name}，按住按压，拖动拉伸，空格弹跳`);
@@ -51,7 +52,7 @@ export async function createPlayground(host: HTMLElement, definition: CharacterD
     input.release();
     renderer.setSize(width, height, false);
     frameCharacter(camera, restingBounds, width, height);
-    character.setMovementConstraint(createMovementConstraint(camera, character.object, restingBounds, width, height));
+    character.setMovementConstraint(createMovementConstraint(camera, character.object, restingBounds, width, height, restingTransform));
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();
   const shadowPosition = new Vector3();

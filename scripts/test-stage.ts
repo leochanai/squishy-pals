@@ -22,6 +22,8 @@ for (const [file, factory, mechanical] of [
   camera.position.set(0, 3.8, 10.8); camera.lookAt(0, 1.3, 0);
   const worldCorners: Vector3[] = [];
   for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) for (const z of [bounds.min.z, bounds.max.z]) worldCorners.push(new Vector3(x, y, z));
+  const restTransform = character.object.matrixWorld.clone();
+  const localCorners = worldCorners.map(point => point.clone().applyMatrix4(restTransform.clone().invert()));
   let frame = 0, wideTravel = 0, narrowTravel = 0;
   const localBody = new Vector3(), worldOffset = new Vector3(), origin = character.object.getWorldPosition(new Vector3());
   const check = (width: number, height: number) => {
@@ -30,8 +32,8 @@ for (const [file, factory, mechanical] of [
     assert.ok(Number(state.bodyHeight) >= 0);
     localBody.set(Number(state.bodyX), Number(state.bodyHeight), Number(state.bodyZ));
     worldOffset.copy(localBody).applyMatrix4(character.object.matrixWorld).sub(origin);
-    for (const corner of worldCorners) {
-      const point = corner.clone().add(worldOffset).project(camera);
+    for (const corner of localCorners) {
+      const point = corner.clone().add(localBody).applyMatrix4(character.object.matrixWorld).project(camera);
       assert.ok(Math.abs(point.x) <= 1 - 24 / width + .001, `${file}: whole resting silhouette must stay horizontally visible (${point.x})`);
       assert.ok(point.y <= 1 - 32 / height + .001 && point.y >= -1 + 136 / height - .001, `${file}: silhouette must stay above the label and below the top (${point.y})`);
     }
@@ -40,7 +42,7 @@ for (const [file, factory, mechanical] of [
   for (const [width, height] of [[1280, 660], [390, 540], [600, 440]]) {
     character.reset();
     frameCharacter(camera, bounds, width, height);
-    character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height));
+    character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height, restTransform));
     const projected = worldCorners.map(point => point.clone().project(camera));
     const projectedHeight = (Math.max(...projected.map(p => p.y)) - Math.min(...projected.map(p => p.y))) * height / 2;
     assert.ok(projectedHeight <= Math.min(height * .5, 340) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
@@ -54,7 +56,11 @@ for (const [file, factory, mechanical] of [
       const target = ray.ray.intersectPlane(plane, new Vector3())!;
       target.y = Math.max(.08, target.y);
       character.moveGrab(target, true);
-      for (let i = 0; i < 120; i++) { character.update(1 / 60, frame++ / 60); check(width, height); }
+      for (let i = 0; i < 120; i++) {
+        character.update(1 / 60, frame++ / 60); check(width, height);
+        // Rebuilding after a turn must still use the original resting pose.
+        if (i === 60) character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height, restTransform));
+      }
       if (x === .9) {
         if (width === 1280) wideTravel = check(width, height);
         if (width === 390) narrowTravel = check(width, height);

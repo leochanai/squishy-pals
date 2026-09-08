@@ -305,7 +305,8 @@ export function createOctoMochi(mechanical = false): Character {
   let movementConstraint: MovementConstraint | undefined;
   const body = new THREE.Vector3();
   const velocity = new THREE.Vector3();
-  let squash = 0, squashVelocity = 0, press = 0, pressTarget = 0;
+  const pull = new THREE.Vector3(), pullVelocity = new THREE.Vector3();
+  let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0;
   let grab: { hit: GrabHit; target: THREE.Vector3; offset: THREE.Vector3; drag: boolean } | null = null;
   let pokeClock = -1, recovery = 1, frame = 0, lastTime = 0;
   const pressPoint = new THREE.Vector3();
@@ -339,7 +340,8 @@ export function createOctoMochi(mechanical = false): Character {
       p.y + (dy * (1 - head) + (body.y - (p.y - 0.36) * squash) * head),
       p.z + (dz * (1 - head) + (body.z + p.z * (radial - 1)) * head),
     );
-    if (press > 0.001) {
+    out.addScaledVector(pull, Math.exp(-p.distanceToSquared(pressPoint) / 1.65) * head);
+    if (Math.abs(press) > 0.001) {
       const distance = p.distanceToSquared(pressPoint);
       const dent = press * Math.exp(-distance / 0.4) * head;
       out.addScaledVector(pressNormal, -dent);
@@ -349,27 +351,34 @@ export function createOctoMochi(mechanical = false): Character {
   }
 
   function simulate(dt: number, time: number) {
+    // Stiffness controls compliance; damping is a ratio of critical damping.
+    const compliance = 1.6 - parameters.stiffness * 1.35;
+    const dampingRatio = 0.24 + parameters.damping * 0.76;
+    const bodySpring = 32 + parameters.stiffness * 64;
+    const shapeSpring = 50 + parameters.stiffness * 100;
+    const shapeDamping = 2 * Math.sqrt(shapeSpring) * dampingRatio;
     const stiffness = 26 + parameters.stiffness * 64;
-    const damping = 2.8 + parameters.damping * 10;
+    const stretchLimit = 1.38 - parameters.stiffness * 0.3;
     if (grab?.drag && grab.hit.handle < 0) {
       goal.copy(grab.target).sub(grab.offset);
       if (movementConstraint) movementConstraint(goal);
       else { goal.x = clamp(goal.x, -2.6, 2.6); goal.z = clamp(goal.z, -2.6, 2.6); goal.y = clamp(goal.y, 0, 3.5); }
-      velocity.addScaledVector(delta.copy(goal).sub(body), dt * 100);
-      velocity.multiplyScalar(Math.exp(-dt * 12));
+      velocity.addScaledVector(delta.copy(goal).sub(body), dt * bodySpring);
+      velocity.y -= 11 * dt;
+      velocity.multiplyScalar(Math.exp(-dt * 2 * Math.sqrt(bodySpring) * (0.72 + parameters.damping * 0.28)));
     } else {
       velocity.y -= 13 * dt;
-      velocity.x *= Math.exp(-dt * (body.y < 0.05 ? 5 : 0.6));
-      velocity.z *= Math.exp(-dt * (body.y < 0.05 ? 5 : 0.6));
+      velocity.x *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio);
+      velocity.z *= Math.exp(-dt * 2 * Math.sqrt(6) * dampingRatio);
       // Settle near the center, without snapping out of a throw.
-      velocity.x -= body.x * dt * 2;
-      velocity.z -= body.z * dt * 2;
+      velocity.x -= body.x * dt * 6;
+      velocity.z -= body.z * dt * 6;
     }
     body.addScaledVector(velocity, dt);
     if (body.y < 0) {
       const impact = Math.max(0, -velocity.y);
       body.y = 0;
-      if (impact > 0.6) { velocity.y = impact * (0.24 - parameters.damping * 0.1); squashVelocity += impact * 1.1; }
+      if (impact > 0.6) { velocity.y = impact * (0.42 - parameters.damping * 0.36); squashVelocity += impact * 1.1 * compliance; }
       else velocity.y = 0;
     }
     if (movementConstraint) movementConstraint(body, velocity);
@@ -386,11 +395,18 @@ export function createOctoMochi(mechanical = false): Character {
       delta.clampLength(0, 2.5);
       velocity.addScaledVector(delta, dt * 11);
     }
-    const desiredSquash = pokeClock >= 0 && pokeClock < 0.16 ? 0.28 : 0;
-    squashVelocity += ((desiredSquash - squash) * 160 - squashVelocity * (8 + parameters.damping * 8)) * dt;
+    goal.set(0, 0, 0);
+    if (grab?.drag && grab.hit.handle < 0) goal.copy(grab.target).sub(grab.offset).sub(body).multiplyScalar(compliance * 1.6).clampLength(0, 0.9 - parameters.stiffness * 0.65);
+    pullVelocity.addScaledVector(delta.copy(goal).sub(pull).multiplyScalar(shapeSpring).addScaledVector(pullVelocity, -shapeDamping), dt);
+    pull.addScaledVector(pullVelocity, dt).clampLength(0, 1 - parameters.stiffness * 0.7);
+    const desiredSquash = pokeClock >= 0 && pokeClock < 0.16 ? 0.28 * compliance : 0;
+    const squashSpring = 80 + parameters.stiffness * 160;
+    squashVelocity += ((desiredSquash - squash) * squashSpring - squashVelocity * 2 * Math.sqrt(squashSpring) * dampingRatio) * dt;
     squash += squashVelocity * dt;
     squash = clamp(squash, -0.2, 0.42);
-    press += (pressTarget - press) * Math.min(1, dt * 14);
+    const pressSpring = 120 + parameters.stiffness * 120;
+    pressVelocity += ((pressTarget * compliance - press) * pressSpring - pressVelocity * 2 * Math.sqrt(pressSpring) * (grab ? Math.max(0.85, dampingRatio) : dampingRatio)) * dt;
+    press += pressVelocity * dt;
     for (let a = 0; a < ARM_COUNT; a++) {
       const arm = arms[a];
       for (let j = 0; j < JOINTS; j++) {
@@ -406,7 +422,9 @@ export function createOctoMochi(mechanical = false): Character {
         const follow = stiffness * (0.95 - 0.62 * t) * (0.8 + Math.min(recovery, 1) * 0.2);
         joint.velocity.addScaledVector(delta.copy(goal).sub(joint.position), follow * dt);
         joint.velocity.y -= (body.y > 0.05 ? 8 * t : 0) * dt;
-        joint.velocity.multiplyScalar(Math.exp(-damping * dt));
+        // Damp the arm's motion relative to the moving body, using this joint's
+        // own spring so high damping does not make the tips lag behind it.
+        joint.velocity.addScaledVector(delta.copy(velocity).sub(joint.velocity), 2 * Math.sqrt(follow) * dampingRatio * dt);
         joint.position.addScaledVector(joint.velocity, dt);
       }
       for (let iteration = 0; iteration < 5; iteration++) {
@@ -415,7 +433,7 @@ export function createOctoMochi(mechanical = false): Character {
           delta.copy(current.position).sub(prev.position);
           const length = delta.length();
           const restLength = current.rest.distanceTo(prev.rest);
-          const maxLength = restLength * 1.38;
+          const maxLength = restLength * stretchLimit;
           if (length > maxLength) {
             delta.multiplyScalar((length - maxLength) / length);
             current.position.addScaledVector(delta, -0.64);
@@ -426,12 +444,13 @@ export function createOctoMochi(mechanical = false): Character {
         if (grab?.drag && grab.hit.handle >= 0 && Math.floor(grab.hit.handle / JOINTS) === a) {
           const j = grab.hit.handle % JOINTS;
           goal.copy(grab.target).sub(grab.offset);
+          goal.lerp(delta.copy(arm[j].rest).add(body), parameters.stiffness * 0.65);
           delta.copy(goal).sub(arm[0].position);
-          const reach = arms[a][j].rest.distanceTo(arm[0].rest) * 1.38;
+          const reach = arms[a][j].rest.distanceTo(arm[0].rest) * stretchLimit;
           if (delta.length() > reach) goal.copy(arm[0].position).add(delta.setLength(reach));
           goal.y = Math.max(arm[j].radius, goal.y);
           arm[j].position.lerp(goal, 0.56);
-          arm[j].velocity.multiplyScalar(0.5);
+          arm[j].velocity.lerp(velocity, 0.5);
         }
       }
       // Final forward projection guarantees the per-segment stretch bound even
@@ -439,7 +458,7 @@ export function createOctoMochi(mechanical = false): Character {
       for (let j = 1; j < JOINTS; j++) {
         const prev = arm[j - 1], current = arm[j];
         delta.copy(current.position).sub(prev.position);
-        const maxLength = current.rest.distanceTo(prev.rest) * 1.38;
+        const maxLength = current.rest.distanceTo(prev.rest) * stretchLimit;
         if (delta.length() > maxLength) current.position.copy(prev.position).add(delta.setLength(maxLength));
         current.position.y = Math.max(current.radius * 0.88 + 0.025, current.position.y);
       }
@@ -505,7 +524,8 @@ export function createOctoMochi(mechanical = false): Character {
 
   function reset() {
     body.set(0, 0, 0); velocity.set(0, 0, 0); squash = 0; squashVelocity = 0;
-    press = 0; pressTarget = 0; grab = null; pokeClock = -1; recovery = 1; surprise = 0;
+    pull.set(0, 0, 0); pullVelocity.set(0, 0, 0);
+    press = 0; pressVelocity = 0; pressTarget = 0; grab = null; pokeClock = -1; recovery = 1; surprise = 0;
     for (const arm of arms) for (const joint of arm) { joint.position.copy(joint.rest); joint.velocity.set(0, 0, 0); }
     updateGeometry(lastTime);
   }
@@ -583,7 +603,7 @@ export function createOctoMochi(mechanical = false): Character {
         maxStretch = Math.max(maxStretch, arm[j].position.distanceTo(arm[j - 1].position) / arm[j].rest.distanceTo(arm[j - 1].rest));
         minHeight = Math.min(minHeight, arm[j].position.y - arm[j].radius * 0.88);
       }
-      return { armCount: ARM_COUNT, mechanical, armorSegments: armor.length, vertices: positions.count, triangles: geometry.index!.count / 3, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, maxStretch, minHeight, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + maxStretch), frames: frame };
+      return { armCount: ARM_COUNT, mechanical, armorSegments: armor.length, vertices: positions.count, triangles: geometry.index!.count / 3, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, maxStretch, minHeight, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + maxStretch + pull.lengthSq() + press + squash), frames: frame };
     },
     dispose() {
       const geometries = new Set<THREE.BufferGeometry>();

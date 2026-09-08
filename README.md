@@ -44,6 +44,8 @@ npm run dev
 npm run typecheck
 npm run test:physics
 npm run test:stage
+npm run test:parameters
+npm run test:heading
 npm run build
 ```
 
