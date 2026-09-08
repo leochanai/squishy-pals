@@ -203,6 +203,7 @@ export function createCuttleMochi(): Character {
   reset();
   return {
     object,
+    deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? part.fin ? 'fin' : 'mantle' : `${part.handle < 8 ? 'arm' : 'tentacle'}-${part.handle + 1}`, handle: part.handle }; },
     beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); grab = { handle: hit.handle, target: local.clone(), offset: local.clone().sub(anchor), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },

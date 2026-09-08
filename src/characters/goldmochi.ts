@@ -225,6 +225,7 @@ export function createGoldMochi(): Character {
   reset();
   return {
     object,
+    deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? 'body' : `fin-${part.handle + 1}`, handle: part.handle }; },
     beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); pressPoint.copy(local).sub(body); targetHeading = object.rotation.y; grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.handle < 0 && pressPoint.z > 0.65, turnX: hit.point.x }; pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },

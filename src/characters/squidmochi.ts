@@ -234,6 +234,7 @@ export function createSquidMochi(): Character {
   reset();
   return {
     object,
+    deformAccessory(point, out) { deform(out.copy(point), -1, 0); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {
       const hit = raycaster.intersectObjects(surfaces.map(surface => surface.mesh), false)[0];

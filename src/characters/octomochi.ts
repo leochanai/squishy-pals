@@ -532,6 +532,7 @@ export function createOctoMochi(mechanical = false): Character {
   reset();
   return {
     object,
+    deformAccessory(point, out) { deform(point, 0, 0, 0, 1, out); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {
       if (mechanical) {

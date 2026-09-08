@@ -5,10 +5,13 @@ import { createLighting, createStudioEnvironment } from './lighting';
 import { bindInput } from './input';
 import { createMovementConstraint, frameCharacter } from './stage';
 import { createCharacterCache } from './character-cache';
+import { createAccessories } from './accessories';
+import type { AccessoryId } from './accessory-options';
 
 export interface Playground {
   switchCharacter(source: RegisteredCharacter): Promise<boolean>;
   preloadCharacter(source: RegisteredCharacter): Promise<void>;
+  setAccessories(accessories: AccessoryId[]): void;
   poke(): void;
   reset(): void;
   setParameters(parameters: Partial<CharacterParameters>): void;
@@ -39,6 +42,8 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   environment.dispose(); pmrem.dispose();
   const cache = createCharacterCache(character => renderer.compileAsync(character.object, camera, scene));
   let current: Awaited<ReturnType<typeof cache.prepare>> | null = null;
+  let accessories: ReturnType<typeof createAccessories> | null = null;
+  let selectedAccessories: AccessoryId[] = [];
   let input: ReturnType<typeof bindInput> | null = null;
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
@@ -68,6 +73,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     elapsed += dt;
     const character = current.character;
     character.update(dt, elapsed);
+    accessories?.update();
     const diagnostics = character.diagnostics();
     const lift = Number(diagnostics.bodyHeight ?? 0);
     shadowPosition.set(Number(diagnostics.bodyX ?? 0), 0, Number(diagnostics.bodyZ ?? 0));
@@ -90,10 +96,13 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
       callbacks.onStatus(`正在准备${source.name}…`);
       try {
         return await cache.select(source, entry => {
+          accessories?.dispose();
           if (current) scene.remove(current.character.object);
           entry.character.reset();
           entry.character.setParameters(source.defaults);
           current = entry;
+          accessories = createAccessories(entry.character, source.id);
+          accessories.set(selectedAccessories);
           scene.add(entry.character.object);
           camera.position.set(...(source.camera?.position ?? [0, 5.7, 10.1]));
           camera.lookAt(...(source.camera?.target ?? [0, 1.35, 0]));
@@ -112,12 +121,13 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
       }
     },
     async preloadCharacter(source) { await cache.prepare(source); },
+    setAccessories(selected) { selectedAccessories = [...selected]; accessories?.set(selected); canvas.dataset.accessories = selected.join(','); },
     setParameters(parameters) { current?.character.setParameters(parameters); },
     poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
-    reset() { input?.release(); current?.character.reset(); callbacks.onStatus('又是一只蓬松小团子'); },
+    reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },
     dispose() {
       if (disposed) return; disposed = true;
-      void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); canvas.remove();
+      void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); accessories?.dispose(); canvas.remove();
       // Pending shader compilation still needs the renderer; release it last.
       void cache.dispose().then(() => { scene.clear(); lighting.dispose(); envMap.dispose(); renderer.dispose(); });
     },

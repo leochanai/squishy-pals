@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Hand, RotateCcw, Check, ArrowUpRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
+import { accessoryOptions, toggleAccessory, type AccessoryId } from '@/src/core/accessory-options';
 import type { Playground } from '@/src/core/playground';
 import { characters, type RegisteredCharacter } from '@/src/characters/registry';
 
@@ -31,6 +32,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const [engineReady, setEngineReady] = useState(false);
   const [hasScene, setHasScene] = useState(false);
   const [retry, setRetry] = useState(0);
+  const [accessories, setAccessories] = useState<AccessoryId[]>([]);
   useLayoutEffect(() => {
     const button = activeCompanion.current;
     const list = button?.parentElement;
@@ -72,12 +74,13 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     return () => { cancelled = true; };
   }, [selected, engineReady, retry]);
   useEffect(() => { if (ready) game.current?.setParameters({ color, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, stiffness, damping, ready]);
+  useEffect(() => { if (ready) game.current?.setAccessories(accessories); }, [accessories, ready]);
   const preload = (item: RegisteredCharacter) => {
     router.prefetch(`/pals/${item.id}`);
     if (game.current) void game.current.preloadCharacter(item).catch(() => {});
     else void item.load().catch(() => {});
   };
-  const reset = () => { game.current?.reset(); setColor(selected.defaults.color); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
+  const reset = () => { game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
   return (
     <main className="playground-page" data-pal={characterId} style={{ '--pal-accent': color } as React.CSSProperties}>
       <header className="topbar">
@@ -95,6 +98,10 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
         </div>
         <aside className="control-panel" aria-label="伙伴设置">
           <div className="color-section"><div className="control-label"><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className="swatches">{palette.map(item => <button key={item.color} className={`swatch ${color === item.color ? 'selected' : ''}`} style={{ '--swatch': item.color } as React.CSSProperties} disabled={!ready} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>
+          <section className="accessory-section" aria-labelledby="accessory-label">
+            <div className="control-label"><span id="accessory-label">饰品</span><button className="clear-accessories" disabled={!ready || accessories.length === 0} onClick={() => setAccessories([])}>全部摘下</button></div>
+            <div className="accessory-grid">{accessoryOptions.map(item => { const worn = accessories.includes(item.id); return <button key={item.id} className={`accessory-option ${worn ? 'selected' : ''}`} disabled={!ready} aria-label={item.name} aria-pressed={worn} onClick={() => setAccessories(current => toggleAccessory(current, item.id))}><Image unoptimized src={`/accessories/${item.id}.png`} alt="" width={48} height={48} />{worn && <Check className="accessory-check" size={12} aria-hidden="true" />}</button>; })}</div>
+          </section>
           <div className="slider-section"><div className="control-label"><label id="stiffness-label">软硬</label><output>{stiffness < 34 ? '软乎乎' : stiffness < 68 ? '糯叽叽' : '紧实些'}</output></div><Slider disabled={!ready} aria-labelledby="stiffness-label" value={[stiffness]} min={0} max={100} onValueChange={value => setStiffness(Array.isArray(value) ? value[0] : value)} /><div className="range-ends"><span>软</span><span>硬</span></div></div>
           <div className="slider-section"><div className="control-label"><label id="damping-label">阻尼</label><output>{damping < 34 ? '晃一会儿' : damping < 68 ? '刚刚好' : '稳稳停住'}</output></div><Slider disabled={!ready} aria-labelledby="damping-label" value={[damping]} min={0} max={100} onValueChange={value => setDamping(Array.isArray(value) ? value[0] : value)} /><div className="range-ends"><span>多晃几下</span><span>很快停稳</span></div></div>
           <div className="actions"><Button className="poke-button" disabled={!ready} onClick={() => game.current?.poke()}><Hand size={20} />戳一下<kbd>SPACE</kbd></Button><Button className="reset-button" variant="outline" disabled={!ready} onClick={reset}><RotateCcw size={17} />恢复原状</Button></div>

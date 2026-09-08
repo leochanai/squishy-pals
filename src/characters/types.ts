@@ -19,6 +19,8 @@ export type MovementConstraint = (position: Vector3, velocity?: Vector3) => void
 
 export interface Character {
   object: Group;
+  /** Apply the body deformation to an accessory vertex in character-local space. */
+  deformAccessory?(point: Vector3, out: Vector3): void;
   setMovementConstraint(constraint: MovementConstraint): void;
   pick(raycaster: Raycaster): GrabHit | null;
   beginGrab(hit: GrabHit): void;
