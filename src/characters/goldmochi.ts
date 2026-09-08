@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { createMaterialVariants } from './materials.ts';
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
@@ -22,7 +23,7 @@ export function createGoldMochi(): Character {
   let targetHeading = defaultHeading;
   const yawAxis = new THREE.Vector3(0, 1, 0);
   let movementConstraint: MovementConstraint | undefined;
-  const parameters: CharacterParameters = { color: '#f08610', stiffness: 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { material: 'original', color: '#f08610', stiffness: 0.48, damping: 0.42 };
   const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.52, clearcoat: 0.14, clearcoatRoughness: 0.5 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#110d08', roughness: 0.16, clearcoat: 0.7 });
   const parts: Part[] = [];
@@ -223,6 +224,7 @@ export function createGoldMochi(): Character {
   }
   function reset() { object.rotation.y = targetHeading = defaultHeading; object.updateMatrixWorld(true); stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressVelocity = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); }
   reset();
+  const materialVariants = createMaterialVariants(object, [{ material: gel, thickness: 1 }, { material: finMaterial, thickness: 0.18 }], [dark]);
   return {
     object,
     deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
@@ -233,8 +235,14 @@ export function createGoldMochi(): Character {
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
-    setParameters(next) { if (next.color) { parameters.color = next.color; gel.color.set(next.color); colorFins(); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
+    setParameters(next) {
+      if (next.color) { parameters.color = next.color; gel.color.set(next.color); colorFins(); }
+      if (next.material !== undefined) parameters.material = next.material;
+      if (next.color || next.material !== undefined) materialVariants.set(parameters.material);
+      if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
+      if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
+    },
     diagnostics() { return { finCount: 5, tailLobes: 2, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
-    dispose() { const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
+    dispose() { const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
 }

@@ -40,7 +40,13 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   scene.environment = envMap.texture;
   scene.environmentIntensity = .4;
   environment.dispose(); pmrem.dispose();
-  const cache = createCharacterCache(character => renderer.compileAsync(character.object, camera, scene));
+  const cache = createCharacterCache(async character => {
+    // Keep each material instance so later switches reuse its compiled pipeline.
+    for (const material of ['jelly', 'metal', 'original'] as const) {
+      character.setParameters({ material });
+      await renderer.compileAsync(character.object, camera, scene);
+    }
+  });
   let current: Awaited<ReturnType<typeof cache.prepare>> | null = null;
   let accessories: ReturnType<typeof createAccessories> | null = null;
   let selectedAccessories: AccessoryId[] = [];

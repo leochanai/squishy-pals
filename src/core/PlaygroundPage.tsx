@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Hand, RotateCcw, Check, ArrowUpRight } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
+import type { MaterialPreset } from '@/src/characters/types';
 import { accessoryOptions, toggleAccessory, type AccessoryId } from '@/src/core/accessory-options';
 import type { Playground } from '@/src/core/playground';
 import { characters, type RegisteredCharacter } from '@/src/characters/registry';
@@ -14,6 +16,7 @@ const basePalette = [
   { name: '芋泥紫', color: '#c6a0df' }, { name: '草莓粉', color: '#f2a4c0' },
   { name: '珊瑚橙', color: '#f69b85' }, { name: '薄荷绿', color: '#9cccbc' },
 ];
+const materialOptions = [{ id: 'original', name: '原有' }, { id: 'jelly', name: '果冻' }, { id: 'metal', name: '金属' }] as const;
 
 export default function PlaygroundPage({ characterId }: { characterId: string }) {
   const router = useRouter();
@@ -24,6 +27,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const [displayedCharacter, setDisplayedCharacter] = useState(selected);
   const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', mechaocto: '机械蓝', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
   const [color, setColor] = useState(selected.defaults.color);
+  const [material, setMaterial] = useState<MaterialPreset>(selected.defaults.material);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
   const [damping, setDamping] = useState(selected.defaults.damping * 100);
   const [status, setStatus] = useState('正在唤醒伙伴…');
@@ -62,7 +66,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   useEffect(() => {
     setReady(false);
     const defaults = selected.defaults;
-    setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
+    setColor(defaults.color); setMaterial(defaults.material); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
     // Fetch the first model module while the shared renderer initializes.
     if (!engineReady) { void selected.load().catch(() => {}); return; }
     let cancelled = false;
@@ -73,14 +77,14 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     }).catch((reason: Error) => { if (!cancelled) { setError(reason.message); setStatus('暂时无法唤醒'); } });
     return () => { cancelled = true; };
   }, [selected, engineReady, retry]);
-  useEffect(() => { if (ready) game.current?.setParameters({ color, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, stiffness, damping, ready]);
+  useEffect(() => { if (ready) game.current?.setParameters({ color, material, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, material, stiffness, damping, ready]);
   useEffect(() => { if (ready) game.current?.setAccessories(accessories); }, [accessories, ready]);
   const preload = (item: RegisteredCharacter) => {
     router.prefetch(`/pals/${item.id}`);
     if (game.current) void game.current.preloadCharacter(item).catch(() => {});
     else void item.load().catch(() => {});
   };
-  const reset = () => { game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
+  const reset = () => { game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setMaterial(selected.defaults.material); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
   return (
     <main className="playground-page" data-pal={characterId} style={{ '--pal-accent': color } as React.CSSProperties}>
       <header className="topbar">
@@ -98,6 +102,12 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
         </div>
         <aside className="control-panel" aria-label="伙伴设置">
           <div className="color-section"><div className="control-label"><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className="swatches">{palette.map(item => <button key={item.color} className={`swatch ${color === item.color ? 'selected' : ''}`} style={{ '--swatch': item.color } as React.CSSProperties} disabled={!ready} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>
+          <section className="material-section" aria-labelledby="material-label">
+            <div className="control-label"><span id="material-label">材质</span></div>
+            <RadioGroup className="material-options" aria-labelledby="material-label" value={material} disabled={!ready} onValueChange={value => setMaterial(value as MaterialPreset)}>
+              {materialOptions.map(item => <label className="material-option" key={item.id}><RadioGroupItem value={item.id} /><span>{item.name}</span></label>)}
+            </RadioGroup>
+          </section>
           <section className="accessory-section" aria-labelledby="accessory-label">
             <div className="control-label"><span id="accessory-label">饰品</span><button className="clear-accessories" disabled={!ready || accessories.length === 0} onClick={() => setAccessories([])}>全部摘下</button></div>
             <div className="accessory-grid">{accessoryOptions.map(item => { const worn = accessories.includes(item.id); return <button key={item.id} className={`accessory-option ${worn ? 'selected' : ''}`} disabled={!ready} aria-label={item.name} aria-pressed={worn} onClick={() => setAccessories(current => toggleAccessory(current, item.id))}><Image unoptimized src={`/accessories/${item.id}.png`} alt="" width={48} height={48} />{worn && <Check className="accessory-check" size={12} aria-hidden="true" />}</button>; })}</div>

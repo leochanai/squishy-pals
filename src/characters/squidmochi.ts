@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { createMaterialVariants } from './materials.ts';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
 const clamp = THREE.MathUtils.clamp;
@@ -7,7 +8,7 @@ const FRONT = new THREE.Vector3(0, 0, 1);
 export function createSquidMochi(): Character {
   const object = new THREE.Group();
   object.name = 'SquidMochi';
-  const parameters: CharacterParameters = { color: '#f69b85', stiffness: 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { material: 'original', color: '#f69b85', stiffness: 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.48, clearcoat: 0.18, clearcoatRoughness: 0.4, transmission: 0.08, thickness: 1, ior: 1.38 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#342426', roughness: 0.2, clearcoat: 0.6 });
   const blush = new THREE.MeshStandardNodeMaterial({ color: '#eb786e', roughness: 0.75 });
@@ -232,6 +233,7 @@ export function createSquidMochi(): Character {
     limbs.forEach(limb => { limb.offset.set(0, 0, 0); limb.velocity.set(0, 0, 0); }); render(lastTime);
   }
   reset();
+  const materialVariants = createMaterialVariants(object, [{ material, thickness: 1 }], [dark, blush]);
   return {
     object,
     deformAccessory(point, out) { deform(out.copy(point), -1, 0); },
@@ -248,8 +250,14 @@ export function createSquidMochi(): Character {
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05); const steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps, time); render(time); frames++; },
     poke() { grab = null; pressTarget = 0; pokeClock = 0; },
     reset,
-    setParameters(next) { if (next.color) { parameters.color = next.color; material.color.set(next.color); } if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1); if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1); },
+    setParameters(next) {
+      if (next.color) { parameters.color = next.color; material.color.set(next.color); }
+      if (next.material !== undefined) parameters.material = next.material;
+      if (next.color || next.material !== undefined) materialVariants.set(parameters.material);
+      if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
+      if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
+    },
     diagnostics() { return { armCount: 8, tentacleCount: 2, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + squash + deformationAmplitude + limbs.reduce((sum, limb) => sum + limb.offset.lengthSq(), 0)), frames, deformationAmplitude, localPull: pull.length(), inertialSway: sway.length(), vertices: surfaces.reduce((sum, surface) => sum + surface.rest.length / 3, 0) }; },
-    dispose() { const geometries = new Set<THREE.BufferGeometry>(); const materials = new Set<THREE.Material>(); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(value => materials.add(value)); } }); geometries.forEach(value => value.dispose()); materials.forEach(value => value.dispose()); object.clear(); },
+    dispose() { const geometries = new Set<THREE.BufferGeometry>(); const materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(value => materials.add(value)); } }); geometries.forEach(value => value.dispose()); materials.forEach(value => value.dispose()); object.clear(); },
   };
 }

@@ -13,7 +13,7 @@ function fixture(id: string) {
   const counts = { loads: 0, builds: 0, disposals: 0 };
   const source: RegisteredCharacter = {
     id, name: id, englishName: id, description: '', image: '', icon: '', color: '#fff',
-    defaults: { color: '#fff', stiffness: 0.48, damping: 0.42 },
+    defaults: { material: 'original', color: '#fff', stiffness: 0.48, damping: 0.42 },
     async load() {
       counts.loads++;
       return () => {

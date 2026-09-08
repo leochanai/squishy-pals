@@ -18,7 +18,8 @@ npm run dev
 - 按住脑袋不移动：局部凹陷。
 - 拖动脑袋或任意腕足：拉伸、牵动其他腕足；释放后重力落地、压扁回弹。
 - 空格 /「戳一下」：缩腕、轻跳、摊开。
-- 右侧：四种颜色、软硬、阻尼；「恢复原状」恢复姿态及默认参数。
+- 右侧：四种颜色、原有 / 果冻 / 金属材质、软硬、阻尼；「恢复原状」恢复姿态及默认参数。
+- 七种伙伴均可切换材质，保留当前姿态、颜色和饰品；材质与软硬、阻尼独立。机械伙伴保留分节结构，其他伙伴的金属材质沿用原有造型。切换伙伴时使用该伙伴的原有材质。
 - 支持触屏指针输入；滑块可用方向键调整。空格在滑块或按钮获得焦点时保留控件本身的键盘行为。
 
 ## 结构
@@ -29,6 +30,7 @@ npm run dev
 - `app/page.tsx`、`app/pals/page.tsx`：品牌落地页与小伙伴图鉴。
 - `src/core/PlaygroundPage.tsx`、`app/globals.css`：共用控制面板、角色选择与响应式页面。
 - `src/characters/types.ts`：精简角色接口。
+- `src/characters/materials.ts`：身体表面的材质预设与实例复用，眼睛和饰品保持独立。
 - `src/characters/octomochi.ts`：连续隐式表面、八组腕足弹簧链、蒙皮、表情、吸盘和专属动作。
 - `src/characters/cuttlemochi.ts`：宽椭圆墨鱼、沿身体两侧的波浪鳍与十条腕足。
 - `src/characters/squidmochi.ts`：细长鱿鱼、尾部三角鳍与十条腕足。
@@ -47,6 +49,7 @@ npm run test:stage
 npm run test:parameters
 npm run test:heading
 npm run test:switching
+npm run test:materials
 npm run build
 ```
 

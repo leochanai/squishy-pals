@@ -17,6 +17,7 @@
     "test:heading": "node --experimental-strip-types scripts/test-heading.ts",
     "test:accessories": "node --experimental-strip-types scripts/test-accessories.ts",
     "test:switching": "node --experimental-strip-types scripts/test-switching.ts",
+    "test:materials": "node --experimental-strip-types scripts/test-materials.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -554,3 +554,14 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .accessory-option>img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%;mix-blend-mode:multiply}
 .playground-page .accessory-check{position:absolute;top:1px;right:1px;width:15px;height:15px;border-radius:50%;background:color-mix(in srgb,var(--pal-accent) 65%,#746179);color:white;padding:2px}
 @media(max-width:760px){.playground-page .accessory-section{padding:17px 0 0}}
+
+/* Material choices sit beside color without changing the independent feel controls. */
+.playground-page .material-section{border-top:1px solid #ded8df;padding:18px 0;grid-column:1/-1}
+.playground-page .material-section .control-label{margin-bottom:13px}
+.playground-page .material-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.playground-page .material-option{display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;min-width:0;padding:8px 4px;border:1px solid #ded8df;border-radius:16px 18px 15px 17px;color:#66576d;font-size:14px;cursor:pointer}
+.playground-page .material-option:has([data-checked]){background:color-mix(in srgb,var(--pal-accent) 20%,#faf9f7);border-color:color-mix(in srgb,var(--pal-accent) 65%,#82639f)}
+.playground-page .material-option:has([data-disabled]){cursor:wait;opacity:.45}
+.playground-page .material-option [data-slot=radio-group-item]{width:14px;height:14px;border-color:#9885a7}
+.playground-page .material-option [data-slot=radio-group-item]:after{inset:0}
+@media(max-width:760px){.playground-page .material-section{padding:17px 0 0}}

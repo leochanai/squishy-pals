@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { createMaterialVariants } from './materials.ts';
 import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
@@ -158,7 +159,7 @@ export function createOctoMochi(mechanical = false): Character {
   const object = new THREE.Group();
   object.name = mechanical ? 'MechaOcto' : 'OctoMochi';
   const arms = makeArms();
-  const parameters: CharacterParameters = { color: mechanical ? '#758fa2' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { material: 'original', color: mechanical ? '#758fa2' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
     color: parameters.color, roughness: mechanical ? 0.38 : 0.48, metalness: mechanical ? 0.62 : 0,
     clearcoat: mechanical ? 0.12 : 0.18, clearcoatRoughness: mechanical ? 0.46 : 0.4,
@@ -264,11 +265,14 @@ export function createOctoMochi(mechanical = false): Character {
 
   if (mechanical) { cheekMaterial.dispose(); suckerMaterial.dispose(); suckerGeometry.dispose(); }
 
+  const materialSurfaces = [{ material, thickness: 1.3 }];
+  if (!mechanical) materialSurfaces.push({ material: suckerMaterial, thickness: 0.12 });
   const armor: { group: THREE.Group; arm: number; start: number; end: number; radius: number }[] = [];
   const mechanicalPick: THREE.Mesh[] = [];
   if (mechanical) {
     const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344653', metalness: 0.7, roughness: 0.5 });
     const edge = new THREE.MeshPhysicalNodeMaterial({ color: '#b0bcc2', metalness: 0.72, roughness: 0.28 });
+    materialSurfaces.push({ material: trim, thickness: 0.12 }, { material: edge, thickness: 0.08 });
     const profile = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -0.5, 0), new THREE.Vector3(0.68, -0.5, 0),
       new THREE.Vector3(0.94, -0.39, 0), new THREE.Vector3(1, -0.19, 0),
@@ -301,6 +305,8 @@ export function createOctoMochi(mechanical = false): Character {
       addDetail(bezel, headSurface(side * 0.47, 1.39, 0.04), normal, 'cheek');
     }
   }
+
+  const materialVariants = createMaterialVariants(object, materialSurfaces, mechanical ? [eyeMaterial] : [eyeMaterial, cheekMaterial]);
 
   let movementConstraint: MovementConstraint | undefined;
   const body = new THREE.Vector3();
@@ -595,6 +601,8 @@ export function createOctoMochi(mechanical = false): Character {
     reset,
     setParameters(next) {
       if (next.color) { parameters.color = next.color; material.color.set(next.color); material.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.45); }
+      if (next.material !== undefined) parameters.material = next.material;
+      if (next.color || next.material !== undefined) materialVariants.set(parameters.material);
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },
@@ -608,7 +616,7 @@ export function createOctoMochi(mechanical = false): Character {
     },
     dispose() {
       const geometries = new Set<THREE.BufferGeometry>();
-      const materials = new Set<THREE.Material>();
+      const materials = new Set<THREE.Material>(materialVariants.materials);
       object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); const m = child.material; if (Array.isArray(m)) m.forEach(value => materials.add(value)); else materials.add(m); } });
       geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose());
       object.clear();
