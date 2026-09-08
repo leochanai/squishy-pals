@@ -1,6 +1,6 @@
 import type { CharacterDefinition } from './types';
 
-type RegisteredCharacter = Omit<CharacterDefinition, 'create'> & {
+export type RegisteredCharacter = Omit<CharacterDefinition, 'create'> & {
   description: string;
   image: string;
   icon: string;

@@ -188,7 +188,6 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .brand-mark{color:#82639f}
 .playground-page .intro h1{font-family:'Arial Rounded MT Bold','Trebuchet MS',sans-serif;letter-spacing:-3px;color:#423747}
 .playground-page .intro h1 span{color:#82639f}
-.playground-page .companions>div:last-child{scrollbar-width:thin;scrollbar-color:#c5b6cf transparent}
 @media(max-width:760px){
  .playground-page .intro h1{font-size:43px;letter-spacing:-1.7px}
  .playground-page .experience{padding-top:800px}
@@ -308,3 +307,5 @@ body:has(.catalogue-page){background:#f3f2f0}
  .playground-page .experience .control-panel{grid-column:1;grid-row:4}
  .playground-page .experience .companions{grid-row:3}
 }
+
+.playground-page .companions>div:last-child{scrollbar-width:thin;scrollbar-color:#c5b6cf transparent}
