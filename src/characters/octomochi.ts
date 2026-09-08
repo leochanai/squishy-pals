@@ -160,8 +160,8 @@ export function createOctoMochi(mechanical = false): Character {
   const arms = makeArms();
   const parameters: CharacterParameters = { color: mechanical ? '#758fa2' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
-    color: parameters.color, roughness: mechanical ? 0.46 : 0.42, metalness: mechanical ? 0.55 : 0,
-    clearcoat: mechanical ? 0.12 : 0.3, clearcoatRoughness: mechanical ? 0.46 : 0.32,
+    color: parameters.color, roughness: mechanical ? 0.38 : 0.48, metalness: mechanical ? 0.62 : 0,
+    clearcoat: mechanical ? 0.12 : 0.18, clearcoatRoughness: mechanical ? 0.46 : 0.4,
     transmission: mechanical ? 0 : 0.08, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
     // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
@@ -217,7 +217,7 @@ export function createOctoMochi(mechanical = false): Character {
   if (mechanical) { eyeMaterial.color.set('#111111'); cheekMaterial.color.set('#f7c96b'); cheekMaterial.opacity = 1; suckerMaterial.color.set('#425669'); suckerMaterial.metalness = 0.85; }
   const details: SurfaceDetail[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
-  const suckerGeometry = new THREE.TorusGeometry(0.083, 0.032, 7, 14);
+  const suckerGeometry = new THREE.TorusGeometry(0.083, 0.032, mechanical ? 7 : 12, mechanical ? 14 : 24);
   const addDetail = (mesh: THREE.Mesh, rest: THREE.Vector3, normal: THREE.Vector3, kind: SurfaceDetail['kind']) => {
     details.push({ mesh, rest, normal, kind, ...skinForPoint(rest, arms) });
     object.add(mesh);
@@ -267,8 +267,8 @@ export function createOctoMochi(mechanical = false): Character {
   const armor: { group: THREE.Group; arm: number; start: number; end: number; radius: number }[] = [];
   const mechanicalPick: THREE.Mesh[] = [];
   if (mechanical) {
-    const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344653', metalness: 0.7, roughness: 0.42 });
-    const edge = new THREE.MeshPhysicalNodeMaterial({ color: '#b0bcc2', metalness: 0.72, roughness: 0.4 });
+    const trim = new THREE.MeshPhysicalNodeMaterial({ color: '#344653', metalness: 0.7, roughness: 0.5 });
+    const edge = new THREE.MeshPhysicalNodeMaterial({ color: '#b0bcc2', metalness: 0.72, roughness: 0.28 });
     const profile = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0, -0.5, 0), new THREE.Vector3(0.68, -0.5, 0),
       new THREE.Vector3(0.94, -0.39, 0), new THREE.Vector3(1, -0.19, 0),

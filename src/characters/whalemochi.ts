@@ -58,7 +58,7 @@ export function createWhaleMochi(): Character {
     });
   }
   const vertices: number[] = [], indices: number[] = [], bellyWeights: number[] = [];
-  const rows = 112, columns = 72;
+  const rows = 112, columns = 144;
   for (let i = 0; i <= rows; i++) {
     const [x, centerY, height, width] = section(i / rows);
     for (let j = 0; j <= columns; j++) {
@@ -100,7 +100,7 @@ export function createWhaleMochi(): Character {
       wide.crossVectors(up, tangent).normalize();
       if (wide.lengthSq() < 0.001) wide.copy(frames.normals[i]);
       thin.crossVectors(tangent, wide).normalize();
-      const envelope = Math.pow(Math.sin(Math.PI * t), 0.65);
+      const envelope = Math.pow(Math.sin(Math.PI * t), 0.55);
       for (let j = 0; j <= 24; j++) {
         const angle = j / 24 * Math.PI * 2;
         vector.copy(point).addScaledVector(wide, Math.cos(angle) * width * envelope).addScaledVector(thin, Math.sin(angle) * thickness * envelope);

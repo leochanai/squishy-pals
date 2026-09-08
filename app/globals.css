@@ -309,3 +309,235 @@ body:has(.catalogue-page){background:#f3f2f0}
 }
 
 .playground-page .companions>div:last-child{scrollbar-width:thin;scrollbar-color:#c5b6cf transparent}
+
+/* Home: one tactile headline, with its translation held in the same composition. */
+.home-page .landing-hero{padding:64px 0 66px;min-height:calc(100svh - 284px)}
+.home-page .landing-copy{position:relative;max-width:1060px;display:grid;grid-template-columns:1fr 1fr;text-align:left;column-gap:64px}
+.home-page .landing-copy>.eyebrow{grid-column:1/-1;font-size:12px;letter-spacing:1.5px}
+.home-page .landing-copy h1{grid-column:1/-1;font-size:clamp(60px,6.3vw,91px);letter-spacing:-5px;margin:24px 0 40px;line-height:1.03}
+.home-page .landing-copy h1>span:last-child{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:12px;text-align:right}
+.home-page .landing-copy h1 em{font-size:1.45em;letter-spacing:-7px;transform:scaleY(.92);color:#75538e}
+.home-page .landing-subtitle{grid-column:1;grid-row:3;margin:0 0 18px;font-size:25px;line-height:1.5;letter-spacing:0;color:#4a3b52}
+.home-page .landing-subtitle>span{font-size:25px}
+.home-page .landing-subtitle>strong{font-size:30px;line-height:1.3;font-weight:500;color:#75538e;letter-spacing:-1px}
+.home-page .landing-description{grid-column:1;grid-row:4;font-size:16px;line-height:1.85;color:#625968;margin:0 0 24px}
+.home-page .landing-cta{grid-column:1;grid-row:5;justify-self:start;background:#75538e;font-size:16px;padding:20px 30px}
+.home-page .landing-caption{grid-column:1;grid-row:6;margin-top:17px;font-size:12px;letter-spacing:.3px}
+.home-page .landing-rituals{padding:32px 0}
+.home-page .landing-rituals>div{gap:24px}
+.home-page .soft-gesture{fill:none;stroke:#75538e;stroke-width:1.8;width:58px;height:58px}
+.home-page .soft-gesture .gesture-form{fill:#9272ad;stroke:none}
+.home-page .landing-rituals strong{font-size:16px;font-weight:550;color:#4a3b52;letter-spacing:.5px}
+.home-page .landing-rituals small{font-size:14px;line-height:1.5;color:#746c77}
+.home-page .landing-rituals>div:nth-child(1) .soft-gesture{transform:scaleX(1.12)}
+.home-page .landing-rituals>div:nth-child(2) .soft-gesture{transform:scaleX(1.32)}
+.home-page .landing-rituals>div:nth-child(3) .soft-gesture{transform:translateY(-6px) scaleY(1.12)}
+@media(max-width:760px){
+ .home-page .landing-hero{padding:48px 0 44px;min-height:0}
+ .home-page .landing-copy{display:block;width:100%;text-align:left}
+ .home-page .landing-copy>.eyebrow{font-size:10px;letter-spacing:1px}
+ .home-page .landing-copy h1{font-size:clamp(36px,10.2vw,60px);letter-spacing:-2px;margin:28px 0 30px;line-height:1.12}
+ .home-page .landing-copy h1>span:last-child{margin-top:7px;gap:5px}
+ .home-page .landing-copy h1 em{font-size:1.34em;letter-spacing:-3px}
+ .home-page .landing-subtitle{position:static;font-size:25px;padding:0;margin:0 0 22px}
+ .home-page .landing-subtitle>span{display:inline;font-size:22px}
+ .home-page .landing-subtitle>strong{display:inline-block;font-size:30px;letter-spacing:-1px;margin:0}
+ .home-page .landing-description{font-size:15px;line-height:1.9;margin-bottom:25px;padding:0}
+ .home-page .landing-cta{font-size:15px;padding:21px 29px}
+ .home-page .landing-caption{margin-top:18px}
+ .home-page .landing-rituals{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:32px 0 24px}
+ .home-page .landing-rituals>div{width:100%;flex-direction:column;gap:14px;align-items:center;text-align:center}
+ .home-page .landing-rituals>div>span{width:100%}
+ .home-page .landing-rituals>div:nth-child(2){padding-top:10px}
+ .home-page .landing-rituals>div:nth-child(3){padding-top:2px}
+ .home-page .soft-gesture{width:54px;height:54px}
+ .home-page .landing-rituals strong{font-size:14px;letter-spacing:0;white-space:nowrap}
+ .home-page .landing-rituals small{font-size:13px;line-height:1.65;margin:8px auto 0;max-width:7em;text-wrap:balance}
+ .home-page .landing-footer{font-size:11px;height:58px}
+}
+
+.home-page .landing-rituals small br{display:none}
+@media(max-width:760px){.home-page .landing-rituals small{max-width:none}.home-page .landing-rituals small br{display:block}}
+
+@font-face{font-family:'Squishy Display';src:url('/fonts/dynapuff-squishy.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+.home-page .landing-copy h1 em{font-family:'Squishy Display','Arial Rounded MT Bold',sans-serif;font-size:1.38em;letter-spacing:-.025em;transform:none}
+.home-page .landing-cta{border-radius:45% 48% 44% 42% / 48% 44% 52% 52%;box-shadow:none}
+@media(max-width:760px){.home-page .landing-copy h1 em{font-size:1.23em;letter-spacing:-.018em}}
+
+.home-page .landing-invitation{grid-column:1/-1;justify-self:center;width:360px;max-width:100%}
+.home-page .soft-gesture path:not(.gesture-form){stroke-width:2.2;vector-effect:non-scaling-stroke}
+@media(max-width:760px){.home-page .landing-invitation{width:100%}}
+
+/* Catalogue: a shared photographic ground and an intentional seventh entry. */
+.catalogue-page .pal-card:nth-child(n+4) .pal-card-image img{mix-blend-mode:multiply;filter:brightness(1.025)}
+.catalogue-page .pal-card:nth-child(4) .pal-card-image img{filter:brightness(1.05)}
+@media(min-width:1100px){
+ .catalogue-page .pal-card:last-child{grid-column:1/-1;display:grid;grid-template-columns:1.15fr 1fr;align-items:center;column-gap:70px;padding:24px 80px 34px}
+ .catalogue-page .pal-card:last-child .pal-card-image{height:350px}
+ .catalogue-page .pal-card:last-child .pal-card-copy{max-width:370px;padding:24px 0}
+ .catalogue-page .pal-card:last-child .pal-card-link{margin-top:24px}
+}
+.catalogue-page .pal-card:nth-child(-n+3) .pal-card-image img{filter:contrast(1.08) brightness(.963)}
+.catalogue-page .pal-card-copy h3{font-size:23px;font-weight:600;letter-spacing:0;color:#54455e;margin:8px 0 18px}
+.catalogue-page .pal-card-copy .eyebrow{font-size:25px;letter-spacing:-.7px}
+.catalogue-page .pal-card-link{min-height:48px;border-radius:44% 48% 45% 42% / 48% 44% 52% 52%;padding:13px 20px}
+@media(max-width:760px){.catalogue-page .pal-card-copy h3{font-size:22px}.catalogue-page .pal-card-copy .eyebrow{font-size:25px}}
+.catalogue-page .pals-heading{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;padding-bottom:30px;border-bottom:1px solid #d9d3dc}
+.catalogue-page .pals-heading h1{font-size:64px;font-weight:600;letter-spacing:-2px;margin-top:17px}
+.catalogue-page .pals-heading>p{max-width:18em;line-height:1.75;margin-bottom:4px}
+.catalogue-page .pal-card-title{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px}
+.catalogue-page .pal-card-title .pal-number{position:static;border:0;border-radius:0;padding:5px 0 0;font-size:10px;line-height:1.6;letter-spacing:.6px;white-space:nowrap;color:#817587}
+.catalogue-page .pal-card-copy h3{margin:6px 0 0}
+.catalogue-page .pal-card-copy .eyebrow{font-size:27px;line-height:1.15}
+@media(max-width:760px){
+ .catalogue-page .pals-heading{display:block;margin-bottom:20px;padding-bottom:24px}
+ .catalogue-page .pals-heading h1{font-size:38px;letter-spacing:-1px}
+ .catalogue-page .pals-heading>p{max-width:none;margin-top:14px}
+ .catalogue-page .pal-card-title{gap:16px;margin-bottom:18px}
+ .catalogue-page .pal-card-title .pal-number{padding-top:4px;font-size:10px}
+ .catalogue-page .pal-card-copy .eyebrow{font-size:25px}
+ .catalogue-page .pal-card-copy h3{font-size:21px}
+}
+@font-face{font-family:'Squishy Companion Titles';src:url('/fonts/squishy-companion-titles-full.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+.catalogue-page .pals-heading h1,.catalogue-page .pal-card-copy h3{font-family:'Squishy Companion Titles','PingFang SC',sans-serif;font-weight:400}
+.catalogue-page .pal-card-copy h3{font-size:24px;letter-spacing:-.3px}
+.catalogue-page .pal-card-title .pal-number{order:1;margin-left:auto;padding-top:8px;font-size:11px}
+@media(max-width:760px){.catalogue-page .pal-card-copy h3{font-size:23px}.catalogue-page .pal-card-title .pal-number{padding-top:6px}}
+@media(max-width:760px){
+ .catalogue-page .pal-card[href="/pals/whalemochi"] .pal-card-image,.catalogue-page .pal-card[href="/pals/sharkmochi"] .pal-card-image{height:215px}
+ .catalogue-page .pal-card[href="/pals/whalemochi"] .pal-card-image img,.catalogue-page .pal-card[href="/pals/sharkmochi"] .pal-card-image img{object-fit:cover;transform:none}
+ .catalogue-page .pal-card[href="/pals/cuttlemochi"] .pal-card-image{height:260px}
+ .catalogue-page .pal-card[href="/pals/squidmochi"] .pal-card-copy{padding-top:20px}
+ .catalogue-page .pal-card:last-child .pal-card-copy{padding-bottom:36px}
+}
+
+/* Bring the existing toy, its name and the controls into one continuous display. */
+.playground-page .play-stage .character-label{left:50%;bottom:38px;transform:translateX(-50%);text-align:center}
+.playground-page .play-stage .mood{left:50%;right:auto;bottom:12px;transform:translateX(-50%)}
+.playground-page .control-panel{padding:24px 27px 20px;border-radius:32px 36px 30px 34px;background:color-mix(in srgb,var(--pal-accent) 5%,#faf9f7)}
+.playground-page .slider-section{padding:18px 0 15px}
+.playground-page .panel-title h2{margin-bottom:24px}
+.playground-page .actions .poke-button{height:48px;border-radius:28px 32px 26px 30px}
+.playground-page .actions .reset-button{height:48px;border-radius:28px 32px 26px 30px}
+.playground-page .companion{border-radius:17px 19px 16px 18px}
+@media(max-width:760px){
+ .playground-page .experience{grid-template-rows:clamp(460px,60svh,580px) auto auto auto}
+ .playground-page .control-panel{padding:22px 20px}
+ .playground-page .panel-title h2{margin-bottom:0}
+ .playground-page .slider-section{padding:14px 0 0}
+}
+.catalogue-page .pal-card:first-child .pal-card-image img{mix-blend-mode:multiply;filter:brightness(1.075)}
+@media(min-width:1200px){
+ .catalogue-page .pal-grid{grid-template-columns:repeat(12,minmax(0,1fr));gap:42px 28px}
+ .catalogue-page .pal-card{grid-column:span 4}
+ .catalogue-page .pal-card:nth-child(n+4){grid-column:span 3}
+ .catalogue-page .pal-card:last-child{display:flex;padding:0;align-items:stretch}
+ .catalogue-page .pal-card:nth-child(n+4) .pal-card-image{height:260px}
+ .catalogue-page .pal-card:last-child .pal-card-copy{max-width:none;padding:24px 0 30px}
+ .catalogue-page .pal-card-copy p{font-size:15px;line-height:1.85}
+ .catalogue-page .pal-card-title{gap:10px}
+ .catalogue-page .pal-card:nth-child(n+4) .pal-card-copy .eyebrow{font-size:25px}
+ .catalogue-page .pal-card:nth-child(n+4) .pal-card-copy h3{font-size:22px}
+ .catalogue-page .pal-card-link{margin-top:auto;align-self:flex-start}
+ .catalogue-page .pal-card-copy p{margin-bottom:24px}
+ .catalogue-page .pal-card:last-child .pal-card-link{margin-top:auto}
+}
+/* A consistent reading order, with a fuller, lightly pressed entry shape. */
+.catalogue-page .pal-card-link{border-radius:26px 29px 24px 28px;padding:13px 19px;gap:18px;box-shadow:inset 0 -2px 0 #54455e0a}
+.catalogue-page .pal-card-link svg{stroke-width:1.8}
+
+/* Keep names close to the resting silhouette; give the settings a quieter edge. */
+.playground-page .play-stage .character-label{bottom:105px}
+.playground-page .character-label strong{font-family:'Squishy Companion Titles','PingFang SC',sans-serif;font-size:27px;font-weight:400;letter-spacing:0}
+.playground-page .character-label div>span{font-size:14px;margin-top:7px;letter-spacing:.2px}
+.playground-page .play-stage .mood{bottom:75px}
+.playground-page .experience .control-panel{border:0;border-left:1px solid #dcd5df;border-radius:0;background:transparent;box-shadow:none;padding:24px 0 20px 28px}
+.playground-page .panel-title h2{font-size:26px;margin-bottom:30px}
+.playground-page .slider-section{padding-block:20px;border-color:#ded8df}
+.playground-page .slider-section [data-slot=slider-thumb]{width:29px;height:25px;border-radius:48% 52% 46% 54%;border:3px solid #f5f4f2;box-shadow:0 1px 4px #42374726}
+.playground-page .control-label>:last-child:not(:first-child){color:#655e69}
+@media(max-width:760px){
+ .playground-page .play-stage .character-label{bottom:76px}
+ .playground-page .play-stage .mood{bottom:48px}
+ .playground-page .character-label strong{font-size:23px}
+ .playground-page[data-pal="cuttlemochi"] .play-stage .character-label,.playground-page[data-pal="squidmochi"] .play-stage .character-label{bottom:38px}
+ .playground-page[data-pal="cuttlemochi"] .play-stage .mood,.playground-page[data-pal="squidmochi"] .play-stage .mood{bottom:10px}
+ .playground-page .experience .control-panel{border-left:0;border-top:1px solid #dcd5df;padding:24px 4px 6px;gap:20px}
+ .playground-page .panel-title h2{font-size:24px;margin-bottom:0}
+ .playground-page .slider-section{padding-block:16px 0}
+}
+
+/* Match the photographic contrast while retaining each companion's own material. */
+.catalogue-page .pal-card[href="/pals/goldmochi"] .pal-card-image img{filter:saturate(.9) brightness(1.1)}
+.catalogue-page .pal-card[href="/pals/mechaocto"] .pal-card-image img{filter:contrast(.91) brightness(1.065)}
+.catalogue-page .pal-card[href="/pals/whalemochi"] .pal-card-image img{filter:saturate(.95) contrast(.94) brightness(1.04)}
+.catalogue-page .pal-card[href="/pals/sharkmochi"] .pal-card-image img{filter:contrast(.94) brightness(1.04)}
+
+/* Let the collection read as whole labels, with a visible continuation on phones. */
+@media(min-width:1400px){
+ .playground-page .companions>div:last-child{gap:7px;padding-inline:3px}
+ .playground-page .companion{flex:1 0 0;min-width:0;padding:10px 7px;gap:7px}
+ .playground-page .companion-icon,.playground-page .companion-icon img{width:28px;height:28px}
+ .playground-page .companion strong{font-size:12px;white-space:nowrap}
+ .playground-page .companion small{font-size:10px;white-space:nowrap;margin-top:5px}
+ .playground-page .selected-check{position:absolute;top:-3px;right:-2px;width:15px;height:15px;margin:0}
+}
+@media(max-width:760px){
+ .playground-page .companions>div:last-child{gap:8px;padding-block:6px 9px}
+ .playground-page .companion{flex:0 0 30%;padding-block:10px}
+ .playground-page .companion strong{font-size:11px}
+ .playground-page .companion small{font-size:10px}
+}
+
+/* Readable instructions and the same softly pressed edge on each control. */
+.playground-page .range-ends,.playground-page .mood,.playground-page .gesture-hints,.playground-page .panel-note{color:#665c6b}
+.playground-page .control-label{font-size:15px;font-weight:500}
+.playground-page .control-label>:last-child:not(:first-child),.playground-page .range-ends{font-size:13px}
+.playground-page .gesture-hints svg{color:#76677b;stroke-width:1.6}
+.playground-page .slider-section [data-slot=slider-track]{height:8px;border-radius:8px;box-shadow:inset 0 1px 2px #49355212}
+.playground-page .slider-section [data-slot=slider-range]{border-radius:8px;box-shadow:inset 0 -1px 0 #4935521a}
+.playground-page .slider-section [data-slot=slider-thumb]{border:2px solid #f5f4f2;box-shadow:inset 0 -2px 0 #4935521c,0 2px 4px #42374724}
+.playground-page .swatch{box-shadow:inset 0 2px 2px #ffffff45,inset 0 -2px 1px #49355212}
+.playground-page .actions .poke-button{box-shadow:inset 0 -3px 0 #241a302b,0 3px 7px #25222012}
+.playground-page .actions .reset-button{color:#66576d;box-shadow:inset 0 -2px 0 #4935520b}
+@media(max-width:760px){
+ .playground-page .experience .gesture-hints{gap:8px 11px}
+ .playground-page .gesture-hints>span{font-size:12px;gap:4px}
+ .playground-page .range-ends{font-size:12px}
+}
+
+/* Give each existing portrait enough room to identify at a glance. */
+@media(min-width:1400px){
+ .playground-page .companion{flex-direction:column;gap:6px;padding:9px 7px 10px;text-align:center}
+ .playground-page .companion-icon,.playground-page .companion-icon img{width:44px;height:44px}
+ .playground-page .companion small{font-size:11px;margin-top:4px}
+ .playground-page .selected-check{top:6px;right:6px}
+}
+@media(min-width:375px) and (max-width:760px){
+ .playground-page .companion strong{font-size:12px}
+ .playground-page .companion small{font-size:11px}
+}
+
+/* Crop unused ground without reframing or reducing the upper play space. */
+.playground-page .experience{--play-render-height:max(540px,calc(100svh - 172px));height:auto;grid-template-rows:auto calc(var(--play-render-height) * .70) auto}
+.playground-page .play-stage{grid-row:2;overflow:hidden}
+.playground-page .play-stage .scene-host{height:var(--play-render-height)}
+.playground-page .experience .control-panel{grid-row:1/4;align-self:start;margin-top:16px}
+.playground-page .stage-caption{grid-column:1;grid-row:3;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:8px 16px 0;min-width:0}
+.playground-page .stage-caption .character-label{position:static;inset:auto;transform:none;text-align:left;flex-shrink:0}
+.playground-page .stage-caption .mood{position:static;inset:auto;transform:none;margin:0}
+.playground-page .experience .companions{grid-row:1}
+@media(max-width:760px){
+ .playground-page .experience{--play-render-height:clamp(540px,70svh,720px);grid-template-rows:auto calc(var(--play-render-height) * .70) auto auto}
+ .playground-page:is([data-pal=cuttlemochi],[data-pal=squidmochi]) .experience{grid-template-rows:auto calc(var(--play-render-height) * .74) auto auto}
+ .playground-page .play-stage{grid-row:2}
+ .playground-page .stage-caption{grid-row:3;flex-direction:column;gap:10px;padding:8px 0 0}
+ .playground-page .stage-caption .character-label{text-align:center}
+ .playground-page .experience .companions{grid-row:1}
+ .playground-page .experience .control-panel{grid-row:4;margin-top:0}
+}
+
+/* Compact portrait-only companion buttons, with names supplied accessibly. */
+.playground-page .companions .companion{flex:0 0 64px;min-width:64px;width:64px;height:64px;padding:7px;display:grid;place-items:center;gap:0;border-radius:50%}
+.playground-page .companions .companion-icon,.playground-page .companions .companion-icon img{width:48px;height:48px}
+.playground-page .companions .selected-check{position:absolute;top:1px;right:1px;width:15px;height:15px;margin:0}

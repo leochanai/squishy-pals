@@ -39,13 +39,13 @@ for (const [file, factory, mechanical] of [
     }
     return Math.abs(worldOffset.x);
   };
-  for (const [width, height] of [[1280, 660], [390, 540], [600, 440]]) {
+  for (const [width, height, maxProjectedHeight = 340] of [[1280, 660], [390, 540], [600, 440], [658, 705, 276.255], [1036, 828, 315], [390, 591, 253.2], [320, 591, 253.2]]) {
     character.reset();
-    frameCharacter(camera, bounds, width, height);
+    frameCharacter(camera, bounds, width, height, maxProjectedHeight);
     character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height, restTransform));
     const projected = worldCorners.map(point => point.clone().project(camera));
     const projectedHeight = (Math.max(...projected.map(p => p.y)) - Math.min(...projected.map(p => p.y))) * height / 2;
-    assert.ok(projectedHeight <= Math.min(height * .5, 340) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
+    assert.ok(projectedHeight <= Math.min(height * .5, maxProjectedHeight) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
     const bodyOrigin = ['whalemochi', 'sharkmochi'].includes(file) ? character.object.localToWorld(new Vector3(-.95, 6, .35)) : new Vector3(.12, 6, .1);
     const hit = character.pick(new Raycaster(bodyOrigin, new Vector3(0, -1, 0)));
     assert.ok(hit && hit.handle < 0, `${file}: body must be independently draggable`);
@@ -63,7 +63,7 @@ for (const [file, factory, mechanical] of [
       }
       if (x === .9) {
         if (width === 1280) wideTravel = check(width, height);
-        if (width === 390) narrowTravel = check(width, height);
+        if (width === 390 && height === 540) narrowTravel = check(width, height);
       }
       character.endGrab();
       for (let i = 0; i < 240; i++) { character.update(1 / 60, frame++ / 60); check(width, height); }
@@ -73,6 +73,41 @@ for (const [file, factory, mechanical] of [
   }
   assert.ok(wideTravel > 2.6, `${file}: wide stage must allow travel beyond the previous 2.6 limit (${wideTravel})`);
   assert.ok(wideTravel > narrowTravel + .5, `${file}: movement boundary must adapt to the viewport`);
+  if (file === 'octomochi' && !mechanical) {
+    const measureTravel = (height: number, maxProjectedHeight: number) => {
+      const width = 658;
+      const probeCamera = new PerspectiveCamera(32, 1, .1, 60);
+      probeCamera.position.set(0, 5.7, 10.1); probeCamera.lookAt(0, 1.35, 0);
+      frameCharacter(probeCamera, bounds, width, height, maxProjectedHeight);
+      const center = bounds.getCenter(new Vector3());
+      const restingCenter = center.clone().project(probeCamera);
+      const travel: number[] = [];
+      for (const [x, y] of [[3, 0], [-3, 0], [0, 3]]) {
+        character.reset();
+        character.setMovementConstraint(createMovementConstraint(probeCamera, character.object, bounds, width, height, restTransform));
+        const hit = character.pick(new Raycaster(new Vector3(.12, 6, .1), new Vector3(0, -1, 0)))!;
+        assert.ok(hit && hit.handle < 0);
+        const plane = new Plane().setFromNormalAndCoplanarPoint(probeCamera.getWorldDirection(new Vector3()), hit.point);
+        character.beginGrab(hit);
+        const ray = new Raycaster(); ray.setFromCamera(new Vector2(softenPointer(x), softenPointer(y)), probeCamera);
+        const target = ray.ray.intersectPlane(plane, new Vector3())!;
+        target.y = Math.max(.08, target.y);
+        character.moveGrab(target, true);
+        for (let i = 0; i < 120; i++) character.update(1 / 60, frame++ / 60);
+        const state = character.diagnostics();
+        const offset = new Vector3(Number(state.bodyX), Number(state.bodyHeight), Number(state.bodyZ)).applyMatrix4(character.object.matrixWorld).sub(origin);
+        const movedCenter = center.clone().add(offset).project(probeCamera);
+        travel.push(y ? (movedCenter.y - restingCenter.y) * height / 2 : Math.abs(movedCenter.x - restingCenter.x) * width / 2);
+        character.endGrab();
+      }
+      return { horizontal: travel[0] + travel[1], upward: travel[2] };
+    };
+    const previous = measureTravel(564, 340);
+    const expanded = measureTravel(705, 276.255);
+    assert.ok(expanded.horizontal >= previous.horizontal - .1, 'the taller page canvas must preserve horizontal screen travel');
+    assert.ok(expanded.upward >= previous.upward * 1.3, 'the taller page canvas must increase upward screen travel by at least 30%');
+    console.log(`octomochi page resize: horizontal ${previous.horizontal.toFixed(2)} → ${expanded.horizontal.toFixed(2)} px; upward ${previous.upward.toFixed(2)} → ${expanded.upward.toFixed(2)} px.`);
+  }
   character.dispose();
   console.log(`${file}${mechanical ? ' (mechanical)' : ''}: frame fit, edge drag, release; wide travel ${wideTravel.toFixed(2)}, mobile ${narrowTravel.toFixed(2)}.`);
 }

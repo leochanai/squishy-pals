@@ -13,7 +13,7 @@ export const characters: RegisteredCharacter[] = [{
   name: '糯糯八爪鱼',
   englishName: 'OctoMochi',
   description: '圆滚滚的小脑袋，八只软乎乎的腕足。把烦恼轻轻交给它，再看它慢慢弹回来。',
-  image: '/pals/octomochi.png',
+  image: '/pals/octomochi-refined.png',
   icon: '🐙',
   color: '#c6a0df',
   defaults: { color: '#c6a0df', stiffness: 0.48, damping: 0.42 },

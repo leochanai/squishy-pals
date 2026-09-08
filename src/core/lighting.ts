@@ -1,5 +1,20 @@
 import { AmbientLight, CanvasTexture, Color, DirectionalLight, Group, Mesh, MeshBasicMaterial, PlaneGeometry, Scene } from 'three/webgpu';
 
+/** Two broad reflection cards keep the toy highlights continuous. */
+export function createStudioEnvironment() {
+  const scene = new Scene();
+  scene.background = new Color().setRGB(.12, .12, .12);
+  const geometry = new PlaneGeometry(1, 1);
+  const keyMaterial = new MeshBasicMaterial({ color: new Color().setRGB(8, 7.6, 7.2) });
+  const fillMaterial = new MeshBasicMaterial({ color: new Color().setRGB(3, 3.1, 3.4) });
+  const key = new Mesh(geometry, keyMaterial);
+  key.position.set(-5, 7, 6); key.scale.set(12, 8, 1); key.lookAt(0, 0, 0);
+  const fill = new Mesh(geometry, fillMaterial);
+  fill.position.set(7, 3, -3); fill.scale.set(5, 10, 1); fill.lookAt(0, 0, 0);
+  scene.add(key, fill);
+  return { scene, dispose() { geometry.dispose(); keyMaterial.dispose(); fillMaterial.dispose(); } };
+}
+
 /** A diffuse studio rig and a horizonless, soft contact patch. */
 export function createLighting(scene: Scene) {
   scene.background = null;
@@ -8,21 +23,21 @@ export function createLighting(scene: Scene) {
   // backdrop without a visible horizon or transparent black edge samples.
   const floor = new Mesh(new PlaneGeometry(200, 200), new MeshBasicMaterial({ color: new Color().setRGB(2.520125, 2.319882, 1.979641) }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = -.035; scene.add(floor);
-  const ambient = new AmbientLight('#ffffff', 0.5);
-  const key = new DirectionalLight('#fff4ee', 2.4);
+  const ambient = new AmbientLight('#ffffff', 0.3);
+  const key = new DirectionalLight('#fff4ee', 1.9);
   key.position.set(-3, 7, 5);
-  const rim = new DirectionalLight('#e8ddff', 1.2);
+  const rim = new DirectionalLight('#e8ddff', 0.85);
   rim.position.set(4, 4, -3);
-  const fill = new DirectionalLight('#ffffff', 0.5);
+  const fill = new DirectionalLight('#ffffff', 0.25);
   fill.position.set(1, 2, 6);
   scene.add(ambient, key, rim, fill);
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 128;
   const context = canvas.getContext('2d')!;
   const gradient = context.createRadialGradient(64, 64, 5, 64, 64, 64);
-  gradient.addColorStop(0, 'rgba(89,66,91,0.62)');
-  gradient.addColorStop(.4, 'rgba(89,66,91,0.40)');
-  gradient.addColorStop(.75, 'rgba(89,66,91,0.09)');
+  gradient.addColorStop(0, 'rgba(89,66,91,0.72)');
+  gradient.addColorStop(.24, 'rgba(89,66,91,0.46)');
+  gradient.addColorStop(.58, 'rgba(89,66,91,0.12)');
   gradient.addColorStop(1, 'rgba(89,66,91,0)');
   context.fillStyle = gradient;
   context.fillRect(0, 0, 128, 128);

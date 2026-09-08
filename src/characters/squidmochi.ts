@@ -8,7 +8,7 @@ export function createSquidMochi(): Character {
   const object = new THREE.Group();
   object.name = 'SquidMochi';
   const parameters: CharacterParameters = { color: '#f69b85', stiffness: 0.48, damping: 0.42 };
-  const material = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.32, transmission: 0.08, thickness: 1, ior: 1.38 });
+  const material = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.48, clearcoat: 0.18, clearcoatRoughness: 0.4, transmission: 0.08, thickness: 1, ior: 1.38 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#342426', roughness: 0.2, clearcoat: 0.6 });
   const blush = new THREE.MeshStandardNodeMaterial({ color: '#eb786e', roughness: 0.75 });
   let movementConstraint: MovementConstraint | undefined;

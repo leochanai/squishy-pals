@@ -8,7 +8,7 @@ function corners(bounds: Box3) {
 }
 
 /** Fit the resting silhouette, leaving new pixels available for play. */
-export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: number, height: number) {
+export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: number, height: number, maxProjectedHeight = 340) {
   const backward = camera.getWorldDirection(new Vector3()).negate();
   const center = bounds.getCenter(new Vector3());
   const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
@@ -16,7 +16,7 @@ export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: n
   camera.aspect = width / height;
   camera.fov = 32;
   const tangent = Math.tan(camera.fov * Math.PI / 360);
-  const verticalFill = Math.min(.5, 340 / height);
+  const verticalFill = Math.min(.5, maxProjectedHeight / height);
   const horizontalFill = .64;
   let distance = 0;
   for (const corner of corners(bounds)) {

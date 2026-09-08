@@ -18,7 +18,7 @@ export function createCuttleMochi(): Character {
   object.name = 'CuttleMochi';
   let movementConstraint: MovementConstraint | undefined;
   const parameters: CharacterParameters = { color: '#9cccbc', stiffness: 0.48, damping: 0.42 };
-  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.3, transmission: 0.08, thickness: 1.1, ior: 1.38, attenuationColor: new THREE.Color('#bce1d5'), attenuationDistance: 2.2 });
+  const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.48, clearcoat: 0.18, clearcoatRoughness: 0.4, transmission: 0.08, thickness: 1.1, ior: 1.38, attenuationColor: new THREE.Color('#bce1d5'), attenuationDistance: 2.2 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#203c39', roughness: 0.2, clearcoat: 0.8 });
   const blush = new THREE.MeshStandardNodeMaterial({ color: '#e6a8b5', roughness: 0.75 });
   const parts: Part[] = [];

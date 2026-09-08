@@ -69,7 +69,7 @@ export function createGoldMochi(): Character {
         const scallop = 1 + 0.016 * Math.cos(v * Math.PI * 5);
         const length = t * Math.cos(angle * 0.72) * notch * scallop;
         vector.copy(root).addScaledVector(direction, length).addScaledVector(width, Math.sin(angle) * t);
-        const envelope = Math.pow(Math.sin(Math.PI * t), 0.55) * Math.pow(Math.max(0, 1 - v * v), 0.4);
+        const envelope = Math.pow(Math.sin(Math.PI * t), 0.45) * Math.pow(Math.max(0, 1 - v * v), 0.4);
         const grooves = 0.005 * Math.cos(v * Math.PI * 6) * Math.sin(Math.PI * t) * (1 - v * v);
         vector.addScaledVector(normal, grooves + (layer === 0 ? 1 : -1) * thickness * envelope);
         vertices.push(vector.x, vector.y, vector.z); progress.push(t);

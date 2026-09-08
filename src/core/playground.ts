@@ -1,8 +1,7 @@
 import { ACESFilmicToneMapping, PerspectiveCamera, PMREMGenerator, Scene, SRGBColorSpace, Renderer, WebGPUBackend, StandardNodeLibrary, Vector3 } from 'three/webgpu';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import type { CharacterParameters } from '../characters/types';
 import type { RegisteredCharacter } from '../characters/registry';
-import { createLighting } from './lighting';
+import { createLighting, createStudioEnvironment } from './lighting';
 import { bindInput } from './input';
 import { createMovementConstraint, frameCharacter } from './stage';
 import { createCharacterCache } from './character-cache';
@@ -16,7 +15,7 @@ export interface Playground {
   dispose(): void;
 }
 
-export async function createPlayground(host: HTMLElement, callbacks: { onStatus: (value: string) => void; onFps: (value: number) => void }): Promise<Playground> {
+export async function createPlayground(host: HTMLElement, callbacks: { onStatus: (value: string) => void; onFps?: (value: number) => void }): Promise<Playground> {
   if (!navigator.gpu) throw new Error('当前环境未提供 WebGPU。');
   const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'high-performance' });
   if (!adapter) throw new Error('当前设备没有可用的 WebGPU 适配器。');
@@ -32,11 +31,11 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   const camera = new PerspectiveCamera(34, 1, .1, 60);
   camera.position.set(0, 5.7, 10.1); camera.lookAt(0, 1.35, 0);
   const lighting = createLighting(scene);
-  const environment = new RoomEnvironment();
+  const environment = createStudioEnvironment();
   const pmrem = new PMREMGenerator(renderer);
-  const envMap = pmrem.fromScene(environment, .04);
+  const envMap = pmrem.fromScene(environment.scene, .02);
   scene.environment = envMap.texture;
-  scene.environmentIntensity = .3;
+  scene.environmentIntensity = .4;
   environment.dispose(); pmrem.dispose();
   const cache = createCharacterCache(character => renderer.compileAsync(character.object, camera, scene));
   let current: Awaited<ReturnType<typeof cache.prepare>> | null = null;
@@ -52,7 +51,9 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     input?.release();
     renderer.setSize(width, height, false);
     if (!current) return;
-    frameCharacter(camera, current.bounds, width, height);
+    // Growing the play surface must add travel, not automatically enlarge the toy.
+    const maxPalHeight = Math.min(340, window.innerHeight * (window.innerWidth > 760 ? .315 : .3));
+    frameCharacter(camera, current.bounds, width, height, maxPalHeight);
     current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();
@@ -77,7 +78,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     renderer.render(scene, camera);
     frames++; total += realDt;
     if (total > 1) {
-      callbacks.onFps(Math.round(frames / total));
+      callbacks.onFps?.(Math.round(frames / total));
       canvas.dataset.diagnostics = JSON.stringify(diagnostics);
       frames = 0; total = 0;
     }

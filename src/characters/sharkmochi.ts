@@ -121,10 +121,10 @@ export function createSharkMochi(): Character {
     shape.closePath();
     // Sweep elliptical sections through the curved outline. This creates a
     // rounded solid fin without the planar cap triangulation of an extrusion.
-    const outline = shape.getPoints(64);
+    const outline = shape.getPoints(96);
     const minY = Math.min(...outline.map(point => point.y)), maxY = Math.max(...outline.map(point => point.y));
     const vertices: number[] = [], indices: number[] = [];
-    const rows = 56, columns = 32;
+    const rows = 84, columns = 48;
     for (let i = 0; i <= rows; i++) {
       const y = THREE.MathUtils.lerp(minY + 0.00001, maxY - 0.00001, i / rows);
       const intersections: number[] = [];
@@ -152,7 +152,7 @@ export function createSharkMochi(): Character {
   blade([[1.43,1.10],[1.73,1.56],[2.27,2.42],[2.43,2.62],[2.37,2.33],[2.22,1.74],[1.97,1.16],[1.75,1.01],[1.43,1.10]], new THREE.Vector3(1.47,1.15,0), new THREE.Vector3(2.34,2.43,0), 0.08, 'upper-tail');
   blade([[1.44,1.20],[1.72,1.07],[2.24,0.29],[2.47,0.03],[2.19,0.17],[1.78,0.51],[1.51,0.90],[1.45,1.02],[1.44,1.20]], new THREE.Vector3(1.47,1.15,0), new THREE.Vector3(2.25,0.23,0), 0.08, 'lower-tail');
   for (const side of [-1, 1]) paddle(new THREE.Vector3(-0.1,0.82,side*0.60), new THREE.Vector3(0.18,0.48,side*1.07), new THREE.Vector3(0.79,0.22,side*1.41), 0.44, 0.13, `pectoral-fin-${side}`);
-  blade([[-0.65,1.88],[-0.55,2.16],[-0.57,2.64],[-0.62,3.04],[-0.33,2.83],[0.1,2.55],[0.29,2.13],[0.46,1.87],[0.72,1.77],[0.0,1.88],[-0.65,1.88]], new THREE.Vector3(0,1.85,0), new THREE.Vector3(-0.45,2.88,0), 0.12, 'dorsal-fin');
+  blade([[-0.65,1.88],[-0.55,2.16],[-0.57,2.64],[-0.62,3.04],[-0.33,2.83],[0.1,2.55],[0.29,2.13],[0.46,1.87],[0.72,1.77],[0.0,1.88],[-0.65,1.88]], new THREE.Vector3(0,1.85,0), new THREE.Vector3(-0.45,2.88,0), 0.15, 'dorsal-fin');
   blade([[0.98,1.30],[1.12,1.53],[1.15,1.81],[1.33,1.69],[1.48,1.25],[1.26,1.31],[0.98,1.30]], new THREE.Vector3(1.23,1.35,0), new THREE.Vector3(1.18,1.75,0), 0.04, 'rear-dorsal-fin');
   const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
   const sphere = new THREE.SphereGeometry(1, 32, 24);
