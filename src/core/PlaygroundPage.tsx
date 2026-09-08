@@ -66,7 +66,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   useEffect(() => {
     setReady(false);
     const defaults = selected.defaults;
-    setColor(defaults.color); setMaterial(defaults.material); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
+    setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
     // Fetch the first model module while the shared renderer initializes.
     if (!engineReady) { void selected.load().catch(() => {}); return; }
     let cancelled = false;

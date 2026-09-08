@@ -50,6 +50,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   let current: Awaited<ReturnType<typeof cache.prepare>> | null = null;
   let accessories: ReturnType<typeof createAccessories> | null = null;
   let selectedAccessories: AccessoryId[] = [];
+  let selectedMaterial: CharacterParameters['material'] | undefined;
   let input: ReturnType<typeof bindInput> | null = null;
   const canvas = renderer.domElement;
   canvas.tabIndex = 0;
@@ -105,7 +106,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
           accessories?.dispose();
           if (current) scene.remove(current.character.object);
           entry.character.reset();
-          entry.character.setParameters(source.defaults);
+          entry.character.setParameters({ ...source.defaults, material: selectedMaterial ?? source.defaults.material });
           current = entry;
           accessories = createAccessories(entry.character, source.id);
           accessories.set(selectedAccessories);
@@ -128,7 +129,10 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     },
     async preloadCharacter(source) { await cache.prepare(source); },
     setAccessories(selected) { selectedAccessories = [...selected]; accessories?.set(selected); canvas.dataset.accessories = selected.join(','); },
-    setParameters(parameters) { current?.character.setParameters(parameters); },
+    setParameters(parameters) {
+      if (parameters.material !== undefined) selectedMaterial = parameters.material;
+      current?.character.setParameters(parameters);
+    },
     poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
     reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },
     dispose() {
