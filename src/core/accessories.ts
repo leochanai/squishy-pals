@@ -4,6 +4,9 @@ import type { AccessoryId } from './accessory-options';
 
 type Fit = { center: [number, number, number]; width: number; rise: number; top: number; hatSize: number; side?: boolean };
 const fits: Record<string, Fit> = {
+  sealmochi: { center: [0, 1.4, 1.1], width: .62, rise: .5, top: 1.92, hatSize: .43 },
+  turtlemochi: { center: [0, .88, 1.3], width: .55, rise: .47, top: 1.4, hatSize: .43 },
+  crabmochi: { center: [0, 1.03, 0], width: 1.2, rise: .59, top: 1.52, hatSize: .53 },
   octomochi: { center: [0, 1.6, -.12], width: 1.5, rise: 1.34, top: 2.76, hatSize: .85 },
   cuttlemochi: { center: [0, 1.15, -.2], width: 1.08, rise: .75, top: 1.8, hatSize: .65 },
   squidmochi: { center: [0, 1.75, .03], width: .78, rise: 1.7, top: 2.9, hatSize: .6 },
@@ -50,7 +53,7 @@ export function createAccessories(character: Character, characterId: string) {
     const shell = new THREE.SphereGeometry(1, 20, 14).scale(fit.side ? .25 : .13, .29, fit.side ? .13 : .25);
     const outer = headPoint(sign * (fit.width + .14), .03); shell.translate(outer.x, outer.y, outer.z); add('headphones', shell, 0);
   }
-  const hatCenter = new THREE.Vector3(fit.center[0], fit.top, fit.side ? 0 : .12);
+  const hatCenter = new THREE.Vector3(fit.center[0], fit.top, characterId === 'sealmochi' ? 1.15 : characterId === 'turtlemochi' ? 1.3 : fit.side ? 0 : .12);
   const size = fit.hatSize;
   const crownHeight = characterId === 'squidmochi' ? .7 : .48;
   add('hat', new THREE.CylinderGeometry(size * .67, size * .86, crownHeight, 40).translate(hatCenter.x, hatCenter.y + crownHeight / 2 - .06, hatCenter.z), 2);
@@ -62,7 +65,7 @@ export function createAccessories(character: Character, characterId: string) {
     : characterId === 'squidmochi'
       ? [new THREE.Vector3(-.3, 1.47, .59), new THREE.Vector3(.3, 1.47, .59)]
       : ['left-eye', 'right-eye'].map(name => character.object.getObjectByName(name)!.position.clone());
-  const ringRadius = characterId === 'squidmochi' ? .225 : characterId === 'cuttlemochi' ? .25 : .3;
+  const ringRadius = characterId === 'sealmochi' ? .25 : characterId === 'turtlemochi' ? .21 : characterId === 'squidmochi' ? .225 : characterId === 'cuttlemochi' ? .25 : .3;
   for (const eye of eyes) {
     const sign = fit.side ? Math.sign(eye.z) : 1;
     eye.z += sign * .11;

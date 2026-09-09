@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test:physics": "node --experimental-strip-types scripts/test-physics.ts && node --experimental-strip-types scripts/test-cephalopods.ts && node --experimental-strip-types scripts/test-physics.ts --mechanical",
+    "test:coastal": "node --experimental-strip-types scripts/test-coastal.ts",
     "test:stage": "node --experimental-strip-types scripts/test-stage.ts",
     "test:parameters": "node --experimental-strip-types scripts/test-parameters.ts",
     "test:views": "node --experimental-strip-types scripts/test-views.ts",

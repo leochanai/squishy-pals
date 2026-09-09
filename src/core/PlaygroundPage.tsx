@@ -25,7 +25,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const game = useRef<Playground | null>(null);
   const selected = characters.find(item => item.id === characterId)!;
   const [displayedCharacter, setDisplayedCharacter] = useState(selected);
-  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
+  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝', crabmochi: '蟹壳红' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
   const [color, setColor] = useState(selected.defaults.color);
   const [material, setMaterial] = useState<MaterialPreset>(selected.defaults.material);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
@@ -52,6 +52,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     return () => observer.disconnect();
   }, [characterId]);
   useEffect(() => {
+    setEngineReady(false);
     let cancelled = false;
     let instance: Playground | null = null;
     import('@/src/core/playground').then(async ({ createPlayground }) => {
@@ -68,7 +69,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     const defaults = selected.defaults;
     setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
     // Fetch the first model module while the shared renderer initializes.
-    if (!engineReady) { void selected.load().catch(() => {}); return; }
+    if (!engineReady || !game.current) { void selected.load().catch(() => {}); return; }
     let cancelled = false;
     setError('');
     void game.current!.switchCharacter(selected).then(shown => {
@@ -91,7 +92,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
         <a className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></a>
       </header>
       <section className="experience" aria-label="软软伙伴互动区">
-        <nav className="companions" aria-label="选择伙伴"><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-label={`${item.englishName} ${item.name}`} aria-pressed={item.id === characterId} onPointerEnter={() => preload(item)} onFocus={() => preload(item)} onClick={() => { if (item.id === characterId) { if (error) setRetry(value => value + 1); return; } router.push(`/pals/${item.id}`, { scroll: false }); }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={`/pals/${item.id}-front.png`} alt="" width={44} height={44} /></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
+        <nav className="companions" aria-label="选择伙伴"><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-label={`${item.englishName} ${item.name}`} aria-pressed={item.id === characterId} onPointerEnter={() => preload(item)} onFocus={() => preload(item)} onClick={() => { if (item.id === characterId) { if (error) setRetry(value => value + 1); return; } router.push(`/pals/${item.id}`, { scroll: false }); }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={`/pals/${item.id}-front.png${['sealmochi', 'turtlemochi', 'crabmochi'].includes(item.id) ? item.id === 'turtlemochi' ? '?v=4' : '?v=3' : ''}`} alt="" width={44} height={44} /></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
         <div className="play-stage">
         <div className="scene-host" ref={host} />
         {(!hasScene || error) && <div className="loading-card" role="status">{error ? <><strong>{engineReady ? '暂时无法切换伙伴' : '需要支持 WebGPU 的浏览器'}</strong><p>{error}</p>{engineReady ? <Button onClick={() => setRetry(value => value + 1)}>再试一次</Button> : <small>请在开启硬件加速的新版 Chrome、Edge 或 Safari 中打开。</small>}</> : <><span className="loading-dot" />正在揉好你的软软伙伴…</>}</div>}
