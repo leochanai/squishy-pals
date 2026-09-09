@@ -1,0 +1,254 @@
+[
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "octomochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 18,
+      "right": 82,
+      "top": 82,
+      "width": 64,
+      "x": 18,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "cuttlemochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 90,
+      "right": 154,
+      "top": 82,
+      "width": 64,
+      "x": 90,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "squidmochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 82,
+      "width": 64,
+      "x": 128,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "goldmochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 82,
+      "width": 64,
+      "x": 128,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "whalemochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 82,
+      "width": 64,
+      "x": 128,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "sharkmochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 82,
+      "width": 64,
+      "x": 128,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "sealmochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 82,
+      "width": 64,
+      "x": 128,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "turtlemochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 166,
+      "right": 230,
+      "top": 82,
+      "width": 64,
+      "x": 166,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "documentWidth": 320,
+    "list": {
+      "bottom": 155,
+      "height": 79,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pal": "crabmochi",
+    "selected": {
+      "bottom": 146,
+      "height": 64,
+      "left": 238,
+      "right": 302,
+      "top": 82,
+      "width": 64,
+      "x": 238,
+      "y": 82
+    },
+    "viewport": [
+      320,
+      740
+    ]
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "octomochi",
+    "pal": "octomochi",
+    "pressed": "true"
+  },
+  {
+    "id": "cuttlemochi",
+    "pal": "cuttlemochi",
+    "pressed": "true"
+  },
+  {
+    "id": "squidmochi",
+    "pal": "squidmochi",
+    "pressed": "true"
+  },
+  {
+    "id": "goldmochi",
+    "pal": "goldmochi",
+    "pressed": "true"
+  },
+  {
+    "id": "whalemochi",
+    "pal": "whalemochi",
+    "pressed": "true"
+  },
+  {
+    "id": "sharkmochi",
+    "pal": "sharkmochi",
+    "pressed": "true"
+  },
+  {
+    "id": "sealmochi",
+    "pal": "sealmochi",
+    "pressed": "true"
+  },
+  {
+    "id": "turtlemochi",
+    "pal": "turtlemochi",
+    "pressed": "true"
+  },
+  {
+    "id": "crabmochi",
+    "pal": "crabmochi",
+    "pressed": "true"
+  }
+]

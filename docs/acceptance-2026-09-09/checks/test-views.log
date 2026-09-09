@@ -1,0 +1,16 @@
+
+> squishy-pals@0.1.0 test:views
+> node --experimental-strip-types scripts/test-views.ts
+
+octomochi: default front, both views, all materials, dragging and accessories passed
+cuttlemochi: default front, both views, all materials, dragging and accessories passed
+squidmochi: default front, both views, all materials, dragging and accessories passed
+sealmochi: default front, both views, all materials, dragging and accessories passed
+turtlemochi: default front, both views, all materials, dragging and accessories passed
+crabmochi: default front, both views, all materials, dragging and accessories passed
+goldmochi: default front, both views, all materials, dragging and accessories passed
+whalemochi: default front, both views, all materials, dragging and accessories passed
+sharkmochi: default front, both views, all materials, dragging and accessories passed
+
+(node:81563) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

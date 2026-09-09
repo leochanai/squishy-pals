@@ -1,0 +1,275 @@
+[
+  {
+    "id": "octomochi",
+    "view": "front",
+    "point": [
+      490,
+      650
+    ],
+    "hit": "miss"
+  },
+  {
+    "id": "octomochi",
+    "view": "side-a",
+    "point": [
+      725,
+      610
+    ],
+    "hit": "{\"part\":\"arm-8\",\"handle\":62}"
+  },
+  {
+    "id": "octomochi",
+    "view": "side-b",
+    "point": [
+      412,
+      630
+    ],
+    "hit": "{\"part\":\"arm-1\",\"handle\":7}"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "front",
+    "point": [
+      430,
+      650
+    ],
+    "hit": "miss"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "side-a",
+    "point": [
+      780,
+      650
+    ],
+    "hit": "{\"part\":\"tentacle-9\",\"handle\":8}"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "side-b",
+    "point": [
+      350,
+      650
+    ],
+    "hit": "miss"
+  },
+  {
+    "id": "squidmochi",
+    "view": "front",
+    "point": [
+      642,
+      666
+    ],
+    "hit": "{\"part\":\"tentacle-10\",\"handle\":9}"
+  },
+  {
+    "id": "squidmochi",
+    "view": "side-a",
+    "point": [
+      661,
+      669
+    ],
+    "hit": "{\"part\":\"tentacle-9\",\"handle\":8}"
+  },
+  {
+    "id": "squidmochi",
+    "view": "side-b",
+    "point": [
+      475,
+      669
+    ],
+    "hit": "{\"part\":\"tentacle-10\",\"handle\":9}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "front",
+    "point": [
+      679,
+      593
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-a",
+    "point": [
+      615,
+      598
+    ],
+    "hit": "{\"part\":\"fin-2\",\"handle\":1}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-b",
+    "point": [
+      515,
+      605
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "front",
+    "point": [
+      703,
+      609
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-a",
+    "point": [
+      542,
+      601
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-b",
+    "point": [
+      594,
+      604
+    ],
+    "hit": "{\"part\":\"fin-2\",\"handle\":1}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "front",
+    "point": [
+      679,
+      590
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-a",
+    "point": [
+      588,
+      621
+    ],
+    "hit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-b",
+    "point": [
+      540,
+      621
+    ],
+    "hit": "{\"part\":\"fin-3\",\"handle\":2}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "front",
+    "point": [
+      666,
+      601
+    ],
+    "hit": "{\"part\":\"flipper-1\",\"handle\":2}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-a",
+    "point": [
+      574,
+      628
+    ],
+    "hit": "miss"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-b",
+    "point": [
+      573,
+      628
+    ],
+    "hit": "miss"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "front",
+    "point": [
+      717,
+      601
+    ],
+    "hit": "{\"part\":\"flipper-1-1\",\"handle\":3}"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "side-a",
+    "point": [
+      624,
+      618
+    ],
+    "hit": "{\"part\":\"flipper--1-1\",\"handle\":1}"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "side-b",
+    "point": [
+      491,
+      618
+    ],
+    "hit": "{\"part\":\"flipper-1-1\",\"handle\":3}"
+  },
+  {
+    "id": "crabmochi",
+    "view": "front",
+    "point": [
+      818,
+      480
+    ],
+    "hit": "{\"part\":\"claw-1\",\"handle\":9}"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-a",
+    "point": [
+      622,
+      514
+    ],
+    "hit": "{\"part\":\"claw--1\",\"handle\":4}"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-b",
+    "point": [
+      510,
+      514
+    ],
+    "hit": "{\"part\":\"claw-1\",\"handle\":9}"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "front",
+    "recheck": true,
+    "hit": "{\"part\":\"arm-2\",\"handle\":1}"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "side-b",
+    "recheck": true,
+    "hit": "{\"part\":\"arm-6\",\"handle\":5}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-a",
+    "recheck": true,
+    "hit": "{\"part\":\"flipper--1\",\"handle\":0}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-b",
+    "recheck": true,
+    "hit": "{\"part\":\"flipper-1\",\"handle\":2}"
+  },
+  {
+    "id": "octomochi",
+    "view": "front",
+    "recheck": true,
+    "hit": "{\"part\":\"arm-8\",\"handle\":63}"
+  }
+]

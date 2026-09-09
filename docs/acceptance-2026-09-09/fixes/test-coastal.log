@@ -1,0 +1,9 @@
+
+> squishy-pals@0.1.0 test:coastal
+> node --experimental-strip-types scripts/test-coastal.ts
+
+(node:2469) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+sealmochi: press, drag, release, limbs, signature action, materials, accessories and viewport constraints passed
+turtlemochi: press, drag, release, limbs, signature action, materials, accessories and viewport constraints passed
+crabmochi: press, drag, release, limbs, signature action, materials, accessories and viewport constraints passed

@@ -1,0 +1,41 @@
+ M app/globals.css
+ M docs/ARCHITECTURE.md
+ M docs/PRODUCT.md
+ D docs/target-reference.png
+ M package.json
+ M public/pals/crabmochi-front.png
+ M public/pals/crabmochi.png
+ M public/pals/cuttlemochi-front.png
+ M public/pals/cuttlemochi.png
+ M public/pals/goldmochi-front.png
+ M public/pals/goldmochi.png
+ M public/pals/octomochi-front.png
+ M public/pals/octomochi-refined.png
+ M public/pals/sealmochi-front.png
+ M public/pals/sealmochi.png
+ M public/pals/sharkmochi-front.png
+ M public/pals/sharkmochi.png
+ M public/pals/squidmochi-front.png
+ M public/pals/squidmochi.png
+ M public/pals/turtlemochi-front.png
+ M public/pals/turtlemochi.png
+ M public/pals/whalemochi-front.png
+ M public/pals/whalemochi.png
+ M scripts/test-accessories.ts
+ M scripts/test-cephalopods.ts
+ M scripts/test-coastal.ts
+ M scripts/test-heading.ts
+ M src/characters/coastalmochi.ts
+ M src/characters/cuttlemochi.ts
+ M src/characters/goldmochi.ts
+ M src/characters/octomochi.ts
+ M src/characters/octopus.ts
+ M src/characters/registry.ts
+ M src/characters/sharkmochi.ts
+ M src/characters/squidmochi.ts
+ M src/characters/whalemochi.ts
+ M src/core/accessories.ts
+?? docs/acceptance-2026-09-09/
+?? docs/avatar-acceptance-2026-09-09/
+?? scripts/test-squid-face.ts
+?? scripts/test-whale-eyes.ts

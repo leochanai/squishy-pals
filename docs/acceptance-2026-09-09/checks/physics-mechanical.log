@@ -1,0 +1,4 @@
+Physics passed: 4984 frames, 8 independent arms, maximum segment stretch 1.3800, landing squash 0.320, poke height 0.511.
+
+(node:76505) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

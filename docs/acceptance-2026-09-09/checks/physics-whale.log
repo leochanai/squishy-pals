@@ -1,0 +1,4 @@
+createWhaleMochi passed: 3190 frames, press, drag, release, poke, parameter extremes, reset and disposal.
+
+(node:75460) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

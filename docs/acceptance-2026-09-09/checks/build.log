@@ -1,0 +1,53 @@
+
+> squishy-pals@0.1.0 build
+> vinext build
+
+
+  vinext build  (Vite 8.0.13)
+
+[1/5] analyze client references...
+[2Ktransforming...✓ 254 modules transformed.
+rendering chunks...
+✓ built in 1.53s
+[2/5] analyze server references...
+[2Ktransforming...✓ 328 modules transformed.
+rendering chunks...
+✓ built in 652ms
+[3/5] build rsc environment...
+[2Ktransforming...✓ 251 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 876ms
+[4/5] build client environment...
+[2Ktransforming...✓ 2106 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 1.77s
+[5/5] build ssr environment...
+[2Ktransforming...✓ 334 modules transformed.
+rendering chunks...
+computing gzip size...
+✓ built in 894ms
+[0m
+  Route (app)
+  ┌ ? /        
+  ├ ? /pals    
+  └ ƒ /pals/:id
+
+  ƒ Dynamic  ? Unknown
+
+  ? Some routes could not be classified. vinext currently uses static analysis
+    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.
+    Automatic classification will be improved in a future release.
+
+  Build complete. Run `vinext start` to start the production server.
+
+
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

@@ -1,0 +1,3 @@
+Browser tab: 2, Title: "Squishy Pals · 软软伙伴", URL: "http://localhost:5190/pals/cuttlemochi".
+There has been no change in the accessibility tree.
+The focused UI element is 16 container 绵绵小墨鱼，按住按压，拖动拉伸，空格弹跳

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "final-typecheck",
+    "command": "npm run typecheck",
+    "status": 0,
+    "signal": null,
+    "seconds": 2.327
+  },
+  {
+    "name": "final-build",
+    "command": "npm run build",
+    "status": 0,
+    "signal": null,
+    "seconds": 7.244
+  }
+]

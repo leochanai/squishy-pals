@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "id": "octomochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "cuttlemochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "squidmochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "goldmochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "whalemochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "sharkmochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "sealmochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "turtlemochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    },
+    {
+      "id": "crabmochi",
+      "backend": "WebGPU",
+      "selected": "true"
+    }
+  ],
+  "errors": []
+}

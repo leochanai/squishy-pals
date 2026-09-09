@@ -1,0 +1,92 @@
+[
+  {
+    "id": "crabmochi",
+    "view": "front",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"claw-1\",\"handle\":9}"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-a",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"claw--1\",\"handle\":4}"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-b",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"claw-1\",\"handle\":9}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "front",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"flipper-1\",\"handle\":2}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-a",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"flipper--1\",\"handle\":0}"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-b",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"flipper-1\",\"handle\":2}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "front",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-a",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-2\",\"handle\":1}"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-b",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "front",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-a",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-b",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-3\",\"handle\":2}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "front",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-a",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-4\",\"handle\":3}"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-b",
+    "bodyHit": "{\"part\":\"body\",\"handle\":-1}",
+    "limbHit": "{\"part\":\"fin-2\",\"handle\":1}"
+  }
+]

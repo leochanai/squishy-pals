@@ -1,0 +1,191 @@
+[
+  {
+    "id": "octomochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/octomochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 糯糯八爪鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "octomochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/octomochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 糯糯八爪鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "octomochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/octomochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 糯糯八爪鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/cuttlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 绵绵小墨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/cuttlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 绵绵小墨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "cuttlemochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/cuttlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 绵绵小墨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "squidmochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/squidmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 啵啵小鱿鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "squidmochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": false,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/squidmochi?audit\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 16 container 啵啵小鱿鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "squidmochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": false,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/squidmochi?audit\".\nThere has been no change in the accessibility tree.\nThe focused UI element is 16 container 啵啵小鱿鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "goldmochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/goldmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 摇摇小金鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/goldmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 摇摇小金鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "goldmochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/goldmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 摇摇小金鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "whalemochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/whalemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲸鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/whalemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲸鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "whalemochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/whalemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲸鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sharkmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sharkmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sharkmochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sharkmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 深海小鲨鱼，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sealmochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sealmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 胖胖小海豹，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sealmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 胖胖小海豹，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "sealmochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/sealmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 胖胖小海豹，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/turtlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 悠悠小海龟，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/turtlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 悠悠小海龟，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "turtlemochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/turtlemochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 悠悠小海龟，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "crabmochi",
+    "view": "front",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/crabmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 夹夹小螃蟹，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-a",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/crabmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 夹夹小螃蟹，按住按压，拖动拉伸，空格弹跳"
+  },
+  {
+    "id": "crabmochi",
+    "view": "side-b",
+    "action": "body-drag-release",
+    "releaseStatus": true,
+    "state": "Browser tab: 2, Title: \"Squishy Pals · 软软伙伴\", URL: \"http://localhost:5190/pals/crabmochi?audit\".\nThe following is a diff from the previous accessibility tree with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.\n~\t\t\t19 text 呼，慢慢趴好\nThe focused UI element is 16 container 夹夹小螃蟹，按住按压，拖动拉伸，空格弹跳"
+  }
+]

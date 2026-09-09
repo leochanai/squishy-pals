@@ -1,0 +1,13 @@
+
+> squishy-pals@0.1.0 test:accessories
+> node --experimental-strip-types scripts/test-accessories.ts
+
+(node:2422) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+octomochi: layering, jump, reset, removal and disposal passed
+cuttlemochi: layering, jump, reset, removal and disposal passed
+squidmochi: layering, jump, reset, removal and disposal passed
+goldmochi: layering, jump, reset, removal and disposal passed
+whalemochi: layering, jump, reset, removal and disposal passed
+sharkmochi: layering, jump, reset, removal and disposal passed
+mechaocto: layering, jump, reset, removal and disposal passed

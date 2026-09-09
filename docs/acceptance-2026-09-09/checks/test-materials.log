@@ -1,0 +1,15 @@
+
+> squishy-pals@0.1.0 test:materials
+> node --experimental-strip-types scripts/test-materials.ts
+
+octomochi: material switching, color, pose, accessories, reset and disposal passed
+cuttlemochi: material switching, color, pose, accessories, reset and disposal passed
+squidmochi: material switching, color, pose, accessories, reset and disposal passed
+goldmochi: material switching, color, pose, accessories, reset and disposal passed
+whalemochi: material switching, color, pose, accessories, reset and disposal passed
+sharkmochi: material switching, color, pose, accessories, reset and disposal passed
+mechaocto: material switching, color, pose, accessories, reset and disposal passed
+octopus: mechanical structure, live pose, picking, accessories and reset passed
+
+(node:82273) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

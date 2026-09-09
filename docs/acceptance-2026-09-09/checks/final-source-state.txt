@@ -1,0 +1,8 @@
+src diff empty before checks
+ac441c4d3107c2122ffaf02bbc7dc9ab0da8c9f9
+ M docs/PRODUCT.md
+ D docs/target-reference.png
+?? docs/acceptance-2026-09-09/
+?? docs/avatar-acceptance-2026-09-09/
+
+src diff empty after checks

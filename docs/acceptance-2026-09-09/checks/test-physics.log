@@ -1,0 +1,26 @@
+
+> squishy-pals@0.1.0 test:physics
+> node --experimental-strip-types scripts/test-physics.ts && node --experimental-strip-types scripts/test-cephalopods.ts && node --experimental-strip-types scripts/test-physics.ts --mechanical
+
+Physics passed: 4984 frames, 8 independent arms, maximum segment stretch 1.3800, landing squash 0.320, poke height 0.511.
+createCuttleMochi passed: 2770 frames, press, drag, release, poke, parameter extremes, reset and disposal.
+createSquidMochi passed: 2770 frames, press, drag, release, poke, parameter extremes, reset and disposal.
+
+(node:74279) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:74522) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: side fin must be independently pickable
+    at file:///Users/farghost/GithubProjects/squishy-pals/scripts/test-cephalopods.ts:89:12 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: null,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v22.17.0

@@ -1,0 +1,10 @@
+
+> squishy-pals@0.1.0 test:switching
+> node --experimental-strip-types scripts/test-switching.ts
+
+octopus: first geometry 442.4 ms; cached lookup 0.001 ms (GPU excluded).
+whalemochi: first geometry 332.6 ms; cached lookup 0.001 ms (GPU excluded).
+Switching passed: shared preload, cache reuse, latest selection, retry and safe teardown.
+
+(node:82245) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

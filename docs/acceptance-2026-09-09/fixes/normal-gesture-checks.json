@@ -1,0 +1,50 @@
+[
+  {
+    "id": "octomochi",
+    "route": "http://localhost:5190/pals/octomochi",
+    "from": [
+      565,
+      500
+    ],
+    "right": [
+      875,
+      500
+    ],
+    "left": [
+      260,
+      500
+    ]
+  },
+  {
+    "id": "cuttlemochi",
+    "route": "http://localhost:5190/pals/cuttlemochi",
+    "from": [
+      565,
+      500
+    ],
+    "right": [
+      875,
+      500
+    ],
+    "left": [
+      260,
+      500
+    ]
+  },
+  {
+    "id": "squidmochi",
+    "route": "http://localhost:5190/pals/squidmochi",
+    "from": [
+      565,
+      500
+    ],
+    "right": [
+      875,
+      500
+    ],
+    "left": [
+      260,
+      500
+    ]
+  }
+]

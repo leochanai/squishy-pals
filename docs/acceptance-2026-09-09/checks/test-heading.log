@@ -1,0 +1,10 @@
+
+> squishy-pals@0.1.0 test:heading
+> node --experimental-strip-types scripts/test-heading.ts
+
+whalemochi: head steers both ways; tail, fin, click and vertical pull preserve heading; smooth turn, release and reset passed.
+sharkmochi: head steers both ways; tail, fin, click and vertical pull preserve heading; smooth turn, release and reset passed.
+goldmochi: head steers both ways; tail, fin, click and vertical pull preserve heading; smooth turn, release and reset passed.
+
+(node:81683) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

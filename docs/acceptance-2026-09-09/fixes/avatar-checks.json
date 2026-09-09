@@ -1,0 +1,290 @@
+[
+  {
+    "id": "octomochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 27,
+      "right": 91,
+      "top": 85,
+      "width": 64,
+      "x": 27,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "cuttlemochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 99,
+      "right": 163,
+      "top": 85,
+      "width": 64,
+      "x": 99,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "squidmochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "goldmochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "whalemochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "sharkmochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "sealmochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "turtlemochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 227,
+      "right": 291,
+      "top": 85,
+      "width": 64,
+      "x": 227,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "crabmochi",
+    "width": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 299,
+      "right": 363,
+      "top": 85,
+      "width": 64,
+      "x": 299,
+      "y": 85
+    },
+    "scrollWidth": 390
+  },
+  {
+    "id": "octomochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 27,
+      "right": 91,
+      "top": 85,
+      "width": 64,
+      "x": 27,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "cuttlemochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 99,
+      "right": 163,
+      "top": 85,
+      "width": 64,
+      "x": 99,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "squidmochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "goldmochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "whalemochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "sharkmochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "sealmochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "turtlemochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 157,
+      "right": 221,
+      "top": 85,
+      "width": 64,
+      "x": 157,
+      "y": 85
+    },
+    "scrollWidth": 320
+  },
+  {
+    "id": "crabmochi",
+    "width": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 229,
+      "right": 293,
+      "top": 85,
+      "width": 64,
+      "x": 229,
+      "y": 85
+    },
+    "scrollWidth": 320
+  }
+]

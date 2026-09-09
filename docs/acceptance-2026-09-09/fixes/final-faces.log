@@ -1,0 +1,12 @@
+
+> squishy-pals@0.1.0 test:faces
+> node --experimental-strip-types scripts/test-whale-eyes.ts && node --experimental-strip-types scripts/test-squid-face.ts
+
+(node:20397) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+original: both whale eyes stay embedded during press, drag, poke and recovery
+jelly: both whale eyes stay embedded during press, drag, poke and recovery
+mechanical: both whale eyes stay embedded during press, drag, poke and recovery
+(node:20569) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Squid face: held press, true body heading, immediate material/view switch, poke and reset keep all five facial surfaces on the body field.

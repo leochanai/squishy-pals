@@ -1,0 +1,128 @@
+[
+  {
+    "id": "octomochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "cuttlemochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "squidmochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "goldmochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "whalemochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "sharkmochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "sealmochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "turtlemochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  },
+  {
+    "id": "crabmochi",
+    "accessories": "headphones,glasses,bow",
+    "hatPressed": "false",
+    "bowPressed": "true",
+    "stiffness": "0",
+    "damping": "100",
+    "reset": {
+      "accessories": "",
+      "material": "true",
+      "stiffness": "48",
+      "damping": "42"
+    }
+  }
+]

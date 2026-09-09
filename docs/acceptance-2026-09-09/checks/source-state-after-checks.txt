@@ -1,0 +1,37 @@
+ M docs/PRODUCT.md
+ D docs/target-reference.png
+ M src/core/playground.ts
+?? docs/acceptance-2026-09-09/
+?? docs/avatar-acceptance-2026-09-09/
+
+diff --git a/src/core/playground.ts b/src/core/playground.ts
+index 736825a..9e2e0c5 100644
+--- a/src/core/playground.ts
++++ b/src/core/playground.ts
+@@ -70,6 +70,17 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
+     current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));
+   }
+   const observer = new ResizeObserver(resize); observer.observe(host); resize();
++  // Temporary local acceptance instrumentation; removed after the audit.
++  const auditView = (event: KeyboardEvent) => {
++    if (!new URLSearchParams(location.search).has('audit') || !current || !['7', '8', '9'].includes(event.key)) return;
++    input?.release();
++    current.character.reset();
++    current.character.setParameters({ view: event.key === '7' ? 'front' : 'side' });
++    if (event.key === '9') { current.character.object.rotation.y += Math.PI; current.character.object.updateMatrixWorld(true); }
++    canvas.dataset.auditView = event.key === '7' ? 'front' : event.key === '8' ? 'side-a' : 'side-b';
++    resize();
++  };
++  window.addEventListener('keydown', auditView);
+   const shadowPosition = new Vector3();
+   let previous = performance.now(), total = 0, frames = 0, elapsed = 0, disposed = false;
+   await renderer.setAnimationLoop(() => {
+@@ -139,7 +150,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
+     poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
+     reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },
+     dispose() {
+-      if (disposed) return; disposed = true;
++      if (disposed) return; disposed = true; window.removeEventListener('keydown', auditView);
+       void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); accessories?.dispose(); canvas.remove();
+       // Pending shader compilation still needs the renderer; release it last.
+       void cache.dispose().then(() => { scene.clear(); lighting.dispose(); envMap.dispose(); renderer.dispose(); });

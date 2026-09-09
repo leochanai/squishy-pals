@@ -1,0 +1,929 @@
+[
+  {
+    "id": "octomochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "octomochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "octomochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "cuttlemochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "squidmochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "goldmochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "whalemochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "sharkmochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "sealmochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "turtlemochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "none-00",
+    "wanted": [],
+    "actual": ""
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "none-01",
+    "wanted": [
+      "眼镜"
+    ],
+    "actual": "glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "none-10",
+    "wanted": [
+      "耳机"
+    ],
+    "actual": "headphones"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "none-11",
+    "wanted": [
+      "耳机",
+      "眼镜"
+    ],
+    "actual": "headphones,glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "hat-00",
+    "wanted": [
+      "帽子"
+    ],
+    "actual": "hat"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "hat-01",
+    "wanted": [
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "hat-10",
+    "wanted": [
+      "耳机",
+      "帽子"
+    ],
+    "actual": "hat,headphones"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "hat-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "帽子"
+    ],
+    "actual": "hat,headphones,glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "bow-00",
+    "wanted": [
+      "蝴蝶结"
+    ],
+    "actual": "bow"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "bow-01",
+    "wanted": [
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,glasses"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "bow-10",
+    "wanted": [
+      "耳机",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones"
+  },
+  {
+    "id": "crabmochi",
+    "suffix": "bow-11",
+    "wanted": [
+      "耳机",
+      "眼镜",
+      "蝴蝶结"
+    ],
+    "actual": "bow,headphones,glasses"
+  }
+]

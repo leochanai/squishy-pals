@@ -1,0 +1,44 @@
+diff --git a/src/core/input.ts b/src/core/input.ts
+index 502c65f..718b5c9 100644
+--- a/src/core/input.ts
++++ b/src/core/input.ts
+@@ -19,6 +19,7 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character:
+     if (event.button !== 0 || active !== null) return;
+     ray(event);
+     const hit = character.pick(raycaster);
++    if (new URLSearchParams(location.search).has('audit')) canvas.dataset.auditHit = hit ? JSON.stringify({ part: hit.part, handle: hit.handle }) : 'miss';
+     if (!hit) return;
+     event.preventDefault();
+     canvas.focus({ preventScroll: true });
+diff --git a/src/core/playground.ts b/src/core/playground.ts
+index 736825a..c48e2f9 100644
+--- a/src/core/playground.ts
++++ b/src/core/playground.ts
+@@ -70,6 +70,18 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
+     current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));
+   }
+   const observer = new ResizeObserver(resize); observer.observe(host); resize();
++  // Temporary local acceptance instrumentation; removed after the audit.
++  const auditView = (event: KeyboardEvent) => {
++    if (!new URLSearchParams(location.search).has('audit') || !current || !['0', '7', '8', '9'].includes(event.key)) return;
++    if (event.key === '0') { lighting.shadow.visible = false; renderer.render(scene, camera); canvas.dataset.auditPng = canvas.toDataURL('image/png'); lighting.shadow.visible = true; return; }
++    input?.release();
++    current.character.reset();
++    current.character.setParameters({ view: event.key === '7' ? 'front' : 'side' });
++    if (event.key === '9') { current.character.object.rotation.y += Math.PI; current.character.object.updateMatrixWorld(true); }
++    canvas.dataset.auditView = event.key === '7' ? 'front' : event.key === '8' ? 'side-a' : 'side-b';
++    resize();
++  };
++  window.addEventListener('keydown', auditView);
+   const shadowPosition = new Vector3();
+   let previous = performance.now(), total = 0, frames = 0, elapsed = 0, disposed = false;
+   await renderer.setAnimationLoop(() => {
+@@ -139,7 +151,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
+     poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
+     reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },
+     dispose() {
+-      if (disposed) return; disposed = true;
++      if (disposed) return; disposed = true; window.removeEventListener('keydown', auditView);
+       void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); accessories?.dispose(); canvas.remove();
+       // Pending shader compilation still needs the renderer; release it last.
+       void cache.dispose().then(() => { scene.clear(); lighting.dispose(); envMap.dispose(); renderer.dispose(); });
