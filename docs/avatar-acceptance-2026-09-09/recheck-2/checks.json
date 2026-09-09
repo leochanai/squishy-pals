@@ -1,0 +1,1278 @@
+[
+  {
+    "label": "desktop-octomochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "octomochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/octomochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 57,
+      "right": 121,
+      "top": 101,
+      "width": 64,
+      "x": 57,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "OctoMochi 糯糯八爪鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-cuttlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "cuttlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/cuttlemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 101,
+      "width": 64,
+      "x": 128,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "CuttleMochi 绵绵小墨鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-squidmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "squidmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/squidmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 199,
+      "right": 263,
+      "top": 101,
+      "width": 64,
+      "x": 199,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "SquidMochi 啵啵小鱿鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-goldmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "goldmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/goldmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 270,
+      "right": 334,
+      "top": 101,
+      "width": 64,
+      "x": 270,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "GoldMochi 摇摇小金鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-whalemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "whalemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/whalemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 341,
+      "right": 405,
+      "top": 101,
+      "width": 64,
+      "x": 341,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "WhaleMochi 深海小鲸鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-sharkmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sharkmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sharkmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 412,
+      "right": 476,
+      "top": 101,
+      "width": 64,
+      "x": 412,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "SharkMochi 深海小鲨鱼",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-default-sealmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sealmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sealmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 483,
+      "right": 547,
+      "top": 101,
+      "width": 64,
+      "x": 483,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "SealMochi 胖胖小海豹",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-default-turtlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "turtlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/turtlemochi-front.png?v=4",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 554,
+      "right": 618,
+      "top": 101,
+      "width": 64,
+      "x": 554,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "TurtleMochi 悠悠小海龟",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "desktop-default-crabmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "crabmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/crabmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 182,
+      "height": 90,
+      "left": 48,
+      "right": 1084,
+      "top": 92,
+      "width": 1036,
+      "x": 48,
+      "y": 92
+    },
+    "pageWidth": 1440,
+    "pressed": "true",
+    "rect": {
+      "bottom": 165,
+      "height": 64,
+      "left": 625,
+      "right": 689,
+      "top": 101,
+      "width": 64,
+      "x": 625,
+      "y": 101
+    },
+    "scrollLeft": 0,
+    "selected": "CrabMochi 夹夹小螃蟹",
+    "viewport": [
+      1440,
+      1000
+    ]
+  },
+  {
+    "label": "mobile-390-octomochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "octomochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/octomochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 27,
+      "right": 91,
+      "top": 85,
+      "width": 64,
+      "x": 27,
+      "y": 85
+    },
+    "scrollLeft": 0,
+    "selected": "OctoMochi 糯糯八爪鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-cuttlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "cuttlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/cuttlemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 99,
+      "right": 163,
+      "top": 85,
+      "width": 64,
+      "x": 99,
+      "y": 85
+    },
+    "scrollLeft": 0,
+    "selected": "CuttleMochi 绵绵小墨鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-squidmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "squidmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/squidmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollLeft": 8,
+    "selected": "SquidMochi 啵啵小鱿鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-goldmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "goldmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/goldmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollLeft": 80,
+    "selected": "GoldMochi 摇摇小金鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-whalemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "whalemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/whalemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollLeft": 152,
+    "selected": "WhaleMochi 深海小鲸鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-sharkmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sharkmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sharkmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollLeft": 224,
+    "selected": "SharkMochi 深海小鲨鱼",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-sealmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sealmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sealmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 163,
+      "right": 227,
+      "top": 85,
+      "width": 64,
+      "x": 163,
+      "y": 85
+    },
+    "scrollLeft": 296,
+    "selected": "SealMochi 胖胖小海豹",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-turtlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "turtlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/turtlemochi-front.png?v=4",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 227,
+      "right": 291,
+      "top": 85,
+      "width": 64,
+      "x": 227,
+      "y": 85
+    },
+    "scrollLeft": 304,
+    "selected": "TurtleMochi 悠悠小海龟",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-390-crabmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "crabmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/crabmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 299,
+      "right": 363,
+      "top": 85,
+      "width": 64,
+      "x": 299,
+      "y": 85
+    },
+    "scrollLeft": 304,
+    "selected": "CrabMochi 夹夹小螃蟹",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-scroll-start",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "crabmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/crabmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 603,
+      "right": 667,
+      "top": 85,
+      "width": 64,
+      "x": 603,
+      "y": 85
+    },
+    "scrollLeft": 0,
+    "selected": "CrabMochi 夹夹小螃蟹",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "mobile-scroll-end",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "crabmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/crabmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 372,
+      "top": 76,
+      "width": 354,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 390,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 299,
+      "right": 363,
+      "top": 85,
+      "width": 64,
+      "x": 299,
+      "y": 85
+    },
+    "scrollLeft": 304,
+    "selected": "CrabMochi 夹夹小螃蟹",
+    "viewport": [
+      390,
+      844
+    ]
+  },
+  {
+    "label": "narrow-320-octomochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "octomochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/octomochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 27,
+      "right": 91,
+      "top": 85,
+      "width": 64,
+      "x": 27,
+      "y": 85
+    },
+    "scrollLeft": 0,
+    "selected": "OctoMochi 糯糯八爪鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-cuttlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "cuttlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/cuttlemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 99,
+      "right": 163,
+      "top": 85,
+      "width": 64,
+      "x": 99,
+      "y": 85
+    },
+    "scrollLeft": 0,
+    "selected": "CuttleMochi 绵绵小墨鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-squidmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "squidmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/squidmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollLeft": 43,
+    "selected": "SquidMochi 啵啵小鱿鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-goldmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "goldmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/goldmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollLeft": 115,
+    "selected": "GoldMochi 摇摇小金鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-whalemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "whalemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/whalemochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollLeft": 187,
+    "selected": "WhaleMochi 深海小鲸鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-sharkmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sharkmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sharkmochi-front.png",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollLeft": 259,
+    "selected": "SharkMochi 深海小鲨鱼",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-sealmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "sealmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/sealmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 128,
+      "right": 192,
+      "top": 85,
+      "width": 64,
+      "x": 128,
+      "y": 85
+    },
+    "scrollLeft": 331,
+    "selected": "SealMochi 胖胖小海豹",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-turtlemochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "turtlemochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/turtlemochi-front.png?v=4",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 157,
+      "right": 221,
+      "top": 85,
+      "width": 64,
+      "x": 157,
+      "y": 85
+    },
+    "scrollLeft": 374,
+    "selected": "TurtleMochi 悠悠小海龟",
+    "viewport": [
+      320,
+      740
+    ]
+  },
+  {
+    "label": "narrow-320-crabmochi",
+    "allLoaded": true,
+    "backend": "WebGPU",
+    "canvasPal": "crabmochi",
+    "image": {
+      "complete": true,
+      "fit": "contain",
+      "size": [
+        512,
+        512
+      ],
+      "source": "/pals/crabmochi-front.png?v=3",
+      "transform": "none"
+    },
+    "list": {
+      "bottom": 166,
+      "height": 90,
+      "left": 18,
+      "right": 302,
+      "top": 76,
+      "width": 284,
+      "x": 18,
+      "y": 76
+    },
+    "pageWidth": 320,
+    "pressed": "true",
+    "rect": {
+      "bottom": 149,
+      "height": 64,
+      "left": 229,
+      "right": 293,
+      "top": 85,
+      "width": 64,
+      "x": 229,
+      "y": 85
+    },
+    "scrollLeft": 374,
+    "selected": "CrabMochi 夹夹小螃蟹",
+    "viewport": [
+      320,
+      740
+    ]
+  }
+]
