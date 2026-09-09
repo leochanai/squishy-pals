@@ -565,4 +565,11 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .material-option [data-slot=radio-group-item]:after{inset:0}
 @media(max-width:760px){.playground-page .material-section{padding:17px 0 0}}
 
-.view-options{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Keep the visible stage and its canvas the same size, independent of the settings height. */
+.playground-page .experience{grid-template-rows:96px clamp(400px,calc(100svh - 320px),650px) 72px;align-content:start}
+.playground-page .play-stage .scene-host{height:100%}
+.playground-page .stage-caption{align-self:start;min-height:64px;padding-top:8px}
+@media(max-width:760px){
+ .playground-page .experience,.playground-page:is([data-pal=cuttlemochi],[data-pal=squidmochi]) .experience{grid-template-rows:88px clamp(340px,52svh,500px) 76px auto}
+ .playground-page .stage-caption{min-height:68px;justify-content:center;gap:6px}
+}

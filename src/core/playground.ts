@@ -64,7 +64,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     renderer.setSize(width, height, false);
     if (!current) return;
     // Growing the play surface must add travel, not automatically enlarge the toy.
-    const maxPalHeight = Math.min(340, window.innerHeight * (window.innerWidth > 760 ? .315 : .3));
+    const maxPalHeight = Math.min(380, window.innerHeight * (window.innerWidth > 760 ? .42 : .32));
     const viewBounds = current.bounds.clone().applyMatrix4(current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert()));
     frameCharacter(camera, viewBounds, width, height, maxPalHeight);
     current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));

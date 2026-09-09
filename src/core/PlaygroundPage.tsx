@@ -16,7 +16,7 @@ const basePalette = [
   { name: '芋泥紫', color: '#c6a0df' }, { name: '草莓粉', color: '#f2a4c0' },
   { name: '珊瑚橙', color: '#f69b85' }, { name: '薄荷绿', color: '#9cccbc' },
 ];
-const materialOptions = [{ id: 'original', name: '原有' }, { id: 'jelly', name: '果冻' }, { id: 'mechanical', name: '机械' }] as const;
+const materialOptions = [{ id: 'original', name: '软胶' }, { id: 'jelly', name: '果冻' }, { id: 'mechanical', name: '机械' }] as const;
 
 export default function PlaygroundPage({ characterId }: { characterId: string }) {
   const router = useRouter();
@@ -26,7 +26,6 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const selected = characters.find(item => item.id === characterId)!;
   const [displayedCharacter, setDisplayedCharacter] = useState(selected);
   const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
-  const [view, setView] = useState<'front' | 'side'>('front');
   const [color, setColor] = useState(selected.defaults.color);
   const [material, setMaterial] = useState<MaterialPreset>(selected.defaults.material);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
@@ -67,7 +66,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   useEffect(() => {
     setReady(false);
     const defaults = selected.defaults;
-    setView('front'); setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
+    setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
     // Fetch the first model module while the shared renderer initializes.
     if (!engineReady) { void selected.load().catch(() => {}); return; }
     let cancelled = false;
@@ -79,14 +78,13 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     return () => { cancelled = true; };
   }, [selected, engineReady, retry]);
   useEffect(() => { if (ready) game.current?.setParameters({ color, material, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, material, stiffness, damping, ready]);
-  useEffect(() => { if (ready) game.current?.setParameters({ view }); }, [view, ready]);
   useEffect(() => { if (ready) game.current?.setAccessories(accessories); }, [accessories, ready]);
   const preload = (item: RegisteredCharacter) => {
     router.prefetch(`/pals/${item.id}`);
     if (game.current) void game.current.preloadCharacter(item).catch(() => {});
     else void item.load().catch(() => {});
   };
-  const reset = () => { setView('front'); game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setMaterial(selected.defaults.material); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
+  const reset = () => { game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setMaterial(selected.defaults.material); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
   return (
     <main className="playground-page" data-pal={characterId} style={{ '--pal-accent': color } as React.CSSProperties}>
       <header className="topbar">
@@ -103,13 +101,6 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
         <div className="mood" aria-live="polite"><span />{status}</div>
         </div>
         <aside className="control-panel" aria-label="伙伴设置">
-          <section className="material-section" aria-labelledby="view-label">
-            <div className="control-label"><span id="view-label">朝向</span></div>
-            <RadioGroup className="material-options view-options" aria-labelledby="view-label" value={view} disabled={!ready} onValueChange={value => setView(value as 'front' | 'side')}>
-              <label className="material-option"><RadioGroupItem value="front" /><span>正面</span></label>
-              <label className="material-option"><RadioGroupItem value="side" /><span>侧面</span></label>
-            </RadioGroup>
-          </section>
           <div className="color-section"><div className="control-label"><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className="swatches">{palette.map(item => <button key={item.color} className={`swatch ${color === item.color ? 'selected' : ''}`} style={{ '--swatch': item.color } as React.CSSProperties} disabled={!ready} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>
           <section className="material-section" aria-labelledby="material-label">
             <div className="control-label"><span id="material-label">材质</span></div>

@@ -45,7 +45,7 @@ for (const [file, factory, mechanical] of [
     character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height, restTransform));
     const projected = worldCorners.map(point => point.clone().project(camera));
     const projectedHeight = (Math.max(...projected.map(p => p.y)) - Math.min(...projected.map(p => p.y))) * height / 2;
-    assert.ok(projectedHeight <= Math.min(height * .5, maxProjectedHeight) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
+    assert.ok(projectedHeight <= Math.min(height * .65, maxProjectedHeight) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
     const bodyOrigin = ['whalemochi', 'sharkmochi'].includes(file) ? character.object.localToWorld(new Vector3(-.95, 6, .35)) : new Vector3(.12, 6, .1);
     const hit = character.pick(new Raycaster(bodyOrigin, new Vector3(0, -1, 0)));
     assert.ok(hit && hit.handle < 0, `${file}: body must be independently draggable`);

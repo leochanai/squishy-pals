@@ -16,7 +16,7 @@ export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: n
   camera.aspect = width / height;
   camera.fov = 32;
   const tangent = Math.tan(camera.fov * Math.PI / 360);
-  const verticalFill = Math.min(.5, maxProjectedHeight / height);
+  const verticalFill = Math.min(.65, maxProjectedHeight / height);
   const horizontalFill = .64;
   let distance = 0;
   for (const corner of corners(bounds)) {
