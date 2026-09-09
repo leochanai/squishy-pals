@@ -95,7 +95,7 @@ export const characters: RegisteredCharacter[] = [{
   id: 'crabmochi',
   name: '夹夹小螃蟹',
   englishName: 'CrabMochi',
-  description: '圆圆的钳子，八只短短的小腿。拉拉小钳子，戳一下，举起双钳向你打招呼。',
+  description: '张开的小钳子，八只短短的小腿。拉拉小钳子，戳一下，举起双钳向你打招呼。',
   image: '/pals/crabmochi.png?v=3',
   icon: '🦀',
   color: '#dc4038',

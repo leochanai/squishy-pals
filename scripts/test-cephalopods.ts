@@ -37,8 +37,12 @@ for (const create of factories) {
       }
     });
   };
-  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, character.object.name === 'WhaleMochi' ? 4 : character.object.name === 'SharkMochi' ? 6 : 5); assert.equal(character.diagnostics().tailLobes, 2); }
+  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, character.object.name === 'WhaleMochi' ? 4 : 9); assert.equal(character.diagnostics().tailLobes, 2); }
   else assert.equal(Number(character.diagnostics().armCount) + Number(character.diagnostics().tentacleCount ?? 0), 10, 'eight arms plus two tentacles');
+  if (character.object.name === 'SharkMochi') {
+    const gills = character.object.children.filter(node => node.name === 'gill') as Mesh[];
+    for (const side of [-1, 1]) assert.equal(gills.filter(mesh => Math.sign(mesh.geometry.getAttribute('position').getZ(0)) === side).length, 5, 'typical shark must have five gill slits per side');
+  }
   if (character.object.name === 'WhaleMochi' || character.object.name === 'SharkMochi') { assert.equal(character.diagnostics().eyeCount, 2); assert.equal(character.diagnostics().tailPlane, character.object.name === 'WhaleMochi' ? 'horizontal' : 'vertical'); }
   character.object.updateMatrixWorld(true);
   const bodyOrigin = ['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? character.object.localToWorld(new Vector3(-0.95, 6, 0.35)) : new Vector3(0.12, 6, 0.1);
@@ -85,7 +89,8 @@ for (const create of factories) {
   assert.equal(character.diagnostics().dragging, false);
   if (character.diagnostics().finCount !== undefined) {
     character.object.updateMatrixWorld(true);
-    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.23 : 1.15, 6, character.object.name === 'GoldMochi' ? 0.44 : 0)), new Vector3(0, -1, 0)));
+    // Match the visible pectoral fan, which sweeps backwards from its root.
+    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.23 : 1.15, 6, character.object.name === 'GoldMochi' ? -0.03 : 0)), new Vector3(0, -1, 0)));
     assert.ok(finHit && finHit.handle >= 0, 'side fin must be independently pickable');
     character.beginGrab(finHit);
     character.moveGrab(finHit.point.clone().add(new Vector3(0.3, 0.5, 0)), true);
@@ -94,6 +99,34 @@ for (const create of factories) {
     character.endGrab();
     step(360);
     assert.ok(Number(character.diagnostics().maxLimbDisplacement) < 0.02, 'fin must recover after release');
+  }
+  const lowerFins: [string, number[], number][] = character.object.name === 'GoldMochi' ? [
+    ['pelvic-fin--1', [-6, 0.25, -0.5], 5], ['anal-fin--1', [-6, 0.23, -0.98], 6],
+    ['pelvic-fin-1', [6, 0.25, -0.5], 7], ['anal-fin-1', [6, 0.23, -0.98], 8],
+  ] : character.object.name === 'SharkMochi' ? [
+    ['pelvic-fin--1', [0.78, 0.59, -6], 6], ['pelvic-fin-1', [0.78, 0.59, 6], 7], ['anal-fin', [1.15, 0.65, 6], 8],
+  ] : [];
+  for (const material of ['original', 'jelly', 'mechanical'] as const) for (const [name, origin, handle] of lowerFins) {
+    character.reset();
+    character.setParameters({ material, stiffness: 0.48, damping: 0.42 });
+    const mesh = character.object.getObjectByName(name) as Mesh;
+    assert.ok(mesh, `${name} must be present`);
+    const position = mesh.geometry.getAttribute('position');
+    const resting = new Float32Array(position.array);
+    const direction = character.object.name === 'GoldMochi' ? new Vector3(-Math.sign(origin[0]), 0, 0) : new Vector3(0, 0, -Math.sign(origin[2]));
+    const hit = character.pick(new Raycaster(character.object.localToWorld(new Vector3(...origin)), direction.transformDirection(character.object.matrixWorld)));
+    assert.equal(hit?.handle, handle, `${material}: ${name} must be independently pickable`);
+    character.beginGrab(hit!);
+    character.moveGrab(hit!.point.clone().add(new Vector3(0.25, 0.5, 0)), true);
+    step(30);
+    let motion = 0;
+    for (let i = 0; i < position.count; i++) motion = Math.max(motion, new Vector3().fromBufferAttribute(position, i).distanceTo(new Vector3().fromArray(resting, i * 3)));
+    assert.ok(motion > 0.1, `${material}: dragging ${name} must deform its geometry`);
+    character.endGrab();
+    step(180);
+    assert.ok(Number(character.diagnostics().maxLimbDisplacement) < 0.02, `${name} must recover after release`);
+    character.reset();
+    assert.equal(character.diagnostics().maxLimbDisplacement, 0, `${name} must reset`);
   }
   character.dispose();
   assert.equal(character.object.children.length, 0, 'dispose must remove scene resources');

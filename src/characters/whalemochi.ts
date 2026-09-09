@@ -10,6 +10,7 @@ interface Part {
   handle: number;
   fin: boolean;
   along: Float32Array;
+  eye?: { center: THREE.Vector3; up: THREE.Vector3 };
 }
 
 /** Broad-headed baleen whale, sculpted in side profile to match its catalogue portrait. */
@@ -124,31 +125,37 @@ export function createWhaleMochi(): Character {
     paddle(new THREE.Vector3(1.40, 1.43, 0), new THREE.Vector3(1.72, 1.69, side * 0.58), new THREE.Vector3(2.07, 2.02, side * 1.08), 0.47, 0.18, `tail-fluke-${side}`);
     paddle(new THREE.Vector3(-0.44, 0.87, side * 0.66), new THREE.Vector3(-0.10, 0.57, side * 1.08), new THREE.Vector3(0.37, 0.30, side * 1.38), 0.39, 0.18, `flipper-${side}`);
   }
-  const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
-  const sphere = new THREE.SphereGeometry(1, 32, 24);
-  function detail(mesh: THREE.Mesh, rest: THREE.Vector3, normal: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, normal, eye }); }
+  const eyes: { marker: THREE.Object3D; rest: THREE.Vector3 }[] = [];
   const snout = parts[0].mesh.clone(false);
   snout.updateMatrixWorld(true);
   const ray = new THREE.Raycaster();
   for (const side of [-1, 1]) {
-    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.12, 0.145, 0.065);
-    ray.set(new THREE.Vector3(-0.90, 1.43, side * 5), new THREE.Vector3(0, 0, -side));
+    ray.set(new THREE.Vector3(-1.50, 1.43, side * 5), new THREE.Vector3(0, 0, -side));
     const eyeHit = ray.intersectObject(snout, false)[0]!;
     const eyeNormal = eyeHit.face!.normal.clone().normalize();
-    detail(eye, eyeHit.point.clone().addScaledVector(eyeNormal, 0.025), eyeNormal, true);
+    const center = eyeHit.point.clone().addScaledVector(eyeNormal, .025);
+    const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), eyeNormal).normalize();
+    const up = new THREE.Vector3().crossVectors(eyeNormal, right).normalize();
+    const geometry = new THREE.SphereGeometry(1, 32, 24).scale(.12, .145, .065);
+    geometry.applyMatrix4(new THREE.Matrix4().makeBasis(right, up, eyeNormal)).translate(center.x, center.y, center.z);
+    add(geometry);
+    const part = parts[parts.length - 1], name = side < 0 ? 'left-eye' : 'right-eye';
+    part.mesh.name = `${name}-surface`; part.mesh.material = dark; part.eye = { center, up };
+    const marker = new THREE.Object3D(); marker.name = name; object.add(marker);
+    eyes.push({ marker, rest: center });
   }
   // Sweep one lip around the lower jaw, fitting every point along an outward ray.
   // A single angular sweep avoids the projecting join between front and cheek curves.
   const smilePoints = Array.from({ length: 97 }, (_, i) => {
     const u = i / 48 - 1, angle = u * 1.10;
-    const y = 1.095 + 0.08 * (Math.sin(angle) / Math.sin(1.38)) ** 4;
+    const y = 1.02 + 0.08 * (Math.sin(angle) / Math.sin(1.38)) ** 4;
     const outward = new THREE.Vector3(-Math.cos(angle), 0, Math.sin(angle));
     ray.set(new THREE.Vector3(-0.82, y, 0).addScaledVector(outward, 5), outward.clone().negate());
     const hit = ray.intersectObject(snout, false)[0]!;
     return hit.point.clone().addScaledVector(hit.face!.normal, 0.003);
   });
   const smile = new THREE.CatmullRomCurve3(smilePoints);
-  add(new THREE.TubeGeometry(smile, 224, 0.012, 8, false));
+  add(new THREE.TubeGeometry(smile, 224, 0.024, 8, false));
   parts[parts.length - 1].mesh.material = mouthMaterial;
   parts[parts.length - 1].mesh.name = 'smile';
   const body = new THREE.Vector3(), velocity = new THREE.Vector3(), delta = new THREE.Vector3();
@@ -156,8 +163,6 @@ export function createWhaleMochi(): Character {
   const stretch = new THREE.Vector3(), stretchVelocity = new THREE.Vector3();
   const wobble = new THREE.Vector3(), wobbleVelocity = new THREE.Vector3();
   const previousVelocity = new THREE.Vector3(), force = new THREE.Vector3(), softTarget = new THREE.Vector3();
-  const tangentX = new THREE.Vector3(), tangentY = new THREE.Vector3(), faceNormal = new THREE.Vector3();
-  const eyeRight = new THREE.Vector3(), eyeUp = new THREE.Vector3(), eyeBasis = new THREE.Matrix4();
   let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
   let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number; heading: number } | null = null;
   function deform(x: number, y: number, z: number, out: THREE.Vector3, time: number, fin = false, handle = -1, along = 0) {
@@ -175,28 +180,24 @@ export function createWhaleMochi(): Character {
     out.y = Math.max(0.03, out.y);
   }
   function render(time: number) {
+    const blink = time % 5.9 > 5.5 && time % 5.9 < 5.68 ? Math.max(0.08, Math.abs(time % 5.9 - 5.59) / 0.09) : 1;
     for (const part of parts) {
       const attribute = part.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
-      for (let i = 0; i < attribute.count; i++) { const n = i * 3; deform(part.rest[n], part.rest[n + 1], part.rest[n + 2], vector, time, part.fin, part.handle, part.along[i]); attribute.setXYZ(i, vector.x, vector.y, vector.z); }
+      for (let i = 0; i < attribute.count; i++) {
+        const n = i * 3;
+        let x = part.rest[n], y = part.rest[n + 1], z = part.rest[n + 2];
+        if (part.eye) {
+          const { center, up } = part.eye;
+          const close = ((x - center.x) * up.x + (y - center.y) * up.y + (z - center.z) * up.z) * (blink - 1);
+          x += up.x * close; y += up.y * close; z += up.z * close;
+        }
+        // Eyes and skin update their actual vertices in the same deformation field.
+        deform(x, y, z, vector, time, part.fin, part.handle, part.along[i]); attribute.setXYZ(i, vector.x, vector.y, vector.z);
+      }
       attribute.needsUpdate = true; part.mesh.geometry.computeVertexNormals();
       part.mesh.geometry.boundingSphere!.center.copy(body).add(CENTER); part.mesh.geometry.boundingSphere!.radius = 5;
     }
-    const blink = time % 5.9 > 5.5 && time % 5.9 < 5.68 ? Math.max(0.08, Math.abs(time % 5.9 - 5.59) / 0.09) : 1;
-    for (const item of face) {
-      const { x, y, z } = item.rest;
-      deform(x, y, z, item.mesh.position, time);
-      const tangent = new THREE.Vector3(1, 0, 0).cross(item.normal).normalize();
-      const bitangent = new THREE.Vector3().crossVectors(item.normal, tangent);
-      deform(x + tangent.x * 0.02, y + tangent.y * 0.02, z + tangent.z * 0.02, tangentX, time); tangentX.sub(item.mesh.position);
-      deform(x + bitangent.x * 0.02, y + bitangent.y * 0.02, z + bitangent.z * 0.02, tangentY, time); tangentY.sub(item.mesh.position);
-      faceNormal.crossVectors(tangentX, tangentY).normalize();
-      // Keep both oval eyes upright even when the outward normal points backward.
-      eyeRight.crossVectors(new THREE.Vector3(0, 1, 0), faceNormal).normalize();
-      eyeUp.crossVectors(faceNormal, eyeRight).normalize();
-      eyeBasis.makeBasis(eyeRight, eyeUp, faceNormal);
-      item.mesh.quaternion.setFromRotationMatrix(eyeBasis);
-      if (item.eye) item.mesh.scale.y = 0.145 * blink * (1 - squash);
-    }
+    for (const eye of eyes) deform(eye.rest.x, eye.rest.y, eye.rest.z, eye.marker.position, time);
 
   }
   function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
@@ -292,7 +293,7 @@ export function createWhaleMochi(): Character {
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },
-    diagnostics() { return { finCount: 4, tailLobes: 2, tailPlane: 'horizontal', eyeCount: face.filter(item => item.eye).length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
+    diagnostics() { return { finCount: 4, tailLobes: 2, tailPlane: 'horizontal', eyeCount: eyes.length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
     dispose() { mechanicalShell.dispose(); const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
 }

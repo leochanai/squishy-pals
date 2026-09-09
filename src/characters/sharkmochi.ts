@@ -93,7 +93,8 @@ export function createSharkMochi(): Character {
   colorBody(); add(mantle); parts[0].mesh.material = bodyMaterial;
   parts[0].mesh.name = 'shark-body';
 
-  // Closed swept paddles have rounded leading edges and gently curled tips.
+  // Paired fins broaden near the body, then taper along a swept leading edge.
+  // Keep a rounded cross-section without the swollen middle of a flipper.
   function paddle(root: THREE.Vector3, middle: THREE.Vector3, tip: THREE.Vector3, width: number, thickness: number, label: string) {
     const handle = limbs.length;
     limbs.push({ root, tip, shift: new THREE.Vector3(), velocity: new THREE.Vector3() });
@@ -106,7 +107,7 @@ export function createSharkMochi(): Character {
       wide.crossVectors(up, tangent).normalize();
       if (wide.lengthSq() < 0.001) wide.copy(frames.normals[i]);
       thin.crossVectors(tangent, wide).normalize();
-      const envelope = Math.pow(Math.sin(Math.PI * t), 0.65);
+      const envelope = THREE.MathUtils.smoothstep(t, 0, 0.16) * Math.pow(1 - t, 0.9) / 0.85;
       for (let j = 0; j <= 24; j++) {
         const angle = j / 24 * Math.PI * 2;
         vector.copy(point).addScaledVector(wide, Math.cos(angle) * width * envelope).addScaledVector(thin, Math.sin(angle) * thickness * envelope);
@@ -157,9 +158,11 @@ export function createSharkMochi(): Character {
   }
   blade([[1.26,1.05],[1.45,1.70],[1.91,2.21],[2.14,2.43],[2.12,2.12],[2.07,1.66],[1.77,1.25],[1.55,1.01],[1.26,1.05]], new THREE.Vector3(1.36,1.15,0), new THREE.Vector3(2.07,2.24,0), 0.14, 'upper-tail');
   blade([[1.29,1.27],[1.52,1.14],[1.96,0.57],[2.18,0.23],[1.89,0.32],[1.48,0.46],[1.32,0.91],[1.28,1.10],[1.29,1.27]], new THREE.Vector3(1.36,1.15,0), new THREE.Vector3(2.02,0.39,0), 0.14, 'lower-tail');
-  for (const side of [-1, 1]) paddle(new THREE.Vector3(-0.26,0.89,side*0.50), new THREE.Vector3(0.09,0.57,side*1.01), new THREE.Vector3(0.64,0.31,side*1.35), 0.38, 0.20, `pectoral-fin-${side}`);
+  for (const side of [-1, 1]) paddle(new THREE.Vector3(-0.35,0.80,side*0.55), new THREE.Vector3(-0.03,0.70,side*1.10), new THREE.Vector3(0.60,0.56,side*1.52), 0.42, 0.095, `pectoral-fin-${side}`);
   blade([[-0.66,1.54],[-0.55,2.06],[-0.49,2.55],[-0.49,2.91],[-0.23,2.75],[0.17,2.48],[0.39,2.08],[0.60,1.62],[0.74,1.40],[0.02,1.48],[-0.66,1.54]], new THREE.Vector3(0,1.55,0), new THREE.Vector3(-0.33,2.76,0), 0.22, 'dorsal-fin');
   blade([[0.93,1.35],[1.02,1.53],[1.08,1.68],[1.24,1.65],[1.39,1.30],[1.20,1.36],[0.93,1.35]], new THREE.Vector3(1.15,1.39,0), new THREE.Vector3(1.11,1.65,0), 0.07, 'rear-dorsal-fin');
+  for (const side of [-1, 1]) paddle(new THREE.Vector3(0.57,0.66,side*0.29), new THREE.Vector3(0.73,0.59,side*0.43), new THREE.Vector3(0.99,0.56,side*0.59), 0.16, 0.045, `pelvic-fin-${side}`);
+  blade([[0.96,0.77],[1.00,0.64],[1.15,0.59],[1.26,0.55],[1.22,0.70],[1.18,0.79],[1.18,0.90],[1.06,0.82],[0.96,0.77]], new THREE.Vector3(1.08,0.79,0), new THREE.Vector3(1.23,0.60,0), 0.035, 'anal-fin');
   const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
   const sphere = new THREE.SphereGeometry(1, 32, 24);
   function detail(mesh: THREE.Mesh, rest: THREE.Vector3, normal: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, normal, eye }); }
@@ -188,10 +191,10 @@ export function createSharkMochi(): Character {
   add(new THREE.TubeGeometry(smile, 240, 0.010, 8, false));
   parts[parts.length - 1].mesh.material = mouthMaterial;
   parts[parts.length - 1].mesh.name = 'smile';
-  for (const side of [-1, 1]) for (let gill = 0; gill < 3; gill++) {
+  for (const side of [-1, 1]) for (let gill = 0; gill < 5; gill++) {
     const points = Array.from({ length: 16 }, (_, i) => {
       const t = i / 15;
-      const point = new THREE.Vector3(-0.85 + gill * 0.15 - 0.035 * Math.sin(t * Math.PI), 1.48 - t * 0.36, side * 5);
+      const point = new THREE.Vector3(-0.85 + gill * 0.12 - 0.035 * Math.sin(t * Math.PI), 1.48 - t * 0.36, side * 5);
       ray.set(point, new THREE.Vector3(0, 0, -side));
       const hit = ray.intersectObject(snout, false)[0]!;
       return hit.point.clone().addScaledVector(hit.face!.normal, 0.009);
@@ -340,7 +343,7 @@ export function createSharkMochi(): Character {
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },
-    diagnostics() { return { finCount: 6, tailLobes: 2, tailPlane: 'vertical', eyeCount: face.filter(item => item.eye).length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
+    diagnostics() { return { finCount: limbs.length, tailLobes: 2, tailPlane: 'vertical', eyeCount: face.filter(item => item.eye).length, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
     dispose() { mechanicalShell.dispose(); const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
 }

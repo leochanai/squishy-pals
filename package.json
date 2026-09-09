@@ -12,6 +12,7 @@
     "lint": "oxlint",
     "format": "oxfmt",
     "test:physics": "node --experimental-strip-types scripts/test-physics.ts && node --experimental-strip-types scripts/test-cephalopods.ts && node --experimental-strip-types scripts/test-physics.ts --mechanical",
+    "test:faces": "node --experimental-strip-types scripts/test-whale-eyes.ts && node --experimental-strip-types scripts/test-squid-face.ts",
     "test:coastal": "node --experimental-strip-types scripts/test-coastal.ts",
     "test:stage": "node --experimental-strip-types scripts/test-stage.ts",
     "test:parameters": "node --experimental-strip-types scripts/test-parameters.ts",

@@ -4,11 +4,12 @@ import { createMaterialVariants } from './materials.ts';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
 const clamp = THREE.MathUtils.clamp;
-const FRONT = new THREE.Vector3(0, 0, 1);
 
 export function createSquidMochi(): Character {
   const object = new THREE.Group();
   object.name = 'SquidMochi';
+  let targetHeading = 0;
+  const yawAxis = new THREE.Vector3(0, 1, 0);
   const parameters: CharacterParameters = { material: 'original', color: '#f69b85', stiffness: 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.48, clearcoat: 0.18, clearcoatRoughness: 0.4, transmission: 0.08, thickness: 1, ior: 1.38 });
   const dark = new THREE.MeshPhysicalNodeMaterial({ color: '#342426', roughness: 0.2, clearcoat: 0.6 });
@@ -19,13 +20,11 @@ export function createSquidMochi(): Character {
   const pull = new THREE.Vector3(), pullVelocity = new THREE.Vector3();
   const sway = new THREE.Vector3(), swayVelocity = new THREE.Vector3();
   const fieldGoal = new THREE.Vector3();
-  const faceX = new THREE.Vector3(), faceY = new THREE.Vector3(), faceZAxis = new THREE.Vector3();
-  const faceMatrix = new THREE.Matrix4();
   let deformationAmplitude = 0;
   const limbs = Array.from({ length: 10 }, () => ({ offset: new THREE.Vector3(), velocity: new THREE.Vector3() }));
   const surfaces: { mesh: THREE.Mesh; rest: Float32Array; weights: Float32Array; handle: number }[] = [];
-  const details: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean }[] = [];
-  let grab: { hit: GrabHit; target: THREE.Vector3; anchor: THREE.Vector3; drag: boolean } | null = null;
+  const details: { mesh: THREE.Mesh; rest: Float32Array; center: THREE.Vector3; eye: boolean }[] = [];
+  let grab: { hit: GrabHit; target: THREE.Vector3; worldTarget: THREE.Vector3; anchor: THREE.Vector3; drag: boolean; head: boolean; turnX: number; heading: number } | null = null;
   let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, pokeClock = -1, frames = 0, lastTime = 0;
   const pressPoint = new THREE.Vector3(), pressNormal = new THREE.Vector3();
   const point = new THREE.Vector3(), goal = new THREE.Vector3(), delta = new THREE.Vector3();
@@ -114,7 +113,13 @@ export function createSquidMochi(): Character {
     geometry.computeVertexNormals();
     addSurface(geometry, i, (_, j) => (Math.floor(j / 13) / 24) ** 1.5);
   }
-  const sphere = new THREE.SphereGeometry(1, 24, 16);
+  function addDetail(mesh: THREE.Mesh, center: THREE.Vector3, eye: boolean) {
+    mesh.geometry.translate(center.x, center.y, center.z);
+    const positions = mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
+    positions.setUsage(THREE.DynamicDrawUsage);
+    mesh.frustumCulled = false;
+    object.add(mesh); details.push({ mesh, rest: new Float32Array(positions.array), center, eye });
+  }
   const faceZ = (x: number, y: number) => {
     const t = (y - 0.67) / 2.73;
     const radius = Math.pow(Math.sin(t * Math.PI), 0.72) * (1 - 0.5 * t);
@@ -122,18 +127,17 @@ export function createSquidMochi(): Character {
   };
   for (const side of [-1, 1]) {
     for (const eye of [true, false]) {
-      const mesh = new THREE.Mesh(sphere, eye ? dark : blush);
       const x = side * (eye ? 0.3 : 0.48), y = eye ? 1.47 : 1.26;
-      mesh.scale.set(eye ? 0.12 : 0.135, eye ? 0.16 : 0.055, eye ? 0.075 : 0.025);
-      const rest = new THREE.Vector3(x, y, faceZ(x, y));
-      mesh.position.copy(rest); mesh.quaternion.setFromUnitVectors(FRONT, new THREE.Vector3(side * 0.28, 0, 1).normalize());
-      object.add(mesh); details.push({ mesh, rest, eye });
+      const geometry = new THREE.SphereGeometry(1, 24, 16).scale(eye ? 0.12 : 0.135, eye ? 0.16 : 0.055, eye ? 0.075 : 0.025);
+      const mesh = new THREE.Mesh(geometry, eye ? dark : blush);
+      mesh.name = `${side < 0 ? 'left' : 'right'}-${eye ? 'eye' : 'cheek'}`;
+      addDetail(mesh, new THREE.Vector3(x, y, faceZ(x, y)), eye);
     }
   }
   const smile = Array.from({ length: 17 }, (_, i) => new THREE.Vector3(Math.cos(Math.PI + i / 16 * Math.PI) * 0.12, Math.sin(Math.PI + i / 16 * Math.PI) * 0.07, 0));
   const mouth = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(smile), 16, 0.021, 8, false), dark);
   const mouthRest = new THREE.Vector3(0, 1.31, faceZ(0, 1.31));
-  object.add(mouth); details.push({ mesh: mouth, rest: mouthRest, eye: false });
+  mouth.name = 'mouth'; addDetail(mouth, mouthRest, false);
 
   function deform(p: THREE.Vector3, handle: number, weight: number) {
     // One continuous rest-space field carries the mantle, fins, face and arm
@@ -156,24 +160,43 @@ export function createSquidMochi(): Character {
         positions.setXYZ(i, point.x, point.y, point.z);
       }
       positions.needsUpdate = true; surface.mesh.geometry.computeVertexNormals();
+      // Shell construction caches rest bounds; picking must follow deformation.
+      surface.mesh.geometry.boundingBox = null;
       surface.mesh.geometry.boundingSphere!.center.copy(body).add(new THREE.Vector3(0, 1.6, 0));
       surface.mesh.geometry.boundingSphere!.radius = 5;
     }
     const blink = time % 5.3;
     for (const detail of details) {
-      detail.mesh.position.copy(deform(point.copy(detail.rest), -1, 0));
-      // Follow the local deformed tangent plane, rather than leaving facial
-      // details upright while the skin underneath bends.
-      faceX.copy(deform(point.copy(detail.rest).addScaledVector(new THREE.Vector3(1, 0, 0), 0.01), -1, 0)).sub(detail.mesh.position).normalize();
-      faceY.copy(deform(point.copy(detail.rest).addScaledVector(new THREE.Vector3(0, 1, 0), 0.01), -1, 0)).sub(detail.mesh.position).normalize();
-      faceZAxis.crossVectors(faceX, faceY).normalize();
-      faceY.crossVectors(faceZAxis, faceX).normalize();
-      faceMatrix.makeBasis(faceX, faceY, faceZAxis);
-      detail.mesh.quaternion.setFromRotationMatrix(faceMatrix);
-      if (detail.eye) detail.mesh.scale.y = 0.16 * (blink > 4.9 && blink < 5.08 ? Math.max(0.1, Math.abs(blink - 4.99) / 0.09) : 1) * (1 - squash);
+      const positions = detail.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
+      const eyeScale = detail.eye && blink > 4.9 && blink < 5.08 ? Math.max(0.1, Math.abs(blink - 4.99) / 0.09) : 1;
+      for (let i = 0; i < positions.count; i++) {
+        point.fromArray(detail.rest, i * 3);
+        point.y = detail.center.y + (point.y - detail.center.y) * eyeScale;
+        // Facial surfaces share the body's actual vertex field and root transform.
+        deform(point, -1, 0); positions.setXYZ(i, point.x, point.y, point.z);
+      }
+      positions.needsUpdate = true; detail.mesh.geometry.computeVertexNormals();
+      detail.mesh.geometry.computeBoundingSphere();
     }
   }
+  function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
+    if (grab.head && isDrag) {
+      const distance = worldPoint.x - grab.turnX;
+      const turn = Math.sign(distance) * Math.max(0, Math.abs(distance) - 0.12) * 1.4;
+      targetHeading = clamp(grab.heading + turn, -Math.PI / 2, Math.PI / 2);
+    }
+    grab.worldTarget.copy(worldPoint);
+    grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) grab.target.clamp(new THREE.Vector3(-4, 0.05, -4), new THREE.Vector3(4, 5, 4)); grab.target.y = Math.max(0.05, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; }
   function simulate(dt: number, time: number) {
+    if (grab?.head && grab.drag) {
+      const difference = Math.atan2(Math.sin(targetHeading - object.rotation.y), Math.cos(targetHeading - object.rotation.y));
+      const turn = difference * (1 - Math.exp(-dt * 8));
+      body.add(grab.anchor).applyAxisAngle(yawAxis, -turn).sub(grab.anchor);
+      velocity.applyAxisAngle(yawAxis, -turn);
+      object.rotation.y += turn;
+      object.updateMatrixWorld(true);
+      moveGrab(grab.worldTarget, true);
+    }
     // Stiffness controls compliance; damping is a ratio of critical damping.
     const compliance = 1.6 - parameters.stiffness * 1.35;
     const dampingRatio = 0.24 + parameters.damping * 0.76;
@@ -230,6 +253,7 @@ export function createSquidMochi(): Character {
     if (pokeClock >= 0) { const previous = pokeClock; pokeClock += dt; if (previous < 0.15 && pokeClock >= 0.15) velocity.y = 3.6; if (pokeClock > 1.2) pokeClock = -1; }
   }
   function reset() {
+    object.rotation.y = targetHeading = 0; object.updateMatrixWorld(true);
     body.set(0, 0, 0); velocity.set(0, 0, 0); squash = 0; squashVelocity = 0; press = 0; pressVelocity = 0; pressTarget = 0; grab = null; pokeClock = -1;
     pull.set(0, 0, 0); pullVelocity.set(0, 0, 0); sway.set(0, 0, 0); swayVelocity.set(0, 0, 0); deformationAmplitude = 0;
     limbs.forEach(limb => { limb.offset.set(0, 0, 0); limb.velocity.set(0, 0, 0); }); render(lastTime); mechanicalShell.update();
@@ -245,16 +269,16 @@ export function createSquidMochi(): Character {
       const hit = mechanicalShell.pick(raycaster) ?? raycaster.intersectObjects(surfaces.map(surface => surface.mesh), false)[0];
       if (!hit) return null;
       const handle = surfaces.find(surface => surface.mesh === hit.object)!.handle;
-      return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: handle < 0 ? 'mantle' : `${handle < 8 ? 'arm' : 'tentacle'}-${handle + 1}`, handle };
+      return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: handle < 0 ? hit.object === surfaces[0].mesh ? 'mantle' : 'fin' : `${handle < 8 ? 'arm' : 'tentacle'}-${handle + 1}`, handle };
     },
-    beginGrab(hit) { const local = object.worldToLocal(hit.point.clone()); grab = { hit, target: local.clone(), anchor: local.clone().sub(body), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
-    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) grab.target.clamp(new THREE.Vector3(-4, 0.05, -4), new THREE.Vector3(4, 5, 4)); grab.target.y = Math.max(0.05, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
+    beginGrab(hit) { const local = object.worldToLocal(hit.point.clone()); grab = { hit, target: local.clone(), worldTarget: hit.point.clone(), anchor: local.clone().sub(body), drag: false, head: hit.part === 'mantle', turnX: hit.point.x, heading: object.rotation.y }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
+    moveGrab,
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05); const steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps, time); render(time); mechanicalShell.update(); frames++; },
     poke() { grab = null; pressTarget = 0; pokeClock = 0; },
     reset,
     setParameters(next) {
-      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = targetHeading = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; material.color.set(next.color); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }

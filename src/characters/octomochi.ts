@@ -155,7 +155,7 @@ function skinForPoint(point: THREE.Vector3, arms: Joint[][]) {
   return { arm: armIndex, joint: jointIndex, along, head };
 }
 
-export function createOctoMochi(mechanical = false): Character {
+export function createOctoMochi(mechanical = false): Character & { rotateGrab(turn: number): void } {
   const object = new THREE.Group();
   object.name = mechanical ? 'MechaOcto' : 'OctoMochi';
   const arms = makeArms();
@@ -538,6 +538,19 @@ export function createOctoMochi(mechanical = false): Character {
   reset();
   return {
     object,
+    rotateGrab(turn) {
+      if (!grab || grab.hit.handle >= 0) return;
+      // The wrapper owns yaw for both skins. Keep their held point and body
+      // translation in that shared local frame when the wrapper turns.
+      delta.copy(body);
+      body.add(grab.offset).applyAxisAngle(UP, -turn).sub(grab.offset);
+      delta.subVectors(body, delta);
+      velocity.applyAxisAngle(UP, -turn);
+      for (const arm of arms) for (const joint of arm) {
+        joint.position.add(delta);
+        joint.velocity.applyAxisAngle(UP, -turn);
+      }
+    },
     deformAccessory(point, out) { deform(point, 0, 0, 0, 1, out); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {

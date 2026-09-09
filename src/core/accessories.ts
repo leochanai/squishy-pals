@@ -42,7 +42,8 @@ export function createAccessories(character: Character, characterId: string) {
     add(id, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 40, radius, 8, false), material);
   }
   function headPoint(x: number, y: number, z = 0) {
-    return new THREE.Vector3(fit.center[0] + (fit.side ? z + .48 : x), fit.center[1] + y, fit.center[2] + (fit.side ? x : z));
+    // Center the whale headband beneath its crown without burying the bare band.
+    return new THREE.Vector3(fit.center[0] + (fit.side ? z + (characterId === 'whalemochi' ? .15 : .48) : x), fit.center[1] + y, fit.center[2] + (fit.side ? x : z));
   }
   const arc = Array.from({ length: 33 }, (_, i) => { const angle = i / 32 * Math.PI; return headPoint(Math.cos(angle) * fit.width, Math.sin(angle) * fit.rise); });
   tube('headphones', arc, .095, 0);
@@ -53,12 +54,15 @@ export function createAccessories(character: Character, characterId: string) {
     const shell = new THREE.SphereGeometry(1, 20, 14).scale(fit.side ? .25 : .13, .29, fit.side ? .13 : .25);
     const outer = headPoint(sign * (fit.width + .14), .03); shell.translate(outer.x, outer.y, outer.z); add('headphones', shell, 0);
   }
-  const hatCenter = new THREE.Vector3(fit.center[0], fit.top, characterId === 'sealmochi' ? 1.15 : characterId === 'turtlemochi' ? 1.3 : fit.side ? 0 : .12);
+  const hatCenter = new THREE.Vector3(fit.center[0], fit.top + (characterId === 'whalemochi' ? .14 : 0), characterId === 'sealmochi' ? 1.15 : characterId === 'turtlemochi' ? 1.3 : fit.side ? 0 : .12);
   const size = fit.hatSize;
-  const crownHeight = characterId === 'squidmochi' ? .7 : .48;
-  add('hat', new THREE.CylinderGeometry(size * .67, size * .86, crownHeight, 40).translate(hatCenter.x, hatCenter.y + crownHeight / 2 - .06, hatCenter.z), 2);
-  add('hat', new THREE.CylinderGeometry(size * 1.17, size * 1.23, .07, 40).translate(hatCenter.x, hatCenter.y - .045, hatCenter.z), 2);
-  add('hat', new THREE.CylinderGeometry(size * .82, size * .86, .085, 40).translate(hatCenter.x, hatCenter.y + .015, hatCenter.z), 3);
+  // Seat the squid crown above the wide fin shoulders, around the tapered tip.
+  const hatY = hatCenter.y + (characterId === 'squidmochi' ? .18 : 0);
+  const hatZ = characterId === 'squidmochi' ? 0 : hatCenter.z;
+  const crownHeight = characterId === 'squidmochi' ? .5 : .48;
+  add('hat', new THREE.CylinderGeometry(size * .67, size * .86, crownHeight, 40).translate(hatCenter.x, hatY + crownHeight / 2 - .06, hatZ), 2);
+  add('hat', new THREE.CylinderGeometry(size * 1.17, size * 1.23, .07, 40).translate(hatCenter.x, hatY - .045, hatZ), 2);
+  add('hat', new THREE.CylinderGeometry(size * .82, size * .86, .085, 40).translate(hatCenter.x, hatY + .015, hatZ), 3);
 
   const eyes = characterId === 'cuttlemochi'
     ? [new THREE.Vector3(-.4, 1.14, 1.105), new THREE.Vector3(.4, 1.14, 1.105)]

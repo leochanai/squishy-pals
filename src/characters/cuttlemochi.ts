@@ -18,6 +18,8 @@ interface Part {
 export function createCuttleMochi(): Character {
   const object = new THREE.Group();
   object.name = 'CuttleMochi';
+  let targetHeading = 0;
+  const yawAxis = new THREE.Vector3(0, 1, 0);
   let movementConstraint: MovementConstraint | undefined;
   const parameters: CharacterParameters = { material: 'original', color: '#9cccbc', stiffness: 0.48, damping: 0.42 };
   const gel = new THREE.MeshPhysicalNodeMaterial({ color: parameters.color, roughness: 0.48, clearcoat: 0.18, clearcoatRoughness: 0.4, transmission: 0.08, thickness: 1.1, ior: 1.38, attenuationColor: new THREE.Color('#bce1d5'), attenuationDistance: 2.2 });
@@ -116,7 +118,7 @@ export function createCuttleMochi(): Character {
   const tangentX = new THREE.Vector3(), tangentY = new THREE.Vector3(), faceNormal = new THREE.Vector3();
   const front = new THREE.Vector3(0, 0, 1);
   let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
-  let grab: { handle: number; target: THREE.Vector3; offset: THREE.Vector3; drag: boolean } | null = null;
+  let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number; heading: number } | null = null;
   function deform(x: number, y: number, z: number, out: THREE.Vector3, time: number, fin = false, handle = -1, along = 0) {
     out.set(x * (1 + squash * 0.35), 0.18 + (y - 0.18) * (1 - squash), z * (1 + squash * 0.22)).add(body);
     // Every surface uses this same material-space field, including the face and
@@ -136,6 +138,8 @@ export function createCuttleMochi(): Character {
       const attribute = part.mesh.geometry.getAttribute('position') as THREE.BufferAttribute;
       for (let i = 0; i < attribute.count; i++) { const n = i * 3; deform(part.rest[n], part.rest[n + 1], part.rest[n + 2], vector, time, part.fin, part.handle, part.along[i]); attribute.setXYZ(i, vector.x, vector.y, vector.z); }
       attribute.needsUpdate = true; part.mesh.geometry.computeVertexNormals();
+      // Shell construction caches rest bounds; picking must follow deformation.
+      part.mesh.geometry.boundingBox = null;
       part.mesh.geometry.boundingSphere!.center.copy(body).add(CENTER); part.mesh.geometry.boundingSphere!.radius = 5;
     }
     const blink = time % 5.9 > 5.5 && time % 5.9 < 5.68 ? Math.max(0.08, Math.abs(time % 5.9 - 5.59) / 0.09) : 1;
@@ -150,7 +154,24 @@ export function createCuttleMochi(): Character {
     }
     surprised.position.copy(mouth.position); surprised.quaternion.copy(mouth.quaternion); surprised.visible = Boolean(grab?.drag) || clock > 0.13 && clock < 0.5; mouth.visible = !surprised.visible;
   }
+  function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
+    if (grab.head && isDrag) {
+      const distance = worldPoint.x - grab.turnX;
+      const turn = Math.sign(distance) * Math.max(0, Math.abs(distance) - 0.12) * 1.4;
+      targetHeading = clamp(grab.heading + turn, -Math.PI / 2, Math.PI / 2);
+    }
+    grab.worldTarget.copy(worldPoint);
+    grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) { grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); } grab.target.y = Math.max(0.08, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; }
   function simulate(dt: number) {
+    if (grab?.head && grab.drag) {
+      const difference = Math.atan2(Math.sin(targetHeading - object.rotation.y), Math.cos(targetHeading - object.rotation.y));
+      const turn = difference * (1 - Math.exp(-dt * 8));
+      body.add(grab.offset).applyAxisAngle(yawAxis, -turn).sub(grab.offset);
+      velocity.applyAxisAngle(yawAxis, -turn);
+      object.rotation.y += turn;
+      object.updateMatrixWorld(true);
+      moveGrab(grab.worldTarget, true);
+    }
     // Stiffness controls compliance; damping is a ratio of critical damping.
     const compliance = 1.6 - parameters.stiffness * 1.35;
     const dampingRatio = 0.24 + parameters.damping * 0.76;
@@ -201,7 +222,7 @@ export function createCuttleMochi(): Character {
     force.copy(softTarget).sub(wobble).multiplyScalar(wobbleSpring).addScaledVector(wobbleVelocity, -2 * Math.sqrt(wobbleSpring) * dampingRatio);
     wobbleVelocity.addScaledVector(force, dt); wobble.addScaledVector(wobbleVelocity, dt).clampLength(0, 0.5);
   }
-  function reset() { stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressVelocity = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); mechanicalShell.update(); }
+  function reset() { object.rotation.y = targetHeading = 0; object.updateMatrixWorld(true); stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressVelocity = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); mechanicalShell.update(); }
   const materialVariants = createMaterialVariants(object, [{ material: gel, thickness: 1.1 }], [dark, blush]);
   const mechanicalShell = createMechanicalShell(parts.filter(surface => surface.mesh.material === gel).map((surface, i) => ({ mesh: surface.mesh, axis: 'y' as const, bands: i === 0 ? 4 : 5, sectors: i === 0 ? 6 : 1, progress: surface.handle >= 0 ? surface.along : undefined })));
   reset();
@@ -210,13 +231,13 @@ export function createCuttleMochi(): Character {
     deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = mechanicalShell.pick(raycaster) ?? raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? part.fin ? 'fin' : 'mantle' : `${part.handle < 8 ? 'arm' : 'tentacle'}-${part.handle + 1}`, handle: part.handle }; },
-    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); grab = { handle: hit.handle, target: local.clone(), offset: local.clone().sub(anchor), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
-    moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) { grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); } grab.target.y = Math.max(0.08, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
+    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.part === 'mantle', turnX: hit.point.x, heading: object.rotation.y }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
+    moveGrab,
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); mechanicalShell.update(); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
     setParameters(next) {
-      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = targetHeading = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; gel.color.set(next.color); gel.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.4); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }

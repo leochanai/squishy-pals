@@ -94,6 +94,12 @@ export function createGoldMochi(): Character {
     fan(new THREE.Vector3(side * 0.78, 1.05, 0.37), new THREE.Vector3(side * 1.45, 0.87, -0.25), new THREE.Vector3(0, 0.42, -0.12), `pectoral-fin-${side}`, 0.09);
   }
   fan(new THREE.Vector3(0, 2.02, -0.3), new THREE.Vector3(0, 3.07, -0.46), new THREE.Vector3(0, 0, 0.9), 'dorsal-fin', 0.065);
+  // Small lower fans sit behind the chest fins; the paired anal fins follow
+  // the same left/right split as this fancy goldfish's double tail.
+  for (const side of [-1, 1]) {
+    fan(new THREE.Vector3(side * 0.42, 0.43, -0.05), new THREE.Vector3(side * 0.87, 0.18, -0.63), new THREE.Vector3(0, 0.13, -0.22), `pelvic-fin-${side}`, 0.055);
+    fan(new THREE.Vector3(side * 0.12, 0.48, -0.56), new THREE.Vector3(side * 0.22, 0.18, -1.13), new THREE.Vector3(0, 0.13, -0.24), `anal-fin-${side}`, 0.045);
+  }
   colorFins();
   const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
   const sphere = new THREE.SphereGeometry(1, 24, 16);
@@ -246,7 +252,7 @@ export function createGoldMochi(): Character {
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },
-    diagnostics() { return { finCount: 5, tailLobes: 2, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
+    diagnostics() { return { finCount: limbs.length, tailLobes: 2, vertices: parts.reduce((sum, part) => sum + part.rest.length / 3, 0), bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab ? grab.handle < 0 ? 'body' : `fin-${grab.handle + 1}` : 'none', deformationAmplitude: stretch.length() + wobble.length(), localStretch: stretch.length(), inertialWobble: wobble.length(), maxLimbDisplacement: Math.max(...limbs.map(limb => limb.shift.length())), finite: Number.isFinite(body.lengthSq() + stretch.lengthSq() + wobble.lengthSq() + squash + limbs.reduce((sum, limb) => sum + limb.shift.lengthSq(), 0)), frames: frame }; },
     dispose() { mechanicalShell.dispose(); const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(material => materials.add(material)); } }); geometries.forEach(geometry => geometry.dispose()); materials.forEach(material => material.dispose()); object.clear(); },
   };
 }

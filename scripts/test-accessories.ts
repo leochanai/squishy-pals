@@ -19,6 +19,39 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   rig.set(['headphones', 'hat', 'glasses']);
   pal.object.updateMatrixWorld(true);
   assert.equal(root.children.filter(group => group.visible).length, 3);
+  if (id === 'squidmochi') {
+    const hat = root.getObjectByName('hat')!;
+    const crown = hat.children[0] as Mesh, brim = hat.children[1] as Mesh;
+    const crownBounds = new Box3().setFromObject(crown, true), brimBounds = new Box3().setFromObject(brim, true);
+    const center = crownBounds.getCenter(new Vector3());
+    const positions = crown.geometry.getAttribute('position');
+    const ringRadius = (y: number) => {
+      let radius = 0;
+      for (let i = 0; i < positions.count; i++) if (Math.abs(positions.getY(i) - y) < .0001) radius = Math.max(radius, Math.hypot(positions.getX(i) - center.x, positions.getZ(i) - center.z));
+      return radius;
+    };
+    const bottomRadius = ringRadius(crownBounds.min.y), topRadius = ringRadius(crownBounds.max.y);
+    for (const material of ['original', 'jelly', 'mechanical'] as const) {
+      pal.setParameters({ material }); rig.update();
+      let enclosed = 0, highest = -Infinity;
+      pal.object.traverse(node => {
+        if (!(node instanceof Mesh)) return;
+        const source = node.userData.sourceMesh as Mesh | undefined;
+        if (node.name !== 'squid-mantle-fin' && !(node.name === 'armor-panel' && source?.name === 'squid-mantle-fin' && node.parent!.visible)) return;
+        const vertices = node.geometry.getAttribute('position');
+        for (let i = 0; i < vertices.count; i++) {
+          const y = vertices.getY(i); highest = Math.max(highest, y);
+          if (y <= brimBounds.max.y) continue;
+          const t = (y - crownBounds.min.y) / (crownBounds.max.y - crownBounds.min.y);
+          const radius = (bottomRadius + (topRadius - bottomRadius) * t) * Math.cos(Math.PI / 40);
+          assert.ok(y < crownBounds.max.y && Math.hypot(vertices.getX(i) - center.x, vertices.getZ(i) - center.z) < radius, `${id}/${material}: upper mantle and fins must remain inside the crown above the brim`);
+          enclosed++;
+        }
+      });
+      assert.ok(enclosed > 0 && highest > brimBounds.max.y + .15, `${id}: hat must seat around the head, not float above it`);
+    }
+    pal.setParameters({ material: 'original' });
+  }
   const mesh = root.getObjectByName('glasses')!.children[0] as Mesh;
   const resting = new Box3().setFromObject(mesh, true).getCenter(new Vector3());
   pal.poke();

@@ -134,7 +134,9 @@ function createCoastalMochi(species: Species): Character {
       paddle(`flipper-${side}`, [side * .57, .65, .65], [side * .97, .29, .18], [side * 1.08, .15, -.38], .21, .085);
       paddle(`tail-${side}`, [side * .055, .33, -2.0], [side * .17, .3, -2.42], [side * .2, .32, -2.78], .15, .055);
       ellipsoid(`muzzle-${side}`, [side * .12, 1.18, 1.85], [.2, .13, .11], -1, pale);
-      for (let row = 0; row < 3; row++) tube(`whisker-${side}-${row}`, [[side * .19, 1.17, 1.95], [side * .36, 1.17 + (row - 1) * .05, 1.91], [side * .5, 1.17 + (row - 1) * .1, 1.75]], .011);
+      // Separate roots sit inside each cheek pad; the fan grows sideways and
+      // slightly upward so a side view does not read it as a dangling chin line.
+      for (let row = 0; row < 3; row++) tube(`whisker-${side}-${row}`, [[side * .255, 1.18 + (row - 1) * .022, 1.925], [side * .39, 1.235 + (row - 1) * .04, 1.905], [side * .53, 1.31 + (row - 1) * .06, 1.84]], .007);
     }
     ellipsoid('nose', [0, 1.26, 1.94], [.085, .055, .04], -1, dark);
   } else if (species === 'turtle') {
@@ -183,8 +185,27 @@ function createCoastalMochi(species: Species): Character {
       }
       const handle = limb(`claw-${side}`, [side * 0.9, 0.88, 0.25], [side * 1.78, 1.62, 0.65]);
       tube(`arm-${side}`, [[side * 0.92, 0.88, 0.25], [side * 1.45, 0.96, 0.43], [side * 1.7, 1.4, 0.58]], 0.2, gel, handle);
-      ellipsoid(`claw-palm-${side}`, [side * 1.77, 1.52, 0.64], [0.4, 0.36, 0.3], handle);
-      for (const finger of [-1, 1]) ellipsoid(`claw-finger-${side}-${finger}`, [side * 1.77 + finger * 0.21, 1.79, 0.65], [0.16, 0.25, 0.24], handle, gel, finger * 0.48);
+      ellipsoid(`claw-palm-${side}`, [side * 1.77, 1.49, 0.64], [0.32, 0.27, 0.27], handle);
+      // Turn each pincer plane toward both the front and side views. Broad roots
+      // curve into opposing tapered tips, leaving an open bite through the claw.
+      const opening = new THREE.Vector3(side * .8, 0, .6), depth = new THREE.Vector3(-.6, 0, side * .8);
+      for (const finger of [-1, 1]) {
+        const curve = new THREE.CatmullRomCurve3([[.15, 1.49], [.32, 1.76], [.34, 2.03], [.25, 2.19], [.11, 2.16]].map(([spread, y]) => new THREE.Vector3(side * 1.77, y, .64).addScaledVector(opening, finger * spread)));
+        const vertices: number[] = [], indices: number[] = [], across = new THREE.Vector3();
+        for (let ring = 0; ring <= 32; ring++) {
+          const t = ring / 32, center = curve.getPoint(t);
+          across.crossVectors(depth, curve.getTangent(t)).normalize();
+          const width = .19 * (1 - t) ** .72, thickness = .12 * (1 - t) ** .6;
+          for (let j = 0; j <= 16; j++) {
+            const angle = j / 16 * Math.PI * 2;
+            vector.copy(center).addScaledVector(across, Math.cos(angle) * width).addScaledVector(depth, Math.sin(angle) * thickness);
+            vertices.push(vector.x, vector.y, vector.z);
+            if (ring < 32 && j < 16) { const a = ring * 17 + j, b = a + 17; indices.push(a, a + 1, b, b, a + 1, b + 1); }
+          }
+        }
+        const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3)); geometry.setIndex(indices);
+        add(geometry, handle); parts[parts.length - 1].mesh.name = `claw-finger-${side}-${finger}`;
+      }
       ellipsoid(`eye-stalk-${side}`, [side * 0.45, 1.43, 0.32], [0.14, 0.33, 0.14]);
     }
   }
@@ -200,7 +221,17 @@ function createCoastalMochi(species: Species): Character {
   }
   const smileY = species === 'seal' ? 1.03 : species === 'turtle' ? 0.69 : 0.96;
   const smileZ = species === 'seal' ? 1.87 : species === 'turtle' ? 1.92 : 0.815;
-  tube('smile', [[-0.16, smileY + 0.035, smileZ], [0, smileY - 0.035, smileZ + 0.008], [0.16, smileY + 0.035, smileZ]], 0.023, dark, headHandle);
+  let smilePoints = [[-.16, smileY + .035, smileZ], [0, smileY - .035, smileZ + .008], [.16, smileY + .035, smileZ]];
+  if (species === 'seal') {
+    const smile = new THREE.CatmullRomCurve3(smilePoints.map(point => new THREE.Vector3(...point)));
+    smilePoints = Array.from({ length: 17 }, (_, i) => {
+      const point = smile.getPoint(i / 16), hit = surfacePoint(point.x, point.y)!;
+      // Embed half of the line in the real tapered face; its rest vertices then
+      // follow the same deformation field as the skin during press and drag.
+      return hit.point.addScaledVector(hit.face!.normal, .009).toArray();
+    });
+  }
+  tube('smile', smilePoints, 0.023, dark, headHandle);
   // Accessory fitting reads eye centers, while all visible geometry deforms in rest space.
   for (const name of ['left-eye', 'right-eye']) {
     const mesh = object.getObjectByName(name)!;

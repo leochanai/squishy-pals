@@ -20,6 +20,18 @@ for (const [id, create, limbName] of [
     });
   };
   const body = pal.object.getObjectByName('body') as Mesh;
+  const checkSealSmile = () => {
+    if (id !== 'sealmochi') return;
+    pal.object.updateMatrixWorld(true);
+    // setFromObject below caches a rest-space box; use the current surface for rays.
+    body.geometry.computeBoundingBox();
+    const smile = (pal.object.getObjectByName('smile') as Mesh).geometry.attributes.position;
+    for (let i = 0; i < smile.count; i += 8) {
+      const hit = new Raycaster(new Vector3(smile.getX(i), smile.getY(i), 10), new Vector3(0, 0, -1)).intersectObject(body, false)[0];
+      assert.ok(hit, 'seal smile stays over the actual face');
+      assert.ok(Math.abs(smile.getZ(i) - hit.point.z) < .05, 'seal smile stays within its tube diameter of the face during deformation');
+    }
+  };
   const rest = body.geometry.attributes.position.array.slice();
   const bodyBounds = new Box3().setFromObject(body);
   if (id === 'sealmochi') {
@@ -28,6 +40,18 @@ for (const [id, create, limbName] of [
     for (const side of [-1, 1]) {
       const hind = new Box3().setFromBufferAttribute((pal.object.getObjectByName(`tail-${side}`) as Mesh).geometry.attributes.position as BufferAttribute);
       assert.ok(hind.max.z < -1.9 && Math.abs(hind.min.x) < .5 && Math.abs(hind.max.x) < .5, 'hind flippers trail close behind the tapered trunk');
+      for (let row = 0; row < 3; row++) {
+        const whisker = (pal.object.getObjectByName(`whisker-${side}-${row}`) as Mesh).geometry.attributes.position;
+        let cheekRadius = Infinity;
+        const tip = new Vector3();
+        for (let i = 0; i < whisker.count; i++) {
+          const point = new Vector3().fromBufferAttribute(whisker, i);
+          cheekRadius = Math.min(cheekRadius, ((point.x - side * .12) / .2) ** 2 + ((point.y - 1.18) / .13) ** 2 + ((point.z - 1.85) / .11) ** 2);
+          if (Math.abs(point.x) > Math.abs(tip.x)) tip.copy(point);
+        }
+        assert.ok(cheekRadius <= 1, 'each whisker grows from inside its cheek pad');
+        assert.ok(Math.abs(tip.x) > .4 && tip.y > 1.21, 'whiskers fan sideways and upward rather than dangling below the chin');
+      }
     }
   }
   if (id === 'turtlemochi') {
@@ -36,18 +60,36 @@ for (const [id, create, limbName] of [
     assert.ok(tailBounds.min.z < bodyBounds.min.z - .35, 'tail visibly extends beyond the rear shell');
     assert.ok(tailBounds.max.z > -1 && tailBounds.max.y < .47, 'tail root overlaps the internal body beneath the rear opening');
   }
+  if (id === 'crabmochi') for (const side of [-1, 1]) {
+    const claw = [`claw-palm-${side}`, `claw-finger-${side}--1`, `claw-finger-${side}-1`].map(name => pal.object.getObjectByName(name)!);
+    pal.object.updateMatrixWorld(true);
+    for (const [origin, direction, spread] of [
+      [new Vector3(side * 1.77, 2.02, 6), new Vector3(0, 0, -1), new Vector3(side * .34 * .8, 0, 0)],
+      [new Vector3(6, 2.02, .64), new Vector3(-1, 0, 0), new Vector3(0, 0, .34 * .6)],
+    ]) {
+      assert.equal(new Raycaster(origin, direction).intersectObjects(claw, false).length, 0, 'crab bite stays open from both front and side');
+      for (const finger of [-1, 1]) {
+        const jaw = origin.clone().addScaledVector(spread, finger);
+        assert.ok(new Raycaster(jaw, direction).intersectObjects(claw, false).length > 0, 'both jaws surround the open bite');
+      }
+    }
+  }
+  checkSealSmile();
   pal.object.updateMatrixWorld(true);
   const hit = pal.pick(new Raycaster(new Vector3(0.12, 6, 0.1), new Vector3(0, -1, 0)));
   assert.ok(hit && hit.handle < 0);
   pal.beginGrab(hit); pal.moveGrab(hit.point, false); step(40);
   assert.ok(Number(pal.diagnostics().pressed) > 0.01);
   assert.notDeepEqual(body.geometry.attributes.position.array, rest);
+  checkSealSmile();
   pal.moveGrab(hit.point.clone().add(new Vector3(1, 2, 0)), true); step(90);
   assert.ok(Number(pal.diagnostics().bodyHeight) > 0.2);
   assert.ok(Number(pal.diagnostics().deformationAmplitude) > 0.1);
+  checkSealSmile();
   pal.endGrab(); step(360);
   assert.ok(Number(pal.diagnostics().bodyHeight) < 0.05);
   assert.ok(Number(pal.diagnostics().deformationAmplitude) < 0.02);
+  checkSealSmile();
   pal.reset();
   const limb = pal.object.getObjectByName(limbName) as Mesh;
   const restBounds = new Box3().setFromBufferAttribute(limb.geometry.attributes.position as BufferAttribute);
