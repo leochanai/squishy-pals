@@ -17,11 +17,12 @@ export function createStudioEnvironment() {
 
 /** A diffuse studio rig and a horizonless, soft contact patch. */
 export function createLighting(scene: Scene) {
-  scene.background = null;
   // Inverse ACES (exposure .98) for page #f5f4f2: WebGPU tone maps the
-  // entire output, including basic materials. This unlit floor supplies refraction
-  // backdrop without a visible horizon or transparent black edge samples.
-  const floor = new Mesh(new PlaneGeometry(200, 200), new MeshBasicMaterial({ color: new Color().setRGB(2.520125, 2.319882, 1.979641) }));
+  // entire output, including basic materials. Use the same opaque radiance above
+  // and below the horizon so raised jelly never refracts a transparent clear color.
+  const backdrop = new Color().setRGB(2.520125, 2.319882, 1.979641);
+  scene.background = backdrop;
+  const floor = new Mesh(new PlaneGeometry(200, 200), new MeshBasicMaterial({ color: backdrop }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = -.035; scene.add(floor);
   const ambient = new AmbientLight('#ffffff', 0.3);
   const key = new DirectionalLight('#fff4ee', 1.9);
