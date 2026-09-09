@@ -86,7 +86,8 @@ export function createSquidMochi(): Character {
     const angle = long ? (i === 8 ? -0.36 : 0.36) : -1.3 + i / 7 * 2.6;
     const length = long ? 2.66 : 1.55 + 0.15 * Math.cos(angle * 2);
     const curve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(Math.sin(angle) * 0.34, 0.86, Math.cos(angle) * 0.3),
+      // Bury the closed root inside the mantle; the visible arm emerges gradually.
+      new THREE.Vector3(Math.sin(angle) * 0.22, 1.12, Math.cos(angle) * 0.12),
       new THREE.Vector3(Math.sin(angle) * 0.64, 0.46, 0.62),
       new THREE.Vector3(Math.sin(angle) * length * 0.9, 0.24, Math.cos(angle) * length * 0.79),
       new THREE.Vector3(Math.sin(angle) * length, long ? 0.29 : 0.35, Math.cos(angle) * length),
@@ -97,14 +98,14 @@ export function createSquidMochi(): Character {
       const t = Math.floor(j / 13) / 24;
       const center = curve.getPointAt(t);
       const radius = long ? 0.14 - 0.055 * t + 0.085 * Math.exp(-(((t - 0.9) / 0.13) ** 2)) : 0.215 * (1 - t * 0.66);
-      point.fromBufferAttribute(positions, j).sub(center).multiplyScalar(radius * (t === 1 ? 0 : Math.min(1, (1 - t) * 12 + 0.04))).add(center);
+      point.fromBufferAttribute(positions, j).sub(center).multiplyScalar(radius * Math.min(1, t * 18) * (t === 1 ? 0 : Math.min(1, (1 - t) * 12 + 0.04))).add(center);
       positions.setXYZ(j, point.x, point.y, point.z);
     }
     // Keep the vertex numbering used by deformation weights, but share the
-    // circumference seam and one closed tip in the rendered triangles.
+    // circumference seam and closed root/tip in the rendered triangles.
     const sourceIndices = geometry.getIndex()!;
     const indices: number[] = [];
-    const sharedIndex = (index: number) => index >= 24 * 13 ? 24 * 13 : index % 13 === 12 ? index - 12 : index;
+    const sharedIndex = (index: number) => index < 13 ? 0 : index >= 24 * 13 ? 24 * 13 : index % 13 === 12 ? index - 12 : index;
     for (let j = 0; j < sourceIndices.count; j += 3) {
       const a = sharedIndex(sourceIndices.getX(j)), b = sharedIndex(sourceIndices.getX(j + 1)), c = sharedIndex(sourceIndices.getX(j + 2));
       if (a !== b && b !== c && c !== a) indices.push(a, b, c);

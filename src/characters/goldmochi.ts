@@ -91,7 +91,7 @@ export function createGoldMochi(): Character {
   }
   for (const side of [-1, 1]) {
     fan(new THREE.Vector3(side * 0.08, 1.21, -0.66), new THREE.Vector3(side * 0.26, 1.24, -2.43), new THREE.Vector3(0, 1.27, 0), `tail-${side}`, 0.075);
-    fan(new THREE.Vector3(side * 0.78, 1.05, 0.37), new THREE.Vector3(side * 1.53, 0.87, 0.48), new THREE.Vector3(0, 0.42, -0.12), `pectoral-fin-${side}`, 0.09);
+    fan(new THREE.Vector3(side * 0.78, 1.05, 0.37), new THREE.Vector3(side * 1.45, 0.87, -0.25), new THREE.Vector3(0, 0.42, -0.12), `pectoral-fin-${side}`, 0.09);
   }
   fan(new THREE.Vector3(0, 2.02, -0.3), new THREE.Vector3(0, 3.07, -0.46), new THREE.Vector3(0, 0, 0.9), 'dorsal-fin', 0.065);
   colorFins();
@@ -117,7 +117,7 @@ export function createGoldMochi(): Character {
   const tangentX = new THREE.Vector3(), tangentY = new THREE.Vector3(), faceNormal = new THREE.Vector3();
   const front = new THREE.Vector3(0, 0, 1);
   let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
-  let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number } | null = null;
+  let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number; heading: number } | null = null;
   function deform(x: number, y: number, z: number, out: THREE.Vector3, time: number, fin = false, handle = -1, along = 0) {
     out.set(x * (1 + squash * 0.35), 0.18 + (y - 0.18) * (1 - squash), z * (1 + squash * 0.22)).add(body);
     // Every surface uses this same material-space field, including the face and
@@ -154,10 +154,11 @@ export function createGoldMochi(): Character {
     surprised.position.copy(mouth.position); surprised.quaternion.copy(mouth.quaternion); surprised.visible = Boolean(grab?.drag) || clock > 0.13 && clock < 0.5; mouth.visible = !surprised.visible;
   }
   function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
-    // Accumulate a small horizontal dead zone so clicks and hand jitter do not turn the pal.
-    if (parameters.view === undefined && grab.head && isDrag && Math.abs(worldPoint.x - grab.turnX) > 0.12) {
-      targetHeading = worldPoint.x > grab.turnX ? 0.72 : -0.72;
-      grab.turnX = worldPoint.x;
+    // Map the complete gesture to yaw, so returning the pointer restores its heading.
+    if (grab.head && isDrag) {
+      const distance = worldPoint.x - grab.turnX;
+      const turn = Math.sign(distance) * Math.max(0, Math.abs(distance) - 0.12) * 1.4;
+      targetHeading = clamp(grab.heading + turn, defaultHeading - Math.PI / 2, defaultHeading + Math.PI / 2);
     }
     grab.worldTarget.copy(worldPoint);
     grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) { grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); } grab.target.y = Math.max(0.08, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; }
@@ -232,7 +233,7 @@ export function createGoldMochi(): Character {
     deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = mechanicalShell.pick(raycaster) ?? raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? 'body' : `fin-${part.handle + 1}`, handle: part.handle }; },
-    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); pressPoint.copy(local).sub(body); targetHeading = object.rotation.y; grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.handle < 0 && pressPoint.z > 0.65, turnX: hit.point.x }; pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
+    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); pressPoint.copy(local).sub(body); targetHeading = object.rotation.y; grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.handle < 0 && pressPoint.z > 0.65, turnX: hit.point.x, heading: object.rotation.y }; pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
     moveGrab,
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); mechanicalShell.update(); frame++; },

@@ -45,11 +45,11 @@ export function createWhaleMochi(): Character {
   // Longitudinal cross-sections: blunt forehead, broad belly, tapered raised peduncle.
   const stations = [
     [-1.92, 1.30, 0, 0], [-1.87, 1.31, 0.40, 0.45],
-    [-1.64, 1.33, 0.90, 0.86], [-1.17, 1.34, 1.13, 1.02],
-    [-0.52, 1.27, 1.16, 1.05], [0.14, 1.11, 1.00, 0.93],
-    [0.73, 0.97, 0.69, 0.70], [1.18, 1.05, 0.43, 0.46],
-    [1.51, 1.31, 0.31, 0.32], [1.76, 1.58, 0.24, 0.25],
-    [1.98, 1.73, 0.15, 0.19], [2.12, 1.75, 0, 0],
+    [-1.64, 1.33, 0.90, 0.94], [-1.17, 1.34, 1.13, 1.13],
+    [-0.52, 1.27, 1.16, 1.15], [0.14, 1.11, 1.00, 0.93],
+    [0.66, 1.04, 0.76, 0.75], [1.04, 1.13, 0.53, 0.50],
+    [1.34, 1.34, 0.37, 0.37], [1.55, 1.55, 0.29, 0.30],
+    [1.76, 1.69, 0.19, 0.23], [1.90, 1.72, 0, 0],
   ];
   function section(t: number) {
     const scaled = clamp(t, 0, 1) * (stations.length - 1), i = Math.min(stations.length - 2, Math.floor(scaled)), f = scaled - i;
@@ -65,9 +65,15 @@ export function createWhaleMochi(): Character {
     const [x, centerY, height, width] = section(i / rows);
     for (let j = 0; j <= columns; j++) {
       const theta = j / columns * Math.PI * 2;
-      const belly = 1 - THREE.MathUtils.smoothstep(Math.sin(theta), -0.25, -0.19);
-      const pleat = 0.008 * Math.cos(theta * 28) * belly * THREE.MathUtils.smoothstep(-x, -0.3, 0.5);
-      vertices.push(x, centerY + (height + pleat) * Math.sin(theta), (width + pleat) * Math.cos(theta));
+      const y = centerY + height * Math.sin(theta), z = width * Math.cos(theta);
+      const jawAngle = Math.atan2(Math.abs(z), Math.max(0.001, -x - 0.82));
+      const chinEdge = 1.095 + 0.08 * Math.min(1, Math.sin(jawAngle) / Math.sin(1.38)) ** 4;
+      // One height field carries the pale chin into the underside without a cheek seam.
+      const bellyEdge = THREE.MathUtils.lerp(chinEdge, centerY - height * 0.25, THREE.MathUtils.smoothstep(x, -0.85, 0.65));
+      const belly = 1 - THREE.MathUtils.smoothstep(y, bellyEdge - 0.04, bellyEdge + 0.04);
+      // Avatar-like vertical chin grooves fade before the smile and silhouette.
+      const pleat = 0.004 * Math.cos(z * Math.PI / 0.22) * belly * THREE.MathUtils.smoothstep(-x, 0.8, 1.5) * (1 - THREE.MathUtils.smoothstep(y, 0.85, 1.06));
+      vertices.push(x + pleat, y, z);
       bellyWeights.push(belly);
       if (i < rows && j < columns) {
         const a = i * (columns + 1) + j, c = i * (columns + 1) + (j + 1) % columns;
@@ -115,40 +121,45 @@ export function createWhaleMochi(): Character {
   }
   // The fluke roots overlap the narrow tail stalk, and sweep out in a horizontal plane.
   for (const side of [-1, 1]) {
-    paddle(new THREE.Vector3(1.71, 1.57, 0), new THREE.Vector3(2.05, 1.71, side * 0.55), new THREE.Vector3(2.43, 1.95, side * 1.08), 0.43, 0.15, `tail-fluke-${side}`);
-    paddle(new THREE.Vector3(-0.14, 0.81, side * 0.71), new THREE.Vector3(0.13, 0.51, side * 1.11), new THREE.Vector3(0.68, 0.28, side * 1.43), 0.40, 0.15, `flipper-${side}`);
+    paddle(new THREE.Vector3(1.40, 1.43, 0), new THREE.Vector3(1.72, 1.69, side * 0.58), new THREE.Vector3(2.07, 2.02, side * 1.08), 0.47, 0.18, `tail-fluke-${side}`);
+    paddle(new THREE.Vector3(-0.44, 0.87, side * 0.66), new THREE.Vector3(-0.10, 0.57, side * 1.08), new THREE.Vector3(0.37, 0.30, side * 1.38), 0.39, 0.18, `flipper-${side}`);
   }
   const face: { mesh: THREE.Mesh; rest: THREE.Vector3; eye: boolean; normal: THREE.Vector3 }[] = [];
   const sphere = new THREE.SphereGeometry(1, 32, 24);
-  function sidePoint(x: number, y: number, side: number, offset = 0.025) {
-    let low = 0, high = 1;
-    for (let i = 0; i < 28; i++) { const mid = (low + high) / 2; if (section(mid)[0] < x) low = mid; else high = mid; }
-    const [, cy, ry, rz] = section((low + high) / 2);
-    return new THREE.Vector3(x, y, side * (rz * Math.sqrt(Math.max(0, 1 - ((y - cy) / ry) ** 2)) + offset));
-  }
   function detail(mesh: THREE.Mesh, rest: THREE.Vector3, normal: THREE.Vector3, eye = false) { object.add(mesh); face.push({ mesh, rest, normal, eye }); }
+  const snout = parts[0].mesh.clone(false);
+  snout.updateMatrixWorld(true);
+  const ray = new THREE.Raycaster();
   for (const side of [-1, 1]) {
-    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.17, 0.19, 0.11);
-    detail(eye, sidePoint(-0.7, 1.23, side, 0.045), new THREE.Vector3(-0.08, 0, side).normalize(), true);
-    const points = Array.from({ length: 40 }, (_, i) => {
-      const t = i / 39, x = -1.875 + t * 0.96, y = 1.22 - 0.13 * Math.sin(t * Math.PI * 0.75) + 0.07 * t ** 10;
-      return sidePoint(x, y, side, 0.023);
-    });
-    const curve = new THREE.CatmullRomCurve3(points);
-    const mesh = new THREE.Mesh(new THREE.TubeGeometry(curve, 64, 0.019, 8, false), mouthMaterial);
-    // Keep the smile in body coordinates so it can share the body deformation exactly.
-    add(mesh.geometry); parts[parts.length - 1].mesh.material = mouthMaterial;
-    parts[parts.length - 1].mesh.name = 'smile';
+    const eye = new THREE.Mesh(sphere, dark); eye.name = side < 0 ? 'left-eye' : 'right-eye'; eye.scale.set(0.12, 0.145, 0.065);
+    ray.set(new THREE.Vector3(-0.90, 1.43, side * 5), new THREE.Vector3(0, 0, -side));
+    const eyeHit = ray.intersectObject(snout, false)[0]!;
+    const eyeNormal = eyeHit.face!.normal.clone().normalize();
+    detail(eye, eyeHit.point.clone().addScaledVector(eyeNormal, 0.025), eyeNormal, true);
   }
+  // Sweep one lip around the lower jaw, fitting every point along an outward ray.
+  // A single angular sweep avoids the projecting join between front and cheek curves.
+  const smilePoints = Array.from({ length: 97 }, (_, i) => {
+    const u = i / 48 - 1, angle = u * 1.10;
+    const y = 1.095 + 0.08 * (Math.sin(angle) / Math.sin(1.38)) ** 4;
+    const outward = new THREE.Vector3(-Math.cos(angle), 0, Math.sin(angle));
+    ray.set(new THREE.Vector3(-0.82, y, 0).addScaledVector(outward, 5), outward.clone().negate());
+    const hit = ray.intersectObject(snout, false)[0]!;
+    return hit.point.clone().addScaledVector(hit.face!.normal, 0.003);
+  });
+  const smile = new THREE.CatmullRomCurve3(smilePoints);
+  add(new THREE.TubeGeometry(smile, 224, 0.012, 8, false));
+  parts[parts.length - 1].mesh.material = mouthMaterial;
+  parts[parts.length - 1].mesh.name = 'smile';
   const body = new THREE.Vector3(), velocity = new THREE.Vector3(), delta = new THREE.Vector3();
   const pressPoint = new THREE.Vector3(), pressNormal = new THREE.Vector3();
   const stretch = new THREE.Vector3(), stretchVelocity = new THREE.Vector3();
   const wobble = new THREE.Vector3(), wobbleVelocity = new THREE.Vector3();
   const previousVelocity = new THREE.Vector3(), force = new THREE.Vector3(), softTarget = new THREE.Vector3();
   const tangentX = new THREE.Vector3(), tangentY = new THREE.Vector3(), faceNormal = new THREE.Vector3();
-  const front = new THREE.Vector3(0, 0, 1);
+  const eyeRight = new THREE.Vector3(), eyeUp = new THREE.Vector3(), eyeBasis = new THREE.Matrix4();
   let squash = 0, squashVelocity = 0, press = 0, pressVelocity = 0, pressTarget = 0, clock = -1, frame = 0, lastTime = 0;
-  let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number } | null = null;
+  let grab: { handle: number; target: THREE.Vector3; worldTarget: THREE.Vector3; offset: THREE.Vector3; drag: boolean; head: boolean; turnX: number; heading: number } | null = null;
   function deform(x: number, y: number, z: number, out: THREE.Vector3, time: number, fin = false, handle = -1, along = 0) {
     out.set(x * (1 + squash * 0.35), 0.18 + (y - 0.18) * (1 - squash), z * (1 + squash * 0.22)).add(body);
     // Every surface uses this same material-space field, including the face and
@@ -179,16 +190,21 @@ export function createWhaleMochi(): Character {
       deform(x + tangent.x * 0.02, y + tangent.y * 0.02, z + tangent.z * 0.02, tangentX, time); tangentX.sub(item.mesh.position);
       deform(x + bitangent.x * 0.02, y + bitangent.y * 0.02, z + bitangent.z * 0.02, tangentY, time); tangentY.sub(item.mesh.position);
       faceNormal.crossVectors(tangentX, tangentY).normalize();
-      item.mesh.quaternion.setFromUnitVectors(front, faceNormal);
-      if (item.eye) item.mesh.scale.y = 0.19 * blink * (1 - squash);
+      // Keep both oval eyes upright even when the outward normal points backward.
+      eyeRight.crossVectors(new THREE.Vector3(0, 1, 0), faceNormal).normalize();
+      eyeUp.crossVectors(faceNormal, eyeRight).normalize();
+      eyeBasis.makeBasis(eyeRight, eyeUp, faceNormal);
+      item.mesh.quaternion.setFromRotationMatrix(eyeBasis);
+      if (item.eye) item.mesh.scale.y = 0.145 * blink * (1 - squash);
     }
 
   }
   function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
-    // Accumulate a small horizontal dead zone so clicks and hand jitter do not turn the pal.
-    if (parameters.view === undefined && grab.head && isDrag && Math.abs(worldPoint.x - grab.turnX) > 0.12) {
-      targetHeading = worldPoint.x > grab.turnX ? Math.PI - 0.22 : 0.22;
-      grab.turnX = worldPoint.x;
+    // Map the complete gesture to yaw, so returning the pointer restores its heading.
+    if (grab.head && isDrag) {
+      const distance = worldPoint.x - grab.turnX;
+      const turn = Math.sign(distance) * Math.max(0, Math.abs(distance) - 0.12) * 1.4;
+      targetHeading = clamp(grab.heading + turn, defaultHeading - Math.PI / 2, defaultHeading + Math.PI / 2);
     }
     grab.worldTarget.copy(worldPoint);
     grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) { grab.target.x = clamp(grab.target.x, -4.5, 4.5); grab.target.z = clamp(grab.target.z, -4.5, 4.5); grab.target.y = clamp(grab.target.y, 0.08, 5.5); } grab.target.y = Math.max(0.08, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; }
@@ -263,7 +279,7 @@ export function createWhaleMochi(): Character {
     deformAccessory(point, out) { deform(point.x, point.y, point.z, out, lastTime); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) { const hit = mechanicalShell.pick(raycaster) ?? raycaster.intersectObjects(parts.map(part => part.mesh), false)[0]; if (!hit) return null; const part = parts.find(part => part.mesh === hit.object)!; return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: part.handle < 0 ? 'body' : `fin-${part.handle + 1}`, handle: part.handle }; },
-    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); pressPoint.copy(local).sub(body); targetHeading = object.rotation.y; grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.handle < 0 && pressPoint.x < -0.45, turnX: hit.point.x }; pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
+    beginGrab(hit: GrabHit) { const local = object.worldToLocal(hit.point.clone()); const anchor = body.clone(); if (hit.handle >= 0) anchor.add(limbs[hit.handle].tip).add(limbs[hit.handle].shift); pressPoint.copy(local).sub(body); targetHeading = object.rotation.y; grab = { handle: hit.handle, target: local.clone(), worldTarget: hit.point.clone(), offset: local.clone().sub(anchor), drag: false, head: hit.handle < 0 && pressPoint.x < -0.45, turnX: hit.point.x, heading: object.rotation.y }; pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
     moveGrab,
     endGrab() { grab = null; pressTarget = 0; },
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); mechanicalShell.update(); frame++; },

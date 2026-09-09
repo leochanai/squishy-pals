@@ -51,7 +51,7 @@ export const characters: RegisteredCharacter[] = [{
   load: async () => (await import('./goldmochi')).createGoldMochi,
 }, {
   id: 'whalemochi',
-  camera: { position: [0, 3.8, 10.8], target: [0, 1.25, 0] },
+  camera: { position: [0, 2.6, 10.8], target: [0, 1.25, 0] },
   name: '深海小鲸鱼',
   englishName: 'WhaleMochi',
   description: '深海蓝的小身子，宽宽的尾鳍轻轻摇。抱住这份安静，让心情慢慢浮起来。',
@@ -62,7 +62,7 @@ export const characters: RegisteredCharacter[] = [{
   load: async () => (await import('./whalemochi')).createWhaleMochi,
 }, {
   id: 'sharkmochi',
-  camera: { position: [0, 3.8, 10.8], target: [0, 1.3, 0] },
+  camera: { position: [0, 2.6, 10.8], target: [0, 1.3, 0] },
   name: '深海小鲨鱼',
   englishName: 'SharkMochi',
   description: '顶着三角小背鳍，摆摆尾巴游向你。看起来有点酷，捏起来却软乎乎。',

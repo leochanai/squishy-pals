@@ -29,7 +29,9 @@ for (const [id, file, factory, front, side] of [
       character.beginGrab(hit);
       character.moveGrab(hit.point.clone().add(new Vector3(0.5, 0.5, 0)), true);
       for (let frame = 0; frame < 8; frame++) { time += 1 / 60; character.update(1 / 60, time); accessories.update(); }
-      assert.equal(character.object.rotation.y, view === 'front' ? front : side, `${id}: drag preserves chosen view`);
+      assert.ok(Number.isFinite(character.object.rotation.y), `${id}: drag keeps a valid heading`);
+      character.endGrab(); character.setParameters({ view });
+      assert.equal(character.object.rotation.y, view === 'front' ? front : side, `${id}: manual view restores heading after dragging`);
       assert.equal(character.diagnostics().finite, true);
       assert.equal(character.object.getObjectByName('glasses')!.visible, true);
       const bounds = new Box3().setFromObject(character.object);
