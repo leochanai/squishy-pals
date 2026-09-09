@@ -208,7 +208,7 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .selected-check{background:color-mix(in srgb,var(--pal-accent) 65%,#746179)}
 
 .playground-page .companion-icon{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;filter:none}
-.playground-page .companion-icon img{width:44px;height:44px;object-fit:cover;border-radius:50%;transform:scale(1.35)}
+.playground-page .companion-icon img{width:44px;height:44px;object-fit:contain;border-radius:50%;transform:none}
 @media(max-width:760px){
  .playground-page .experience{padding-top:545px;min-height:0}
  .playground-page .control-panel{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px;margin-bottom:22px}
@@ -540,6 +540,7 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .companions .companion{flex:0 0 64px;min-width:64px;width:64px;height:64px;padding:7px;display:grid;place-items:center;gap:0;border-radius:50%}
 .playground-page .companions .companion-icon,.playground-page .companions .companion-icon img{width:48px;height:48px}
 .playground-page .companions .selected-check{position:absolute;top:1px;right:1px;width:15px;height:15px;margin:0}
+.playground-page .companions>div:last-child{padding:9px 9px 17px;scroll-padding-inline:9px}
 
 /* Small wardrobe controls share the existing settings rail. */
 .playground-page .accessory-section{border-top:1px solid #ded8df;padding:18px 0 14px;grid-column:1/-1}
@@ -573,3 +574,6 @@ body:has(.catalogue-page){background:#f3f2f0}
  .playground-page .experience,.playground-page:is([data-pal=cuttlemochi],[data-pal=squidmochi]) .experience{grid-template-rows:88px clamp(340px,52svh,500px) 76px auto}
  .playground-page .stage-caption{min-height:68px;justify-content:center;gap:6px}
 }
+
+/* Final model renders need no photographic color correction. */
+.catalogue-page .pal-card[href] .pal-card-image img{filter:none;object-fit:contain}
