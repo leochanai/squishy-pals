@@ -216,6 +216,7 @@ export function createCuttleMochi(): Character {
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); mechanicalShell.update(); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
     setParameters(next) {
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; gel.color.set(next.color); gel.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.4); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }

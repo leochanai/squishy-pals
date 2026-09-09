@@ -600,6 +600,7 @@ export function createOctoMochi(mechanical = false): Character {
     poke() { if (grab) grab = null; pressTarget = 0; pokeClock = 0; squashVelocity -= 0.3; },
     reset,
     setParameters(next) {
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; material.color.set(next.color); material.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.45); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) materialVariants.set(parameters.material);

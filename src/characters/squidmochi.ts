@@ -253,6 +253,7 @@ export function createSquidMochi(): Character {
     poke() { grab = null; pressTarget = 0; pokeClock = 0; },
     reset,
     setParameters(next) {
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; material.color.set(next.color); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }

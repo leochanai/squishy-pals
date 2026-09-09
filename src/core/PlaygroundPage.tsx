@@ -26,6 +26,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const selected = characters.find(item => item.id === characterId)!;
   const [displayedCharacter, setDisplayedCharacter] = useState(selected);
   const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
+  const [view, setView] = useState<'front' | 'side'>('front');
   const [color, setColor] = useState(selected.defaults.color);
   const [material, setMaterial] = useState<MaterialPreset>(selected.defaults.material);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
@@ -66,7 +67,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   useEffect(() => {
     setReady(false);
     const defaults = selected.defaults;
-    setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
+    setView('front'); setColor(defaults.color); setStiffness(defaults.stiffness * 100); setDamping(defaults.damping * 100);
     // Fetch the first model module while the shared renderer initializes.
     if (!engineReady) { void selected.load().catch(() => {}); return; }
     let cancelled = false;
@@ -78,20 +79,21 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     return () => { cancelled = true; };
   }, [selected, engineReady, retry]);
   useEffect(() => { if (ready) game.current?.setParameters({ color, material, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, material, stiffness, damping, ready]);
+  useEffect(() => { if (ready) game.current?.setParameters({ view }); }, [view, ready]);
   useEffect(() => { if (ready) game.current?.setAccessories(accessories); }, [accessories, ready]);
   const preload = (item: RegisteredCharacter) => {
     router.prefetch(`/pals/${item.id}`);
     if (game.current) void game.current.preloadCharacter(item).catch(() => {});
     else void item.load().catch(() => {});
   };
-  const reset = () => { game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setMaterial(selected.defaults.material); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
+  const reset = () => { setView('front'); game.current?.reset(); setAccessories([]); setColor(selected.defaults.color); setMaterial(selected.defaults.material); setStiffness(selected.defaults.stiffness * 100); setDamping(selected.defaults.damping * 100); };
   return (
     <main className="playground-page" data-pal={characterId} style={{ '--pal-accent': color } as React.CSSProperties}>
       <header className="topbar">
         <a className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></a>
       </header>
       <section className="experience" aria-label="软软伙伴互动区">
-        <nav className="companions" aria-label="选择伙伴"><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-label={`${item.englishName} ${item.name}`} aria-pressed={item.id === characterId} onPointerEnter={() => preload(item)} onFocus={() => preload(item)} onClick={() => { if (item.id === characterId) { if (error) setRetry(value => value + 1); return; } router.push(`/pals/${item.id}`, { scroll: false }); }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={item.image} alt="" width={44} height={44} /></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
+        <nav className="companions" aria-label="选择伙伴"><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={`companion ${item.id === characterId ? 'selected' : ''}`} key={item.id} aria-label={`${item.englishName} ${item.name}`} aria-pressed={item.id === characterId} onPointerEnter={() => preload(item)} onFocus={() => preload(item)} onClick={() => { if (item.id === characterId) { if (error) setRetry(value => value + 1); return; } router.push(`/pals/${item.id}`, { scroll: false }); }}><span className="companion-icon" aria-hidden="true"><Image unoptimized src={`/pals/${item.id}-front.png`} alt="" width={44} height={44} /></span>{item.id === characterId && <span className="selected-check"><Check size={12} /></span>}</button>)}</div></nav>
         <div className="play-stage">
         <div className="scene-host" ref={host} />
         {(!hasScene || error) && <div className="loading-card" role="status">{error ? <><strong>{engineReady ? '暂时无法切换伙伴' : '需要支持 WebGPU 的浏览器'}</strong><p>{error}</p>{engineReady ? <Button onClick={() => setRetry(value => value + 1)}>再试一次</Button> : <small>请在开启硬件加速的新版 Chrome、Edge 或 Safari 中打开。</small>}</> : <><span className="loading-dot" />正在揉好你的软软伙伴…</>}</div>}
@@ -101,6 +103,13 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
         <div className="mood" aria-live="polite"><span />{status}</div>
         </div>
         <aside className="control-panel" aria-label="伙伴设置">
+          <section className="material-section" aria-labelledby="view-label">
+            <div className="control-label"><span id="view-label">朝向</span></div>
+            <RadioGroup className="material-options view-options" aria-labelledby="view-label" value={view} disabled={!ready} onValueChange={value => setView(value as 'front' | 'side')}>
+              <label className="material-option"><RadioGroupItem value="front" /><span>正面</span></label>
+              <label className="material-option"><RadioGroupItem value="side" /><span>侧面</span></label>
+            </RadioGroup>
+          </section>
           <div className="color-section"><div className="control-label"><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className="swatches">{palette.map(item => <button key={item.color} className={`swatch ${color === item.color ? 'selected' : ''}`} style={{ '--swatch': item.color } as React.CSSProperties} disabled={!ready} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>
           <section className="material-section" aria-labelledby="material-label">
             <div className="control-label"><span id="material-label">材质</span></div>

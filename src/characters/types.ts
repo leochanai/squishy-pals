@@ -3,6 +3,7 @@ import type { Group, Raycaster, Vector3 } from 'three/webgpu';
 export type MaterialPreset = 'original' | 'jelly' | 'mechanical';
 
 export interface CharacterParameters {
+  view?: 'front' | 'side';
   color: string;
   material: MaterialPreset;
   stiffness: number;

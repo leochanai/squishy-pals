@@ -24,7 +24,9 @@ export function createOctopus(): Character {
     poke() { forms.forEach(form => form.poke()); },
     reset() { forms.forEach(form => form.reset()); },
     setParameters(parameters) {
-      forms.forEach(form => form.setParameters(parameters));
+      const { view, ...appearance } = parameters;
+      if (view !== undefined) { object.rotation.y = view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
+      forms.forEach(form => form.setParameters(appearance));
       if (parameters.material !== undefined) {
         const next = parameters.material === 'mechanical' ? machine : soft;
         if (next !== active) {

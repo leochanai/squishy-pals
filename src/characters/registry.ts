@@ -16,7 +16,7 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/octomochi-refined.png',
   icon: '🐙',
   color: '#c6a0df',
-  defaults: { material: 'original', color: '#c6a0df', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#c6a0df', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./octopus')).createOctopus,
 }, {
   id: 'cuttlemochi',
@@ -26,7 +26,7 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/cuttlemochi.png',
   icon: '🦑',
   color: '#9cccbc',
-  defaults: { material: 'original', color: '#9cccbc', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#9cccbc', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./cuttlemochi')).createCuttleMochi,
 }, {
   id: 'squidmochi',
@@ -36,7 +36,7 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/squidmochi.png',
   icon: '🦑',
   color: '#f69b85',
-  defaults: { material: 'original', color: '#f69b85', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#f69b85', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./squidmochi')).createSquidMochi,
 }, {
   id: 'goldmochi',
@@ -47,7 +47,7 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/goldmochi.png',
   icon: '🐠',
   color: '#f08610',
-  defaults: { material: 'original', color: '#f08610', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#f08610', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./goldmochi')).createGoldMochi,
 }, {
   id: 'whalemochi',
@@ -58,7 +58,7 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/whalemochi.png',
   icon: '🐋',
   color: '#304b7b',
-  defaults: { material: 'original', color: '#304b7b', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#304b7b', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./whalemochi')).createWhaleMochi,
 }, {
   id: 'sharkmochi',
@@ -69,6 +69,6 @@ export const characters: RegisteredCharacter[] = [{
   image: '/pals/sharkmochi.png',
   icon: '🦈',
   color: '#5f7d92',
-  defaults: { material: 'original', color: '#5f7d92', stiffness: 0.48, damping: 0.42 },
+  defaults: { view: 'front', material: 'original', color: '#5f7d92', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./sharkmochi')).createSharkMochi,
 }];

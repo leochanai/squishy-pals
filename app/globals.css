@@ -564,3 +564,5 @@ body:has(.catalogue-page){background:#f3f2f0}
 .playground-page .material-option [data-slot=radio-group-item]{width:14px;height:14px;border-color:#9885a7}
 .playground-page .material-option [data-slot=radio-group-item]:after{inset:0}
 @media(max-width:760px){.playground-page .material-section{padding:17px 0 0}}
+
+.view-options{grid-template-columns:repeat(2,minmax(0,1fr))}

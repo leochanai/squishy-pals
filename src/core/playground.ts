@@ -65,7 +65,8 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     if (!current) return;
     // Growing the play surface must add travel, not automatically enlarge the toy.
     const maxPalHeight = Math.min(340, window.innerHeight * (window.innerWidth > 760 ? .315 : .3));
-    frameCharacter(camera, current.bounds, width, height, maxPalHeight);
+    const viewBounds = current.bounds.clone().applyMatrix4(current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert()));
+    frameCharacter(camera, viewBounds, width, height, maxPalHeight);
     current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();
@@ -131,7 +132,9 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     setAccessories(selected) { selectedAccessories = [...selected]; accessories?.set(selected); canvas.dataset.accessories = selected.join(','); },
     setParameters(parameters) {
       if (parameters.material !== undefined) selectedMaterial = parameters.material;
+      if (parameters.view !== undefined) input?.release();
       current?.character.setParameters(parameters);
+      if (parameters.view !== undefined) resize();
     },
     poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
     reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },

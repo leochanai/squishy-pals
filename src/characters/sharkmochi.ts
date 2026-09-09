@@ -17,7 +17,7 @@ export function createSharkMochi(): Character {
   const CENTER = new THREE.Vector3(0, 1.24, 0);
   const object = new THREE.Group();
   object.name = 'SharkMochi';
-  const defaultHeading = Math.PI - 0.18;
+  const defaultHeading = Math.PI / 2;
   object.rotation.y = defaultHeading;
   let targetHeading = defaultHeading;
   const yawAxis = new THREE.Vector3(0, 1, 0);
@@ -232,7 +232,7 @@ export function createSharkMochi(): Character {
   }
   function moveGrab(worldPoint: THREE.Vector3, isDrag: boolean) { if (!grab) return;
     // Accumulate a small horizontal dead zone so clicks and hand jitter do not turn the pal.
-    if (grab.head && isDrag && Math.abs(worldPoint.x - grab.turnX) > 0.12) {
+    if (parameters.view === undefined && grab.head && isDrag && Math.abs(worldPoint.x - grab.turnX) > 0.12) {
       targetHeading = worldPoint.x > grab.turnX ? Math.PI - 0.18 : 0.18;
       grab.turnX = worldPoint.x;
     }
@@ -315,6 +315,7 @@ export function createSharkMochi(): Character {
     update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05), steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps); render(time); mechanicalShell.update(); frame++; },
     poke() { grab = null; pressTarget = 0; clock = 0; }, reset,
     setParameters(next) {
+      if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = targetHeading = next.view === 'front' ? defaultHeading : 0; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; gel.color.set(next.color); colorBody(); }
       if (next.material !== undefined) parameters.material = next.material;
       if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }
