@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { createMechanicalShell } from './mechanical-shell.ts';
 import { createMaterialVariants } from './materials.ts';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
 
@@ -230,16 +231,17 @@ export function createSquidMochi(): Character {
   function reset() {
     body.set(0, 0, 0); velocity.set(0, 0, 0); squash = 0; squashVelocity = 0; press = 0; pressVelocity = 0; pressTarget = 0; grab = null; pokeClock = -1;
     pull.set(0, 0, 0); pullVelocity.set(0, 0, 0); sway.set(0, 0, 0); swayVelocity.set(0, 0, 0); deformationAmplitude = 0;
-    limbs.forEach(limb => { limb.offset.set(0, 0, 0); limb.velocity.set(0, 0, 0); }); render(lastTime);
+    limbs.forEach(limb => { limb.offset.set(0, 0, 0); limb.velocity.set(0, 0, 0); }); render(lastTime); mechanicalShell.update();
   }
-  reset();
   const materialVariants = createMaterialVariants(object, [{ material, thickness: 1 }], [dark, blush]);
+  const mechanicalShell = createMechanicalShell(surfaces.filter(surface => surface.mesh.material === material).map((surface, i) => ({ mesh: surface.mesh, axis: 'y' as const, bands: i === 0 ? 4 : 5, sectors: i === 0 ? 6 : 1, progress: surface.handle >= 0 ? surface.weights : undefined })));
+  reset();
   return {
     object,
     deformAccessory(point, out) { deform(out.copy(point), -1, 0); },
     setMovementConstraint(constraint) { movementConstraint = constraint; constraint(body, velocity); },
     pick(raycaster) {
-      const hit = raycaster.intersectObjects(surfaces.map(surface => surface.mesh), false)[0];
+      const hit = mechanicalShell.pick(raycaster) ?? raycaster.intersectObjects(surfaces.map(surface => surface.mesh), false)[0];
       if (!hit) return null;
       const handle = surfaces.find(surface => surface.mesh === hit.object)!.handle;
       return { point: hit.point.clone(), normal: hit.face?.normal.clone() ?? new THREE.Vector3(0, 1, 0), part: handle < 0 ? 'mantle' : `${handle < 8 ? 'arm' : 'tentacle'}-${handle + 1}`, handle };
@@ -247,17 +249,17 @@ export function createSquidMochi(): Character {
     beginGrab(hit) { const local = object.worldToLocal(hit.point.clone()); grab = { hit, target: local.clone(), anchor: local.clone().sub(body), drag: false }; pressPoint.copy(local).sub(body); pressNormal.copy(hit.normal).normalize(); pressTarget = 0.3; },
     moveGrab(worldPoint, isDrag) { if (!grab) return; grab.target.copy(worldPoint); object.worldToLocal(grab.target); if (!movementConstraint) grab.target.clamp(new THREE.Vector3(-4, 0.05, -4), new THREE.Vector3(4, 5, 4)); grab.target.y = Math.max(0.05, grab.target.y); grab.drag = isDrag; if (isDrag) pressTarget = 0; },
     endGrab() { grab = null; pressTarget = 0; },
-    update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05); const steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps, time); render(time); frames++; },
+    update(dt, time) { lastTime = time; const elapsed = clamp(dt, 0, 0.05); const steps = Math.max(1, Math.ceil(elapsed * 120)); for (let i = 0; i < steps; i++) simulate(elapsed / steps, time); render(time); mechanicalShell.update(); frames++; },
     poke() { grab = null; pressTarget = 0; pokeClock = 0; },
     reset,
     setParameters(next) {
       if (next.color) { parameters.color = next.color; material.color.set(next.color); }
       if (next.material !== undefined) parameters.material = next.material;
-      if (next.color || next.material !== undefined) materialVariants.set(parameters.material);
+      if (next.color || next.material !== undefined) { materialVariants.set(parameters.material); mechanicalShell.set(parameters.material); }
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },
     diagnostics() { return { armCount: 8, tentacleCount: 2, bodyX: body.x, bodyZ: body.z, bodyHeight: body.y, squash, pressed: press, dragging: Boolean(grab?.drag), grabbedPart: grab?.hit.part ?? 'none', finite: Number.isFinite(body.lengthSq() + squash + deformationAmplitude + limbs.reduce((sum, limb) => sum + limb.offset.lengthSq(), 0)), frames, deformationAmplitude, localPull: pull.length(), inertialSway: sway.length(), vertices: surfaces.reduce((sum, surface) => sum + surface.rest.length / 3, 0) }; },
-    dispose() { const geometries = new Set<THREE.BufferGeometry>(); const materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(value => materials.add(value)); } }); geometries.forEach(value => value.dispose()); materials.forEach(value => value.dispose()); object.clear(); },
+    dispose() { mechanicalShell.dispose(); const geometries = new Set<THREE.BufferGeometry>(); const materials = new Set<THREE.Material>(materialVariants.materials); object.traverse(child => { if (child instanceof THREE.Mesh) { geometries.add(child.geometry); (Array.isArray(child.material) ? child.material : [child.material]).forEach(value => materials.add(value)); } }); geometries.forEach(value => value.dispose()); materials.forEach(value => value.dispose()); object.clear(); },
   };
 }

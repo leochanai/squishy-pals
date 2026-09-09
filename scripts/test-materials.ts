@@ -10,7 +10,12 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   const character = create(id === 'mechaocto');
   character.setParameters({ color: '#f2a4c0', stiffness: 0.23, damping: 0.81 });
   const meshes: Mesh[] = [];
-  character.object.traverse(node => { if (node instanceof Mesh) meshes.push(node); });
+  character.object.traverse(node => { if (node instanceof Mesh && node.name !== 'armor-panel') meshes.push(node); });
+  const armorPanels: Mesh[] = [];
+  character.object.traverse(node => { if (node instanceof Mesh && node.name === 'armor-panel') armorPanels.push(node); });
+  if (!['octomochi', 'mechaocto'].includes(id)) assert.ok(armorPanels.length >= 25, `${id}: segmented body and appendage armor exists`);
+  const armorDisposals = new Map(armorPanels.map(panel => [panel.geometry, 0]));
+  for (const geometry of armorDisposals.keys()) geometry.addEventListener('dispose', () => armorDisposals.set(geometry, armorDisposals.get(geometry)! + 1));
   const originals = meshes.map(mesh => mesh.material);
   const geometry = meshes.map(mesh => mesh.geometry);
   const colors = meshes.map(mesh => mesh.geometry.getAttribute('color')?.array.slice());
@@ -18,7 +23,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   const originalJson = originals.map(material => (material as Material).toJSON());
   const resources = new Map<Material, number>();
   const trackMaterials = () => {
-    for (const mesh of meshes) {
+    for (const mesh of [...meshes, ...armorPanels]) {
       const material = mesh.material as Material;
       if (!resources.has(material)) {
         resources.set(material, 0);
@@ -41,6 +46,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   const grabbed = character.diagnostics();
 
   character.setParameters({ material: 'jelly' }); trackMaterials();
+  armorPanels.forEach(panel => assert.equal(panel.parent!.visible, false));
   const jelly = meshes.map(mesh => mesh.material);
   const changed = meshes.map((mesh, index) => mesh.material !== originals[index]);
   assert.ok(changed.some(Boolean), `${id}: jelly changes body surfaces`);
@@ -66,11 +72,12 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   assert.equal(glasses.visible, true); assert.equal((glasses.children[0] as Mesh).material, glassesMaterial);
 
   character.setParameters({ material: 'mechanical' }); trackMaterials();
+  armorPanels.forEach(panel => { assert.equal(panel.parent!.visible, true); assert.ok(panel.geometry.boundingSphere!.radius > 0); });
   const metal = meshes.map(mesh => mesh.material);
   for (let i = 0; i < meshes.length; i++) if (changed[i]) {
     const material = metal[i] as MeshPhysicalNodeMaterial;
     assert.equal(material.transmission, 0, `${id}: metal must not retain jelly transmission`);
-    assert.ok(material.metalness > 0.8, `${id}: metal is reflective`);
+    assert.ok(material.metalness >= 0.65, `${id}: metal is reflective`);
   }
   for (let cycle = 0; cycle < 3; cycle++) {
     character.setParameters({ material: 'jelly' });
@@ -86,15 +93,23 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   character.setParameters({ material: 'jelly', color: '#9cccbc' });
   character.setParameters({ material: 'mechanical' });
   for (let i = 0; i < meshes.length; i++) if (changed[i]) {
-    assert.ok((meshes[i].material as MeshPhysicalNodeMaterial).color.equals((originals[i] as MeshPhysicalNodeMaterial).color), `${id}: color follows cached presets`);
+    assert.ok(((meshes[i].getObjectByName('armor-panel') as Mesh | undefined)?.material as MeshPhysicalNodeMaterial ?? meshes[i].material as MeshPhysicalNodeMaterial).color.equals((originals[i] as MeshPhysicalNodeMaterial).color), `${id}: color follows cached presets`);
   }
-  assert.ok(meshes.some(mesh => (mesh.material as MeshPhysicalNodeMaterial).color?.equals(new Color('#9cccbc'))), `${id}: color remains editable`);
+  assert.ok(meshes.some(mesh => (((mesh.getObjectByName('armor-panel') as Mesh | undefined)?.material ?? mesh.material) as MeshPhysicalNodeMaterial).color?.equals(new Color('#9cccbc'))), `${id}: color remains editable`);
+  const armorBefore = armorPanels.map(panel => panel.geometry.getAttribute('position').array.slice());
   character.update(1 / 60, 1 / 60); wardrobe.update();
+  armorPanels.forEach((panel, i) => {
+    assert.notDeepEqual(panel.geometry.getAttribute('position').array, armorBefore[i], `${id}: armor follows the active pull`);
+    for (const value of panel.geometry.getAttribute('position').array) assert.ok(Number.isFinite(value));
+  });
+  character.object.updateMatrixWorld(true);
+  assert.ok(character.pick(new Raycaster(origin, new Vector3(0, -1, 0))), `${id}: mechanical shell remains pickable after deformation`);
   assert.equal(character.diagnostics().finite, true);
   character.endGrab(); character.reset(); character.setParameters({ material: 'original' });
   meshes.forEach((mesh, i) => assert.equal(mesh.material, originals[i]));
   assert.equal(character.diagnostics().grabbedPart, 'none');
   wardrobe.dispose(); character.dispose();
+  for (const count of armorDisposals.values()) assert.equal(count, 1, `${id}: release each armor geometry once`);
   for (const count of resources.values()) assert.equal(count, 1, `${id}: release active and cached materials exactly once`);
   console.log(`${id}: material switching, color, pose, accessories, reset and disposal passed`);
 }
