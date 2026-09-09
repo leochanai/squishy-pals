@@ -5,7 +5,6 @@ import type { AccessoryId } from './accessory-options';
 type Fit = { center: [number, number, number]; width: number; rise: number; top: number; hatSize: number; side?: boolean };
 const fits: Record<string, Fit> = {
   octomochi: { center: [0, 1.6, -.12], width: 1.5, rise: 1.34, top: 2.76, hatSize: .85 },
-  mechaocto: { center: [0, 1.6, -.12], width: 1.5, rise: 1.34, top: 2.76, hatSize: .85 },
   cuttlemochi: { center: [0, 1.15, -.2], width: 1.08, rise: .75, top: 1.8, hatSize: .65 },
   squidmochi: { center: [0, 1.75, .03], width: .78, rise: 1.7, top: 2.9, hatSize: .6 },
   goldmochi: { center: [0, 1.42, .1], width: 1.05, rise: 1.13, top: 2.35, hatSize: .64 },

@@ -469,7 +469,6 @@ body:has(.catalogue-page){background:#f3f2f0}
 
 /* Match the photographic contrast while retaining each companion's own material. */
 .catalogue-page .pal-card[href="/pals/goldmochi"] .pal-card-image img{filter:saturate(.9) brightness(1.1)}
-.catalogue-page .pal-card[href="/pals/mechaocto"] .pal-card-image img{filter:contrast(.91) brightness(1.065)}
 .catalogue-page .pal-card[href="/pals/whalemochi"] .pal-card-image img{filter:saturate(.95) contrast(.94) brightness(1.04)}
 .catalogue-page .pal-card[href="/pals/sharkmochi"] .pal-card-image img{filter:contrast(.94) brightness(1.04)}
 

@@ -17,7 +17,7 @@ export const characters: RegisteredCharacter[] = [{
   icon: '🐙',
   color: '#c6a0df',
   defaults: { material: 'original', color: '#c6a0df', stiffness: 0.48, damping: 0.42 },
-  load: async () => (await import('./octomochi')).createOctoMochi,
+  load: async () => (await import('./octopus')).createOctopus,
 }, {
   id: 'cuttlemochi',
   name: '绵绵小墨鱼',
@@ -49,17 +49,6 @@ export const characters: RegisteredCharacter[] = [{
   color: '#f08610',
   defaults: { material: 'original', color: '#f08610', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./goldmochi')).createGoldMochi,
-}, {
-  id: 'mechaocto',
-  camera: { position: [0, 4.8, 10.7], target: [0, 1.25, 0] },
-  name: '咔咔机械八爪鱼',
-  englishName: 'MechaOcto',
-  description: '金属小脑袋，八只分节机械腕。眨眨黑色小眼睛，陪你弹走一天的疲惫。',
-  image: '/pals/mechaocto-black.png',
-  icon: '🤖',
-  color: '#758fa2',
-  defaults: { material: 'original', color: '#758fa2', stiffness: 0.78, damping: 0.42 },
-  load: async () => (await import('./mechaocto')).createMechaOcto,
 }, {
   id: 'whalemochi',
   camera: { position: [0, 3.8, 10.8], target: [0, 1.25, 0] },

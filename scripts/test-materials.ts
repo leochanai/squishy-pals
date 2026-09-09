@@ -27,7 +27,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
     }
   };
   trackMaterials();
-  const wardrobe = createAccessories(character, id);
+  const wardrobe = createAccessories(character, moduleId);
   wardrobe.set(['glasses']);
   const accessory = character.object.getObjectByName('accessories')!;
   const glasses = accessory.getObjectByName('glasses')!;
@@ -65,7 +65,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   assert.deepEqual(character.diagnostics(), grabbed, `${id}: switching preserves the active grab and physics state`);
   assert.equal(glasses.visible, true); assert.equal((glasses.children[0] as Mesh).material, glassesMaterial);
 
-  character.setParameters({ material: 'metal' }); trackMaterials();
+  character.setParameters({ material: 'mechanical' }); trackMaterials();
   const metal = meshes.map(mesh => mesh.material);
   for (let i = 0; i < meshes.length; i++) if (changed[i]) {
     const material = metal[i] as MeshPhysicalNodeMaterial;
@@ -75,7 +75,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   for (let cycle = 0; cycle < 3; cycle++) {
     character.setParameters({ material: 'jelly' });
     meshes.forEach((mesh, i) => assert.equal(mesh.material, jelly[i], `${id}: reuse jelly instances`));
-    character.setParameters({ material: 'metal' });
+    character.setParameters({ material: 'mechanical' });
     meshes.forEach((mesh, i) => assert.equal(mesh.material, metal[i], `${id}: reuse metal instances`));
   }
   character.setParameters({ material: 'original' });
@@ -84,7 +84,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
     assert.deepEqual((mesh.material as Material).toJSON(), originalJson[i], `${id}: restore the complete original material`);
   });
   character.setParameters({ material: 'jelly', color: '#9cccbc' });
-  character.setParameters({ material: 'metal' });
+  character.setParameters({ material: 'mechanical' });
   for (let i = 0; i < meshes.length; i++) if (changed[i]) {
     assert.ok((meshes[i].material as MeshPhysicalNodeMaterial).color.equals((originals[i] as MeshPhysicalNodeMaterial).color), `${id}: color follows cached presets`);
   }
@@ -98,3 +98,43 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   for (const count of resources.values()) assert.equal(count, 1, `${id}: release active and cached materials exactly once`);
   console.log(`${id}: material switching, color, pose, accessories, reset and disposal passed`);
 }
+
+// The registered octopus changes actual structure without replacing its controls.
+const { createOctopus } = await import('../src/characters/octopus.ts');
+const octopus = createOctopus();
+const wardrobe = createAccessories(octopus, 'octomochi');
+wardrobe.set(['glasses']);
+octopus.setParameters({ color: '#f2a4c0', stiffness: 0.23, damping: 0.81 });
+octopus.object.updateMatrixWorld(true);
+const hit = octopus.pick(new Raycaster(new Vector3(0.12, 6, 0.1), new Vector3(0, -1, 0)));
+assert.ok(hit);
+octopus.beginGrab(hit);
+octopus.moveGrab(hit.point.clone().add(new Vector3(0.4, 0.6, 0.1)), true);
+for (let frame = 1; frame <= 20; frame++) octopus.update(1 / 60, frame / 60);
+const pose = octopus.diagnostics();
+for (const material of ['mechanical', 'jelly', 'mechanical', 'original'] as const) {
+  octopus.setParameters({ material });
+  const state = octopus.diagnostics();
+  assert.equal(state.mechanical, material === 'mechanical');
+  assert.equal(state.armorSegments, material === 'mechanical' ? 24 : 0);
+  for (const key of ['bodyX', 'bodyZ', 'bodyHeight', 'maxStretch', 'squash', 'dragging', 'grabbedPart']) {
+    assert.equal(state[key], pose[key], `structure switch preserves ${key}`);
+  }
+  assert.equal(octopus.object.children.filter(child => child.visible && child.name !== 'accessories').length, 1);
+  wardrobe.update();
+  assert.equal(octopus.object.getObjectByName('glasses')!.visible, true);
+  octopus.object.updateMatrixWorld(true);
+  assert.ok(octopus.pick(new Raycaster(new Vector3(Number(state.bodyX), 6, Number(state.bodyZ)), new Vector3(0, -1, 0))));
+}
+octopus.endGrab();
+octopus.beginGrab({ point: new Vector3(1.2, 0.5, 0), normal: new Vector3(0, 1, 0), part: 'arm-1', handle: 4 });
+octopus.moveGrab(new Vector3(2.2, 1.5, 0.3), true);
+for (let frame = 21; frame <= 40; frame++) octopus.update(1 / 60, frame / 60);
+const armPose = octopus.diagnostics();
+octopus.setParameters({ material: 'mechanical' });
+for (const key of ['bodyX', 'bodyZ', 'bodyHeight', 'maxStretch', 'grabbedPart']) assert.equal(octopus.diagnostics()[key], armPose[key]);
+octopus.endGrab(); octopus.reset();
+assert.equal(octopus.diagnostics().grabbedPart, 'none');
+wardrobe.dispose(); octopus.dispose();
+assert.equal(octopus.object.children.length, 0);
+console.log('octopus: mechanical structure, live pose, picking, accessories and reset passed');

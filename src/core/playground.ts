@@ -42,7 +42,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   environment.dispose(); pmrem.dispose();
   const cache = createCharacterCache(async character => {
     // Keep each material instance so later switches reuse its compiled pipeline.
-    for (const material of ['jelly', 'metal', 'original'] as const) {
+    for (const material of ['jelly', 'mechanical', 'original'] as const) {
       character.setParameters({ material });
       await renderer.compileAsync(character.object, camera, scene);
     }

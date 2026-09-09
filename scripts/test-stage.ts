@@ -11,7 +11,7 @@ for (const value of [.81, .9, 1, 3, 100]) {
 assert.ok(softenPointer(.80001) - softenPointer(.8) < .000011, 'entering resistance must be continuous');
 
 for (const [file, factory, mechanical] of [
-  ['octomochi', 'createOctoMochi', false], ['octomochi', 'createOctoMochi', true],
+  ['octopus', 'createOctopus', false], ['octomochi', 'createOctoMochi', true],
   ['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'],
   ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi'],
 ] as const) {

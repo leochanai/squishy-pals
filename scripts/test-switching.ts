@@ -98,7 +98,7 @@ function fixture(id: string) {
 }
 
 // Cached real geometry must be reused, including the expensive octopus surface.
-for (const [file, factory] of [['octomochi', 'createOctoMochi'], ['whalemochi', 'createWhaleMochi']] as const) {
+for (const [file, factory] of [['octopus', 'createOctopus'], ['whalemochi', 'createWhaleMochi']] as const) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);
   const { source } = fixture(file);
   source.load = async () => characterModule[factory];

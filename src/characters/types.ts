@@ -1,6 +1,6 @@
 import type { Group, Raycaster, Vector3 } from 'three/webgpu';
 
-export type MaterialPreset = 'original' | 'jelly' | 'metal';
+export type MaterialPreset = 'original' | 'jelly' | 'mechanical';
 
 export interface CharacterParameters {
   color: string;

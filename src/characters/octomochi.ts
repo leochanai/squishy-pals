@@ -593,9 +593,9 @@ export function createOctoMochi(mechanical = false): Character {
     update(dt, time) {
       lastTime = time;
       const elapsed = Math.min(Math.max(dt, 0), 1 / 20);
-      const steps = Math.max(1, Math.ceil(elapsed / (1 / 120)));
+      const steps = Math.ceil(elapsed / (1 / 120));
       for (let i = 0; i < steps; i++) simulate(elapsed / steps, time);
-      updateGeometry(time); frame++;
+      if (object.visible) updateGeometry(time); frame++;
     },
     poke() { if (grab) grab = null; pressTarget = 0; pokeClock = 0; squashVelocity -= 0.3; },
     reset,

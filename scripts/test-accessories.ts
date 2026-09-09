@@ -13,7 +13,7 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   const pal = create(id === 'mechaocto');
   pal.reset(); pal.object.updateMatrixWorld(true);
   const children = pal.object.children.length;
-  const rig = createAccessories(pal, id);
+  const rig = createAccessories(pal, moduleId);
   const root = pal.object.getObjectByName('accessories')!;
   assert.equal(root.children.filter(group => group.visible).length, 0);
   rig.set(['headphones', 'hat', 'glasses']);

@@ -16,7 +16,7 @@ const basePalette = [
   { name: '芋泥紫', color: '#c6a0df' }, { name: '草莓粉', color: '#f2a4c0' },
   { name: '珊瑚橙', color: '#f69b85' }, { name: '薄荷绿', color: '#9cccbc' },
 ];
-const materialOptions = [{ id: 'original', name: '原有' }, { id: 'jelly', name: '果冻' }, { id: 'metal', name: '金属' }] as const;
+const materialOptions = [{ id: 'original', name: '原有' }, { id: 'jelly', name: '果冻' }, { id: 'mechanical', name: '机械' }] as const;
 
 export default function PlaygroundPage({ characterId }: { characterId: string }) {
   const router = useRouter();
@@ -25,7 +25,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   const game = useRef<Playground | null>(null);
   const selected = characters.find(item => item.id === characterId)!;
   const [displayedCharacter, setDisplayedCharacter] = useState(selected);
-  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', mechaocto: '机械蓝', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
+  const palette = basePalette.some(item => item.color === selected.color) ? basePalette : [{ name: ({ goldmochi: '金鱼橙', whalemochi: '深海蓝', sharkmochi: '鲨鱼蓝' }[selected.id] ?? '原色'), color: selected.color }, ...basePalette.slice(1)];
   const [color, setColor] = useState(selected.defaults.color);
   const [material, setMaterial] = useState<MaterialPreset>(selected.defaults.material);
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
