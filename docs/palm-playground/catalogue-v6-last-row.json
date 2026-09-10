@@ -1,0 +1,42 @@
+[
+  {
+    "center": 160,
+    "firstWidth": 133,
+    "overflow": false,
+    "viewportCenter": 160,
+    "w": 320,
+    "width": 133
+  },
+  {
+    "center": 300,
+    "firstWidth": 269,
+    "overflow": false,
+    "viewportCenter": 300,
+    "w": 600,
+    "width": 269
+  },
+  {
+    "center": 300.49609375,
+    "firstWidth": 265.4609375,
+    "overflow": false,
+    "viewportCenter": 300.5,
+    "w": 601,
+    "width": 265.4609375
+  },
+  {
+    "center": 379.99609375,
+    "firstWidth": 338.6015625,
+    "overflow": false,
+    "viewportCenter": 380,
+    "w": 760,
+    "width": 338.6015625
+  },
+  {
+    "center": 621.203125,
+    "firstWidth": 218.703125,
+    "overflow": false,
+    "viewportCenter": 380.5,
+    "w": 761,
+    "width": 218.703125
+  }
+]

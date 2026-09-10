@@ -1,4 +1,5 @@
 import * as THREE from 'three/webgpu';
+import { mix, positionLocal, smoothstep } from 'three/tsl';
 import { createMaterialVariants } from './materials.ts';
 import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
 import type { Character, CharacterParameters, GrabHit, MovementConstraint } from './types';
@@ -63,14 +64,19 @@ function headDistance(x: number, y: number, z: number) {
 
 function armDistance(x: number, y: number, z: number, a: Joint, b: Joint) {
   const vx = b.rest.x - a.rest.x, vy = b.rest.y - a.rest.y, vz = b.rest.z - a.rest.z;
-  const t = clamp(((x - a.rest.x) * vx + (y - a.rest.y) * vy + (z - a.rest.z) * vz) / (vx * vx + vy * vy + vz * vz), 0, 1);
+  const lengthSq = vx * vx + vy * vy + vz * vz;
+  const projection = ((x - a.rest.x) * vx + (y - a.rest.y) * vy + (z - a.rest.z) * vz) / lengthSq;
+  const perpendicular = Math.hypot(x - a.rest.x - vx * projection, y - a.rest.y - vy * projection, z - a.rest.z - vz * projection);
+  const radiusDelta = b.radius - a.radius;
+  // Minimize distance to the tapered capsule, not only to its centerline.
+  const t = clamp(projection + radiusDelta * perpendicular / Math.sqrt(lengthSq * (lengthSq - radiusDelta * radiusDelta)), 0, 1);
   return Math.hypot(x - a.rest.x - vx * t, y - a.rest.y - vy * t, z - a.rest.z - vz * t) - THREE.MathUtils.lerp(a.radius, b.radius, t);
 }
 
 function buildSurface(arms: Joint[][], material: THREE.MeshPhysicalNodeMaterial) {
   // The head, mantle and eight arms are one smooth implicit surface. This field
   // is evaluated only at construction; animation skins its resulting mesh.
-  const size = 64;
+  const size = 96;
   const extent = 3.35;
   const verticalOffset = 1.2;
   const marching = new MarchingCubes(size, material, false, false, 45000);
@@ -105,20 +111,28 @@ function buildSurface(arms: Joint[][], material: THREE.MeshPhysicalNodeMaterial)
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3).setUsage(THREE.DynamicDrawUsage));
-  // Marching cubes already provides interpolated normals. Preserve their smooth
-  // vertex sharing with a quantized index so computeVertexNormals stays smooth.
+  // Preserve the field gradients as well as shared vertices: triangle-area
+  // normals alone reveal the irregular marching-cubes tessellation.
   const unique: number[] = [];
+  const fieldNormals: number[] = [];
+  const sourceNormals = marching.geometry.getAttribute('normal');
   const index: number[] = [];
   const lookup = new Map<string, number>();
   for (let i = 0; i < count; i++) {
     const x = positions[i * 3], y = positions[i * 3 + 1], z = positions[i * 3 + 2];
     const key = `${Math.round(x * 100000)},${Math.round(y * 100000)},${Math.round(z * 100000)}`;
     let vertex = lookup.get(key);
-    if (vertex === undefined) { vertex = unique.length / 3; lookup.set(key, vertex); unique.push(x, y, z); }
+    if (vertex === undefined) { vertex = unique.length / 3; lookup.set(key, vertex); unique.push(x, y, z); fieldNormals.push(sourceNormals.getX(i), sourceNormals.getY(i), sourceNormals.getZ(i)); }
     index.push(vertex);
   }
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(unique, 3).setUsage(THREE.DynamicDrawUsage));
   geometry.setIndex(index);
+  const fieldAttribute = new THREE.Float32BufferAttribute(fieldNormals, 3);
+  for (let i = 0; i < fieldAttribute.count; i++) {
+    const length = Math.hypot(fieldAttribute.getX(i), fieldAttribute.getY(i), fieldAttribute.getZ(i));
+    fieldAttribute.setXYZ(i, fieldAttribute.getX(i) / length, fieldAttribute.getY(i) / length, fieldAttribute.getZ(i) / length);
+  }
+  geometry.setAttribute('restFieldNormal', fieldAttribute);
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
   marching.geometry.dispose();
@@ -126,15 +140,18 @@ function buildSurface(arms: Joint[][], material: THREE.MeshPhysicalNodeMaterial)
 }
 
 function skinForPoint(point: THREE.Vector3, arms: Joint[][]) {
-  let best = Infinity, armIndex = 0, jointIndex = 0, along = 0;
+  let best = Infinity, secondBest = Infinity, armIndex = 0, jointIndex = 0, along = 0;
   for (let arm = 0; arm < ARM_COUNT; arm++) {
+    let armBest = Infinity;
     for (let j = 0; j < JOINTS - 1; j++) {
       const a = arms[arm][j], b = arms[arm][j + 1];
       const dx = b.rest.x - a.rest.x, dy = b.rest.y - a.rest.y, dz = b.rest.z - a.rest.z;
       const t = clamp(((point.x - a.rest.x) * dx + (point.y - a.rest.y) * dy + (point.z - a.rest.z) * dz) / (dx * dx + dy * dy + dz * dz), 0, 1);
       const distance = Math.hypot(point.x - a.rest.x - dx * t, point.y - a.rest.y - dy * t, point.z - a.rest.z - dz * t) - THREE.MathUtils.lerp(a.radius, b.radius, t);
-      if (distance < best) { best = distance; armIndex = arm; }
+      armBest = Math.min(armBest, distance);
     }
+    if (armBest < best) { secondBest = best; best = armBest; armIndex = arm; }
+    else secondBest = Math.min(secondBest, armBest);
   }
   // The taper determines which arm owns the point, but must not choose its
   // joint: subtracting the radius makes adjacent vertices jump between bones.
@@ -151,7 +168,9 @@ function skinForPoint(point: THREE.Vector3, arms: Joint[][]) {
     }
   }
   const hd = headDistance(point.x, point.y, point.z);
-  const head = THREE.MathUtils.smoothstep(best - hd, -0.25, 0.35);
+  // Shared belly vertices must agree across adjacent arm ownership boundaries.
+  const head = 1 - (1 - THREE.MathUtils.smoothstep(best - hd, -0.25, 0.35))
+    * THREE.MathUtils.smoothstep(secondBest - best, 0, 0.12);
   return { arm: armIndex, joint: jointIndex, along, head };
 }
 
@@ -159,11 +178,11 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
   const object = new THREE.Group();
   object.name = mechanical ? 'MechaOcto' : 'OctoMochi';
   const arms = makeArms();
-  const parameters: CharacterParameters = { material: 'original', color: mechanical ? '#758fa2' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
+  const parameters: CharacterParameters = { material: 'original', color: mechanical ? '#a9afb0' : '#c6a0df', stiffness: mechanical ? 0.78 : 0.48, damping: 0.42 };
   const material = new THREE.MeshPhysicalNodeMaterial({
-    color: parameters.color, roughness: mechanical ? 0.38 : 0.48, metalness: mechanical ? 0.62 : 0,
-    clearcoat: mechanical ? 0.12 : 0.18, clearcoatRoughness: mechanical ? 0.46 : 0.4,
-    transmission: mechanical ? 0 : 0.08, thickness: 1.3, ior: 1.38,
+    color: parameters.color, roughness: mechanical ? 0.58 : 0.36, metalness: mechanical ? 0.82 : 0,
+    clearcoat: mechanical ? 0.06 : 0.24, clearcoatRoughness: mechanical ? 0.46 : 0.4,
+    transmission: 0, thickness: 1.3, ior: 1.38,
     attenuationColor: new THREE.Color('#dcafe5'), attenuationDistance: 2.2,
     // Keep the gel's transmission and clearcoat. r185's TSL sheen BRDF can
     // divide by zero at grazing/back-facing smooth normals, producing black
@@ -202,6 +221,15 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
     }
     normals.needsUpdate = true;
   }
+  const normalCorrection = new Float32Array(normals.array.length);
+  if (!mechanical) {
+    smoothSurfaceNormals();
+    const fieldNormals = geometry.getAttribute('restFieldNormal');
+    for (let i = 0; i < normals.array.length; i++) normalCorrection[i] = fieldNormals.array[i] - normals.array[i];
+  }
+  const correctedNormal = new THREE.Vector3();
+  const restCorrection = new THREE.Vector3();
+  const rotatedCorrection = new THREE.Vector3();
   const skin: Skin = {
     rest: new Float32Array(positions.array), arm: new Uint8Array(positions.count), joint: new Uint8Array(positions.count),
     along: new Float32Array(positions.count), head: new Float32Array(positions.count),
@@ -250,12 +278,11 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
     for (let j = 3; j < JOINTS; j++) {
       const joint = arms[a][j];
       const tangent = joint.rest.clone().sub(arms[a][j - 1].rest).normalize();
-      // Two rows sit on the underside. The outside row is visible around the
-      // soft edge; lifted and curled arms reveal both rows naturally.
+      // Keep both rows underneath the soft silhouette; lifting reveals the cups.
       const side = new THREE.Vector3(tangent.z, 0, -tangent.x).normalize();
       for (const sign of [-1, 1]) {
-        const normal = new THREE.Vector3(side.x * sign * 0.78, -0.62, side.z * sign * 0.78).normalize();
-        const point = joint.rest.clone().addScaledVector(normal, joint.radius * 0.96);
+        const normal = new THREE.Vector3(side.x * sign * 0.42, -0.91, side.z * sign * 0.42).normalize();
+        const point = joint.rest.clone().addScaledVector(normal, joint.radius * 0.88);
         const sucker = new THREE.Mesh(suckerGeometry, suckerMaterial);
         sucker.scale.setScalar(1.1 - j * 0.055);
         addDetail(sucker, point, normal, 'sucker');
@@ -295,7 +322,7 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
       // Each arm has three solid rounded shells joined at the existing physics bones.
       object.add(group); armor.push({ group, arm, start, end, radius });
     }
-    const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.013, 10, 96), trim);
+    const seam = new THREE.Mesh(new THREE.TorusGeometry(1, 0.009, 10, 96), edge);
     seam.name = 'head-seam';
     seam.geometry.rotateX(Math.PI / 2); seam.geometry.scale(HEAD.x, 1, HEAD.z);
     addDetail(seam, new THREE.Vector3(0, 1.55, 0), new THREE.Vector3(0, 0, 1), 'cheek');
@@ -323,6 +350,7 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
   const deformed = new THREE.Vector3();
   const sourcePoint = new THREE.Vector3();
   const skinRotation = new THREE.Quaternion();
+  const bendIdentity = new THREE.Quaternion();
   const skinOffset = new THREE.Vector3();
   const boneRestDirection = new THREE.Vector3();
   const boneDirection = new THREE.Vector3();
@@ -464,8 +492,23 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
       for (let j = 1; j < JOINTS; j++) {
         const prev = arm[j - 1], current = arm[j];
         delta.copy(current.position).sub(prev.position);
-        const maxLength = current.rest.distanceTo(prev.rest) * stretchLimit;
-        if (delta.length() > maxLength) current.position.copy(prev.position).add(delta.setLength(maxLength));
+        const restLength = current.rest.distanceTo(prev.rest);
+        const length = clamp(delta.length(), j > 2 ? restLength * 0.75 : 0, restLength * stretchLimit);
+        if (delta.lengthSq() < 1e-12) delta.copy(current.rest).sub(prev.rest);
+        delta.setLength(length);
+        // Keep distal bends broad enough for the existing soft tube radius.
+        // The shared belly and pinned roots retain their original response.
+        if (j > 2) {
+          boneDirection.copy(prev.position).sub(arm[j - 2].position).normalize();
+          boneRestDirection.copy(delta).normalize();
+          const angle = boneRestDirection.angleTo(boneDirection);
+          const limit = Math.min(0.7, 0.75 * Math.min(restLength, prev.rest.distanceTo(arm[j - 2].rest)) / prev.radius);
+          if (angle > limit) {
+            skinRotation.setFromUnitVectors(boneRestDirection, boneDirection).slerp(bendIdentity, limit / angle);
+            delta.applyQuaternion(skinRotation);
+          }
+        }
+        current.position.copy(prev.position).add(delta);
         current.position.y = Math.max(current.radius * 0.88 + 0.025, current.position.y);
       }
     }
@@ -496,7 +539,17 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
     }
     positions.needsUpdate = true;
     geometry.computeVertexNormals();
-    if (!mechanical) smoothSurfaceNormals();
+    if (!mechanical) {
+      smoothSurfaceNormals();
+      for (let i = 0; i < normals.count; i++) {
+        const arm = arms[skin.arm[i]], j = skin.joint[i];
+        skinRotation.slerpQuaternions(arm[j].rotation, arm[j + 1].rotation, skin.along[i]);
+        restCorrection.fromArray(normalCorrection, i * 3);
+        rotatedCorrection.copy(restCorrection).applyQuaternion(skinRotation).lerp(restCorrection, skin.head[i]);
+        correctedNormal.fromBufferAttribute(normals, i).add(rotatedCorrection).normalize();
+        normals.setXYZ(i, correctedNormal.x, correctedNormal.y, correctedNormal.z);
+      }
+    }
     // Broad bounds allow accurate ray picking throughout a pull without scanning
     // the mesh a second time every frame.
     geometry.boundingSphere!.center.copy(body).add(new THREE.Vector3(0, 1.5, 0));
@@ -616,7 +669,23 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
       if (next.view !== undefined) { parameters.view = next.view; object.rotation.y = next.view === 'front' ? 0 : Math.PI / 2; object.updateMatrixWorld(true); }
       if (next.color) { parameters.color = next.color; material.color.set(next.color); material.attenuationColor.set(next.color).lerp(new THREE.Color('white'), 0.45); }
       if (next.material !== undefined) parameters.material = next.material;
-      if (next.color || next.material !== undefined) materialVariants.set(parameters.material);
+      if (next.color || next.material !== undefined) {
+        materialVariants.set(parameters.material);
+        if (!mechanical && parameters.material === 'jelly') {
+          surface.material.transmission = 0.55;
+          surface.material.attenuationDistance = 0.8;
+          surface.material.roughness = 0.24;
+          surface.material.clearcoat = 0.25;
+          surface.material.clearcoatRoughness = 0.3;
+          const tint = surface.material.color.getHSL({ h: 0, s: 0, l: 0 });
+          surface.material.attenuationColor.setHSL(tint.h, 0.82, 0.64);
+          surface.material.thicknessNode ??= mix(0.9, 1.4, smoothstep(0.45, 1.65, positionLocal.y));
+        }
+        if (mechanical && parameters.material === 'mechanical') {
+          const shell = surface.material;
+          shell.roughness = .58; shell.metalness = .82; shell.clearcoat = .06;
+        }
+      }
       if (next.stiffness !== undefined) parameters.stiffness = clamp(next.stiffness, 0, 1);
       if (next.damping !== undefined) parameters.damping = clamp(next.damping, 0, 1);
     },

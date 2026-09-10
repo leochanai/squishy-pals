@@ -8,7 +8,7 @@ function corners(bounds: Box3) {
 }
 
 /** Fit the resting silhouette, leaving new pixels available for play. */
-export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: number, height: number, maxProjectedHeight = 340) {
+export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: number, height: number, maxProjectedHeight = 340, envelope = corners(bounds), fill = .76) {
   const backward = camera.getWorldDirection(new Vector3()).negate();
   const center = bounds.getCenter(new Vector3());
   const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
@@ -16,11 +16,11 @@ export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: n
   camera.aspect = width / height;
   camera.fov = 32;
   const tangent = Math.tan(camera.fov * Math.PI / 360);
-  const verticalFill = Math.min(.65, maxProjectedHeight / height);
-  const horizontalFill = .64;
+  const verticalFill = Math.min(fill, maxProjectedHeight / height);
+  const horizontalFill = .76;
   let distance = 0;
-  for (const corner of corners(bounds)) {
-    corner.sub(center);
+  for (const point of envelope) {
+    const corner = point.clone().sub(center);
     const depth = corner.dot(backward);
     distance = Math.max(distance, depth + Math.abs(corner.dot(up)) / (tangent * verticalFill), depth + Math.abs(corner.dot(right)) / (tangent * camera.aspect * horizontalFill));
   }
@@ -40,21 +40,22 @@ export function softenPointer(value: number) {
 /** Keep the resting envelope plus a deformation margin inside the camera's side planes.
  * Half-spaces also handle rotated animals, unlike an axis-aligned local movement box.
  */
-export function createMovementConstraint(camera: PerspectiveCamera, object: Group, bounds: Box3, width: number, height: number, restTransform = object.matrixWorld.clone()): MovementConstraint {
+export function createMovementConstraint(camera: PerspectiveCamera, object: Group, bounds: Box3, width: number, height: number, restTransform = object.matrixWorld.clone(), envelope = corners(bounds)): MovementConstraint {
   const forward = camera.getWorldDirection(new Vector3());
   const right = new Vector3().setFromMatrixColumn(camera.matrixWorld, 0);
   const up = new Vector3().setFromMatrixColumn(camera.matrixWorld, 1);
   const tangent = Math.tan(camera.fov * Math.PI / 360);
   const horizontal = tangent * camera.aspect * (1 - 24 / width);
   const top = tangent * (1 - 32 / height);
-  const bottom = tangent * (1 - 136 / height);
+  // Identity and action controls now sit outside the canvas.
+  const bottom = tangent * (1 - 48 / height);
   const normals = [
     right.clone().addScaledVector(forward, horizontal), right.clone().negate().addScaledVector(forward, horizontal),
     up.clone().negate().addScaledVector(forward, top), up.clone().addScaledVector(forward, bottom),
   ];
   normals.forEach(normal => normal.normalize());
   const inverseRest = restTransform.clone().invert();
-  const points = corners(bounds).map(point => point.applyMatrix4(inverseRest));
+  const points = envelope.map(point => point.clone().applyMatrix4(inverseRest));
   const toLocalNormal = new Matrix3(), worldPoint = new Vector3();
   const planes = normals.map(() => new Plane());
   let previousTransform: Matrix4 | undefined;
@@ -74,14 +75,15 @@ export function createMovementConstraint(camera: PerspectiveCamera, object: Grou
         const normal = planes[i].normal.copy(normals[i]).applyMatrix3(toLocalNormal);
         const length = normal.length();
         normal.divideScalar(length);
-        planes[i].constant = (constant - .3) / length;
+        // Reserve deformation room only where the resting envelope has space.
+        planes[i].constant = (constant - Math.min(.3, Math.max(0, constant))) / length;
       }
     }
-    for (let pass = 0; pass < 8; pass++) {
+    for (let pass = 0; pass < 128; pass++) {
       let corrected = false;
       for (const plane of planes) {
         const distance = plane.distanceToPoint(position);
-        if (distance >= 0) continue;
+        if (distance >= (plane === floor ? 0 : -1e-9)) continue;
         position.addScaledVector(plane.normal, -distance);
         if (velocity) {
           const outward = velocity.dot(plane.normal);

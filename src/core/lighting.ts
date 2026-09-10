@@ -11,16 +11,19 @@ export function createStudioEnvironment() {
   key.position.set(-5, 7, 6); key.scale.set(12, 8, 1); key.lookAt(0, 0, 0);
   const fill = new Mesh(geometry, fillMaterial);
   fill.position.set(7, 3, -3); fill.scale.set(5, 10, 1); fill.lookAt(0, 0, 0);
-  scene.add(key, fill);
-  return { scene, dispose() { geometry.dispose(); keyMaterial.dispose(); fillMaterial.dispose(); } };
+  const faceMaterial = new MeshBasicMaterial({ color: new Color().setRGB(2.5, 2.5, 2.5) });
+  const face = new Mesh(geometry, faceMaterial);
+  face.position.set(0, -3, 7); face.scale.set(8, 6, 1); face.lookAt(0, 0, 0);
+  scene.add(key, fill, face);
+  return { scene, dispose() { geometry.dispose(); keyMaterial.dispose(); fillMaterial.dispose(); faceMaterial.dispose(); } };
 }
 
 /** A diffuse studio rig and a horizonless, soft contact patch. */
 export function createLighting(scene: Scene) {
-  // Inverse ACES (exposure .98) for page #f5f4f2: WebGPU tone maps the
+  // Inverse ACES (exposure .98) for stage #e7f3cd: WebGPU tone maps the
   // entire output, including basic materials. Use the same opaque radiance above
   // and below the horizon so raised jelly never refracts a transparent clear color.
-  const backdrop = new Color().setRGB(2.520125, 2.319882, 1.979641);
+  const backdrop = new Color().setRGB(0.918349, 2.169359, 0.377933);
   scene.background = backdrop;
   const floor = new Mesh(new PlaneGeometry(200, 200), new MeshBasicMaterial({ color: backdrop }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = -.035; scene.add(floor);
@@ -38,7 +41,8 @@ export function createLighting(scene: Scene) {
   const gradient = context.createRadialGradient(64, 64, 5, 64, 64, 64);
   gradient.addColorStop(0, 'rgba(89,66,91,0.72)');
   gradient.addColorStop(.24, 'rgba(89,66,91,0.46)');
-  gradient.addColorStop(.58, 'rgba(89,66,91,0.12)');
+  gradient.addColorStop(.58, 'rgba(65,83,46,0.26)');
+  gradient.addColorStop(.82, 'rgba(65,83,46,0.08)');
   gradient.addColorStop(1, 'rgba(89,66,91,0)');
   context.fillStyle = gradient;
   context.fillRect(0, 0, 128, 128);

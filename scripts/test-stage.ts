@@ -35,17 +35,17 @@ for (const [file, factory, mechanical] of [
     for (const corner of localCorners) {
       const point = corner.clone().add(localBody).applyMatrix4(character.object.matrixWorld).project(camera);
       assert.ok(Math.abs(point.x) <= 1 - 24 / width + .001, `${file}: whole resting silhouette must stay horizontally visible (${point.x})`);
-      assert.ok(point.y <= 1 - 32 / height + .001 && point.y >= -1 + 136 / height - .001, `${file}: silhouette must stay above the label and below the top (${point.y})`);
+      assert.ok(point.y <= 1 - 32 / height + .001 && point.y >= -1 + 48 / height - .001, `${file}: silhouette must stay above the label and below the top (${point.y})`);
     }
     return Math.abs(worldOffset.x);
   };
-  for (const [width, height, maxProjectedHeight = 340] of [[1280, 660], [390, 540], [600, 440], [658, 705, 276.255], [1036, 828, 315], [390, 591, 253.2], [320, 591, 253.2]]) {
+  for (const [width, height, maxProjectedHeight = 340] of [[1280, 660], [320, 270], [390, 295], [834, 460], [390, 540], [600, 440], [658, 705, 276.255], [1036, 828, 315], [390, 591, 253.2], [320, 591, 253.2]]) {
     character.reset();
     frameCharacter(camera, bounds, width, height, maxProjectedHeight);
     character.setMovementConstraint(createMovementConstraint(camera, character.object, bounds, width, height, restTransform));
     const projected = worldCorners.map(point => point.clone().project(camera));
     const projectedHeight = (Math.max(...projected.map(p => p.y)) - Math.min(...projected.map(p => p.y))) * height / 2;
-    assert.ok(projectedHeight <= Math.min(height * .65, maxProjectedHeight) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
+    assert.ok(projectedHeight <= Math.min(height * .76, maxProjectedHeight) + .001, 'resizing must reserve play space instead of enlarging the pal to fill it');
     const bodyOrigin = ['whalemochi', 'sharkmochi'].includes(file) ? character.object.localToWorld(new Vector3(-.95, 6, .35)) : new Vector3(.12, 6, .1);
     const hit = character.pick(new Raycaster(bodyOrigin, new Vector3(0, -1, 0)));
     assert.ok(hit && hit.handle < 0, `${file}: body must be independently draggable`);
@@ -67,7 +67,7 @@ for (const [file, factory, mechanical] of [
       }
       character.endGrab();
       for (let i = 0; i < 240; i++) { character.update(1 / 60, frame++ / 60); check(width, height); }
-      assert.ok(Number(character.diagnostics().bodyHeight) < .05, 'release must still settle on the floor');
+      assert.ok(Number(character.diagnostics().bodyHeight) < .05, `${file} ${width}x${height} drag ${x},${y}: release must settle (${character.diagnostics().bodyHeight})`);
       character.reset();
     }
   }

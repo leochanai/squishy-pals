@@ -9,7 +9,7 @@ export function createOctopus(): Character {
   const forms = [soft, machine];
   const object = new Group(); object.name = 'OctoMochi';
   object.add(soft.object, machine.object);
-  machine.setParameters({ color: '#c6a0df', stiffness: 0.48, damping: 0.42 });
+  machine.setParameters({ color: '#a9afb0', stiffness: 0.48, damping: 0.42 });
   machine.object.visible = false;
   let active = soft, time = 0, targetHeading = 0;
   let turnGrab: { heading: number; originX: number; target: Vector3; drag: boolean } | null = null;

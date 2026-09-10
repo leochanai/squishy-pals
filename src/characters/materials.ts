@@ -28,8 +28,8 @@ export function createMaterialVariants(object: Group, surfaces: { material: Mesh
           if (preset === 'jelly') {
             material.metalness = 0; material.roughness = 0.16;
             material.clearcoat = 0.55; material.clearcoatRoughness = 0.12;
-            material.transmission = 0.72; material.thickness = entry.thickness;
-            material.ior = 1.36; material.attenuationDistance = 2.4;
+            material.transmission = 0.58; material.thickness = entry.thickness;
+            material.ior = 1.36; material.attenuationDistance = 0.9;
           } else {
             material.metalness = 0.92; material.roughness = 0.28;
             material.clearcoat = 0.2; material.clearcoatRoughness = 0.22;
@@ -42,7 +42,7 @@ export function createMaterialVariants(object: Group, surfaces: { material: Mesh
         // Original materials retain each character's color and vertex-color rules.
         if (material !== entry.original) material.color.copy(entry.original.color);
         if (preset === 'jelly') {
-          material.attenuationColor.copy(entry.original.color).lerp(white, 0.65);
+          material.attenuationColor.copy(entry.original.color).lerp(white, 0.2);
         }
         for (const mesh of entry.meshes) mesh.material = material;
       }

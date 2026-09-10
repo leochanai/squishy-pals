@@ -1,0 +1,13 @@
+
+> squishy-pals@0.1.0 test:stage
+> node --experimental-strip-types scripts/test-stage.ts
+
+(node:90482) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+octopus: frame fit, edge drag, release; wide travel 4.66, mobile 0.99.
+octomochi (mechanical): frame fit, edge drag, release; wide travel 4.74, mobile 1.01.
+cuttlemochi: frame fit, edge drag, release; wide travel 3.28, mobile 0.26.
+squidmochi: frame fit, edge drag, release; wide travel 5.26, mobile 0.51.
+goldmochi: frame fit, edge drag, release; wide travel 5.31, mobile 0.43.
+whalemochi: frame fit, edge drag, release; wide travel 3.54, mobile 0.14.
+sharkmochi: frame fit, edge drag, release; wide travel 4.07, mobile 0.07.

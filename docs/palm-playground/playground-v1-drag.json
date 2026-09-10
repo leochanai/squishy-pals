@@ -1,0 +1,56 @@
+[
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hidden",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  },
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hidden",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  },
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hidden",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  },
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hidden",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  },
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hidden",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  },
+  {
+    "accessories": "",
+    "backend": "WebGPU",
+    "diagnostics": "{\"armCount\":8,\"mechanical\":false,\"armorSegments\":0,\"vertices\":6714,\"triangles\":13424,\"bodyX\":0,\"bodyZ\":0,\"bodyHeight\":0,\"maxStretch\":1.0248960040429396,\"minHeight\":0.07833099896221746,\"squash\":0,\"pressed\":0,\"dragging\":false,\"grabbedPart\":\"none\",\"finite\":true,\"frames\":3103}",
+    "engine": "three.js r185 webgpu",
+    "hand": "hover",
+    "handMaterial": "original",
+    "pal": "octomochi"
+  }
+]

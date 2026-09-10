@@ -38,14 +38,15 @@ npm run start
 
 | 位置 | 职责与边界 |
 | --- | --- |
-| [app/page.tsx](../app/page.tsx) | 品牌首页，进入图鉴，不加载角色与 WebGPU |
+| [app/page.tsx](../app/page.tsx) | 品牌首页，可直接进入八爪鱼或图鉴，不加载角色与 WebGPU |
 | [app/pals/page.tsx](../app/pals/page.tsx) | 从注册表读取角色，生成图鉴入口 |
 | [app/pals/layout.tsx](../app/pals/layout.tsx) | 根据路径挂载共用试玩页，角色间客户端导航保留画布；离开角色路径卸载 |
 | [app/pals/[id]/page.tsx](../app/pals/[id]/page.tsx) | 校验角色 ID、404 与旧链接重定向；实际画布在父布局 |
 | [PlaygroundPage.tsx](../src/core/PlaygroundPage.tsx) | React 控件状态、路由选择、引擎动态加载、错误与重试；同步参数至引擎 |
 | [playground.ts](../src/core/playground.ts) | Renderer、Scene、Camera、尺寸、动画循环、角色/输入/饰品生命周期 |
-| [character-cache.ts](../src/core/character-cache.ts) | 按 ID 合并准备请求、缓存角色及包围盒、确保最新选择生效、失败重试与卸载 |
-| [input.ts](../src/core/input.ts) | 射线拾取、按压与拖动区分、指针捕获/取消、空格与失焦处理 |
+| [character-cache.ts](../src/core/character-cache.ts) | 按 ID 合并准备请求、缓存角色及静态凸包取景轮廓、确保最新选择生效、失败重试与卸载 |
+| [input.ts](../src/core/input.ts) | 射线拾取、按压与拖动区分、指针捕获/取消、空格与失焦处理；悬浮命中复查 |
+| [grab-hand.ts](../src/core/grab-hand.ts) | 相机朝向的四指卡通手套，软胶/果冻/机械材质，跟随命中与抓取目标并释放资源 |
 | [stage.ts](../src/core/stage.ts) / [lighting.ts](../src/core/lighting.ts) | 取景、屏幕边缘阻力、本地移动约束；摄影棚环境、灯光与接触阴影 |
 | [registry.ts](../src/characters/registry.ts) / [types.ts](../src/characters/types.ts) | 轻量角色元数据、默认值、动态加载工厂；角色与引擎接口 |
 | [src/characters](../src/characters) | 各角色造型、物理、抓取、表情、动作；`octopus.ts` 组合八爪鱼软体/机械实例，`coastalmochi.ts` 实现海豹/海龟/螃蟹 |
@@ -69,7 +70,7 @@ npm run start
 4. 上述恢复针对加载/准备失败；激活回调没有通用事务回滚。WebGPU 初始化失败显示支持环境说明，页面内重试按钮只针对引擎已就绪后的角色加载。
 5. 卸载停止动画、断开 ResizeObserver、释放输入/饰品并移除 canvas；缓存等待在途准备结束后销毁角色，再释放场景、环境和渲染器。关闭后不允许再次激活角色。
 
-动画循环限制单帧步长，页面隐藏时跳过更新和渲染；物理子步与形变规则由角色负责。像素比封顶 1.6。诊断可读取 canvas 的 `data-backend`、`data-pal`、`data-diagnostics`，其中角色诊断的 `bodyX/bodyZ/bodyHeight` 供阴影跟随。引擎保留可选 `onFps` 回调，当前页面未接入 FPS 显示。
+动画循环限制单帧步长，页面隐藏时跳过更新和渲染；物理子步与形变规则由角色负责。画布采样比取设备像素比并限制在 1.5–2，以改善低像素比显示器上的模型轮廓。诊断可读取 canvas 的 `data-backend`、`data-pal`、`data-diagnostics`，其中角色诊断的 `bodyX/bodyZ/bodyHeight` 供阴影跟随；`data-hand` / `data-hand-material` 记录手套可见阶段和材质。手机外观模式沿用同一 canvas，通过 CSS 固定预览，模式切换不重建引擎。引擎保留可选 `onFps` 回调，当前页面未接入 FPS 显示。
 
 ## 扩展角色
 
@@ -82,9 +83,9 @@ npm run start
 
 ## 样式与参考输入
 
-样式入口为 [app/layout.tsx](../app/layout.tsx) 导入 `app/globals.css`；CSS 先导入 Tailwind 与动画样式，再定义全局变量、产品布局、控件适配和响应式覆盖。公共控件由 `components/ui` 持有。Three.js 的灯光、材质和几何由渲染代码管理，不由页面 CSS 定义。
+样式入口为 [app/layout.tsx](../app/layout.tsx) 导入 `app/globals.css`；首页、图鉴和游乐场分别使用 `app/home.module.css`、`app/pals/catalogue.module.css` 与 `src/core/playground.module.css`。全局 CSS 保留 Tailwind、主题及既有历史规则，当前页面布局以模块样式为准。公共控件由 `components/ui` 持有。Three.js 的灯光、材质和几何由渲染代码管理，不由页面 CSS 定义。
 
-未发现成对的 `design.md` / `brand.css`，受控设计产物状态为 `not-provided`，不虚构路径、批准版本或新增品牌层。已有 [目标图](target-reference.png)、[生成说明](visual-reference.md)、[角色优化记录](character-fidelity.md) 和 [局部角色审阅图](coastal-review) 可作为相关任务的参考入口；这些文件并不自动构成所有页面、状态和设备的批准基线。Harness 只记录工程接入，不审计或改写其设计内容。
+当前实际设计见根目录 [DESIGN.md](../DESIGN.md)，由本轮界面重设计形成；没有独立 `brand.css`，具体规则在上述页面模块中。已有 [目标图](target-reference.png)、[生成说明](visual-reference.md)、[角色优化记录](character-fidelity.md) 和 [局部角色审阅图](coastal-review) 可作为相关任务的参考入口；这些文件并不自动构成所有页面、状态和设备的批准基线。Harness 只记录工程接入，不审计或改写其设计内容。
 
 ## 验证命令与覆盖边界
 

@@ -1,7 +1,8 @@
 import { ACESFilmicToneMapping, PerspectiveCamera, PMREMGenerator, Scene, SRGBColorSpace, Renderer, WebGPUBackend, StandardNodeLibrary, Vector3 } from 'three/webgpu';
 import type { CharacterParameters } from '../characters/types';
-import type { RegisteredCharacter } from '../characters/registry';
+import { getDefaultCharacterColor, type RegisteredCharacter } from '../characters/registry';
 import { createLighting, createStudioEnvironment } from './lighting';
+import { createGrabHand, type HandInteraction } from './grab-hand';
 import { bindInput } from './input';
 import { createMovementConstraint, frameCharacter } from './stage';
 import { createCharacterCache } from './character-cache';
@@ -29,7 +30,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   renderer.outputColorSpace = SRGBColorSpace;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = .98;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, 1.5), 2));
   const scene = new Scene();
   const camera = new PerspectiveCamera(34, 1, .1, 60);
   camera.position.set(0, 5.7, 10.1); camera.lookAt(0, 1.35, 0);
@@ -57,20 +58,27 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
   canvas.setAttribute('role', 'application');
   canvas.dataset.backend = 'WebGPU';
   host.appendChild(canvas);
+  const hand = createGrabHand(); scene.add(hand.object);
+  const onHand = (state: HandInteraction) => { hand.setInteraction(state); canvas.dataset.hand = state.phase; };
+  const setHandMaterial = (material: CharacterParameters['material']) => { hand.setMaterial(material); canvas.dataset.handMaterial = material; };
   function resize() {
     const width = host.clientWidth, height = host.clientHeight;
     if (!width || !height) return;
     input?.release();
     renderer.setSize(width, height, false);
     if (!current) return;
-    // Growing the play surface must add travel, not automatically enlarge the toy.
-    const maxPalHeight = Math.min(380, window.innerHeight * (window.innerWidth > 760 ? .42 : .32));
+    // Fit the actual play surface, keeping room around the resting silhouette.
+    const fill = Math.min(window.innerWidth > 1000 ? .9 : .84, 1 - 48 / height);
+    const maxPalHeight = height * fill;
     const viewBounds = current.bounds.clone().applyMatrix4(current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert()));
-    frameCharacter(camera, viewBounds, width, height, maxPalHeight);
-    current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform));
+    const viewTransform = current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert());
+    const viewEnvelope = current.framingPoints.map(point => point.clone().applyMatrix4(viewTransform));
+    frameCharacter(camera, viewBounds, width, height, maxPalHeight, viewEnvelope, fill);
+    current.character.setMovementConstraint(createMovementConstraint(camera, current.character.object, current.bounds, width, height, current.transform, current.framingPoints));
   }
   const observer = new ResizeObserver(resize); observer.observe(host); resize();
   const shadowPosition = new Vector3();
+  let hoverElapsed = 0;
   let previous = performance.now(), total = 0, frames = 0, elapsed = 0, disposed = false;
   await renderer.setAnimationLoop(() => {
     if (disposed || !current) return;
@@ -82,6 +90,9 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     const character = current.character;
     character.update(dt, elapsed);
     accessories?.update();
+    hoverElapsed += dt;
+    if (hoverElapsed >= .08) { input?.refreshHover(); hoverElapsed = 0; }
+    hand.update(dt, camera, host.clientHeight);
     const diagnostics = character.diagnostics();
     const lift = Number(diagnostics.bodyHeight ?? 0);
     shadowPosition.set(Number(diagnostics.bodyX ?? 0), 0, Number(diagnostics.bodyZ ?? 0));
@@ -107,7 +118,8 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
           accessories?.dispose();
           if (current) scene.remove(current.character.object);
           entry.character.reset();
-          entry.character.setParameters({ ...source.defaults, material: selectedMaterial ?? source.defaults.material });
+          entry.character.setParameters({ ...source.defaults, material: selectedMaterial ?? source.defaults.material, color: getDefaultCharacterColor(source, selectedMaterial ?? source.defaults.material) });
+          setHandMaterial(selectedMaterial ?? source.defaults.material);
           current = entry;
           accessories = createAccessories(entry.character, source.id);
           accessories.set(selectedAccessories);
@@ -116,7 +128,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
           camera.lookAt(...(source.camera?.target ?? [0, 1.35, 0]));
           camera.updateMatrixWorld(true);
           resize();
-          input = bindInput(canvas, camera, entry.character, callbacks.onStatus);
+          input = bindInput(canvas, camera, entry.character, callbacks.onStatus, onHand);
           canvas.setAttribute('aria-label', `${source.name}，按住按压，拖动拉伸，空格弹跳`);
           canvas.dataset.pal = source.id;
           canvas.dataset.diagnostics = JSON.stringify(entry.character.diagnostics());
@@ -124,14 +136,14 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
           callbacks.onStatus('今天也可以软软的');
         });
       } catch (error) {
-        if (!disposed && current) input = bindInput(canvas, camera, current.character, callbacks.onStatus);
+        if (!disposed && current) input = bindInput(canvas, camera, current.character, callbacks.onStatus, onHand);
         throw error;
       }
     },
     async preloadCharacter(source) { await cache.prepare(source); },
     setAccessories(selected) { selectedAccessories = [...selected]; accessories?.set(selected); canvas.dataset.accessories = selected.join(','); },
     setParameters(parameters) {
-      if (parameters.material !== undefined) selectedMaterial = parameters.material;
+      if (parameters.material !== undefined) { selectedMaterial = parameters.material; setHandMaterial(parameters.material); }
       if (parameters.view !== undefined) input?.release();
       current?.character.setParameters(parameters);
       if (parameters.view !== undefined) resize();
@@ -142,7 +154,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
       if (disposed) return; disposed = true;
       void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); accessories?.dispose(); canvas.remove();
       // Pending shader compilation still needs the renderer; release it last.
-      void cache.dispose().then(() => { scene.clear(); lighting.dispose(); envMap.dispose(); renderer.dispose(); });
+      void cache.dispose().then(() => { hand.dispose(); scene.clear(); lighting.dispose(); envMap.dispose(); renderer.dispose(); });
     },
   };
 }

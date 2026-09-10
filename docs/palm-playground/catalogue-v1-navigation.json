@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/pals/octomochi",
+    "title": "糯糯八爪鱼"
+  },
+  {
+    "path": "/pals/cuttlemochi",
+    "title": "绵绵小墨鱼"
+  },
+  {
+    "path": "/pals/squidmochi",
+    "title": "啵啵小鱿鱼"
+  },
+  {
+    "path": "/pals/goldmochi",
+    "title": "摇摇小金鱼"
+  },
+  {
+    "path": "/pals/whalemochi",
+    "title": "深海小鲸鱼"
+  },
+  {
+    "path": "/pals/sharkmochi",
+    "title": "深海小鲨鱼"
+  },
+  {
+    "path": "/pals/sealmochi",
+    "title": "胖胖小海豹"
+  },
+  {
+    "path": "/pals/turtlemochi",
+    "title": "悠悠小海龟"
+  },
+  {
+    "path": "/pals/crabmochi",
+    "title": "夹夹小螃蟹"
+  }
+]

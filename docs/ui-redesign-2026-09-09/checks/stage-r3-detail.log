@@ -1,0 +1,20 @@
+
+> squishy-pals@0.1.0 test:stage
+> node --experimental-strip-types scripts/test-stage.ts
+
+(node:98557) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+node:internal/modules/run_main:123
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: octopus 390x295 drag 0.2,3: release must settle (0.050659562001952395)
+    at file:///Users/farghost/GithubProjects/squishy-pals/scripts/test-stage.ts:70:14 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '=='
+}
+
+Node.js v22.17.0

@@ -1,24 +1,64 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowLeft, ArrowUpRight } from 'lucide-react';
 import { characters } from '@/src/characters/registry';
+import brand from '../home.module.css';
+import styles from './catalogue.module.css';
 
 export default function Pals() {
   return (
-    <main className="landing-page catalogue-page">
-      <header className="topbar">
-        <a className="brand" href="/" aria-label="Squishy Pals · 软软伙伴"><span className="brand-mark">✿</span><strong>Squishy Pals</strong><span className="brand-cn">软软伙伴</span></a>
-        <a className="landing-nav" href="/"><ArrowLeft size={15} /> 返回首页</a>
+    <main className={`${brand.home} ${styles.catalogue}`}>
+      <header className={brand.header}>
+        <Link
+          className={brand.brand}
+          href="/"
+          aria-label="Squishy Pals · 软软伙伴"
+        >
+          <span aria-hidden="true">s</span>Squishy Pals
+        </Link>
+        <Link className={brand.nav} href="/">
+          <ArrowLeft size={17} /> 返回首页
+        </Link>
       </header>
-      <section className="landing-pals" id="pals" aria-labelledby="pals-title">
-        <div className="pals-heading"><div><span className="eyebrow">MEET YOUR PALS / {String(characters.length).padStart(2, '0')}</span><h1 id="pals-title">小伙伴图鉴</h1></div><p>每个小伙伴，都有自己的柔软方式。</p></div>
-        <div className="pal-grid">{characters.map((pal, index) => (
-          <a className="pal-card" style={{ '--pal-color': pal.color } as React.CSSProperties} key={pal.id} href={`/pals/${pal.id}`}>
-            <div className="pal-card-image"><Image unoptimized src={pal.image} alt={pal.name} width={960} height={710} loading="lazy" /></div>
-            <div className="pal-card-copy"><div className="pal-card-title"><span className="pal-number">PAL / {String(index + 1).padStart(2, '0')}</span><div><span className="eyebrow">{pal.englishName}</span><h3>{pal.name}</h3></div></div><p>{pal.description}</p><span className="pal-card-link">进入小伙伴的世界 <ArrowUpRight size={20} /></span></div>
-          </a>
-        ))}</div>
+      <section className={styles.collection} aria-labelledby="pals-title">
+        <div className={styles.heading}>
+          <div>
+            <p className={styles.eyebrow}>
+              掌心游乐场 · {characters.length} 位伙伴
+            </p>
+            <h1 id="pals-title">
+              今天，<em>捏谁？</em>
+            </h1>
+          </div>
+          <p className={styles.intro}>选个小伙伴，开始捏捏。</p>
+        </div>
+        <div className={styles.grid}>
+          {characters.map((pal, index) => (
+            <Link className={styles.card} key={pal.id} href={`/pals/${pal.id}`}>
+              <div className={styles.portrait}>
+                <span className={styles.number} aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <Image
+                  unoptimized
+                  src={`/art/catalogue/${pal.id}-${['crabmochi', 'cuttlemochi', 'turtlemochi'].includes(pal.id) ? 'v2' : 'v1'}.png`}
+                  alt=""
+                  width={1024}
+                  height={1024}
+                  loading={index < 3 ? 'eager' : 'lazy'}
+                />
+              </div>
+              <div className={styles.copy}>
+                <div className={styles.nameRow}>
+                  <h2>{pal.name}</h2>
+                  <span className={styles.arrow} aria-hidden="true"><ArrowUpRight size={20} /></span>
+                </div>
+                <p>{pal.description.split(' · ').map(part => <span key={part}>{part}</span>)}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </section>
-      <footer className="landing-footer"><span>A tiny pal. A softer day.</span><span>慢一点，也很好 <ArrowUpRight size={13} /></span></footer>
     </main>
   );
 }
