@@ -43,7 +43,8 @@
   font-size: 14px;
   min-height: 44px;
 }
-.home a:focus-visible {
+.home a:focus-visible,
+.home button:focus-visible {
   outline: 3px solid var(--orange);
   outline-offset: 5px;
 }
@@ -125,17 +126,74 @@
   margin: 0;
   position: relative;
   min-width: 0;
-  background: #e1fc82;
+  background: #e2fa87;
   border-radius: 40px;
   overflow: hidden;
   border: 1px solid #26332320;
 }
-.figure > img {
+.demoFrames {
+  position: relative;
+  aspect-ratio: 1;
+}
+.demoFrame {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1;
+  height: 100%;
   object-fit: contain;
+}
+.demoVideo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.demoToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 24px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.demoToggle:hover {
+  background: #fffaf050;
+}
+.demoControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+  min-width: 0;
+  text-align: right;
+}
+.demoAnnouncement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.demoStatic {
+  font-size: 11px;
+  color: #526147;
+  max-width: 140px;
 }
 .figure figcaption {
   position: absolute;
@@ -179,10 +237,27 @@
   font-size: 20px;
   font-weight: 500;
 }
-.how > div {
+.how > .demoStep {
   display: flex;
   align-items: center;
   gap: 16px;
+  min-width: 0;
+  width: 100%;
+  padding: 14px 12px;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.how > button.demoStep {
+  cursor: pointer;
+}
+.how > button.demoStep:hover,
+.how > .demoStep[aria-pressed='true'] {
+  border-color: #e1fc8266;
+  background: #e1fc8212;
 }
 .how svg {
   color: #e1fc82;
@@ -281,7 +356,7 @@
   .how > p strong {
     font-size: 16px;
   }
-  .how > div {
+  .how > .demoStep {
     gap: 12px;
   }
   .how small {
@@ -292,6 +367,10 @@
   }
 }
 @media (min-width: 601px) and (max-width: 1100px) {
+  .how > .demoStep {
+    padding-inline: 8px;
+    gap: 8px;
+  }
   .hero {
     min-height: 600px;
   }
@@ -356,7 +435,9 @@
     border-radius: 25px;
   }
   .figure figcaption {
-    bottom: 12px;
+    position: relative;
+    inset: auto;
+    padding: 0 16px 14px;
   }
   .figure figcaption strong {
     font-size: 16px;
@@ -370,16 +451,16 @@
     padding-bottom: 12px;
     border-bottom: 1px solid #ffffff25;
   }
-  .how > div {
+  .how > .demoStep {
     gap: 14px;
     align-items: center;
   }
-  .how > div > span {
+  .how > .demoStep > span {
     display: flex;
     align-items: baseline;
     gap: 12px;
   }
-  .how > div > span small {
+  .how > .demoStep > span small {
     margin: 0;
   }
   .how strong {
@@ -390,12 +471,35 @@
     margin-top: 3px;
   }
 }
+@media (min-width: 601px) and (max-width: 760px) {
+  .how > .demoStep {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .start {
     transition: none;
   }
   .start:hover {
     transform: none;
+  }
+}
+@media (max-width: 360px) {
+  .how > .demoStep > span {
+    display: block;
+  }
+  .how > .demoStep strong {
+    white-space: nowrap;
+  }
+  .how > .demoStep > span small {
+    margin-top: 4px;
+  }
+  .figure figcaption {
+    gap: 10px;
+  }
+  .figure figcaption > span {
+    flex-shrink: 0;
   }
 }
 .home {
