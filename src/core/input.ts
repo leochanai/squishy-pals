@@ -32,7 +32,7 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: 
     canvas.setPointerCapture(event.pointerId);
     canvas.style.cursor = onHand ? 'none' : 'grabbing';
     onHand?.({ phase: 'grab', point: hit.point });
-    onStatus('轻轻压，软乎乎');
+    onStatus('正在按压');
   };
   const move = (event: PointerEvent) => {
     if (active === null) {
@@ -48,7 +48,7 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: 
       point.y = Math.max(.08, point.y);
       character.moveGrab(point, dragging);
       onHand?.({ phase: 'grab', point });
-      if (dragging) onStatus('哇——轻一点点！');
+      if (dragging) onStatus('正在拉伸');
     }
   };
   const release = (event?: PointerEvent) => {
@@ -57,14 +57,14 @@ export function bindInput(canvas: HTMLCanvasElement, camera: Camera, character: 
     character.endGrab();
     if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
     canvas.style.cursor = 'grab';
-    onStatus('呼，慢慢趴好');
+    onStatus('已松手');
     onHand?.({ phase: 'hidden' });
     if (event?.type === 'pointerup') move(event);
   };
   const key = (event: KeyboardEvent) => {
     const element = event.target as HTMLElement;
     if (event.code !== 'Space' || event.repeat || element.closest('button,input,textarea,select,[role="slider"],[contenteditable]')) return;
-    event.preventDefault(); character.poke(); onStatus('啵！烦恼弹走了');
+    event.preventDefault(); character.poke(); onStatus('戳了一下');
   };
   const refreshHover = () => {
     if (!hovering || active !== null) return;

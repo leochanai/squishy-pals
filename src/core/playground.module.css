@@ -32,7 +32,6 @@
 .character-label h1 { font-family:'Palm Play Rounded','PingFang SC',sans-serif; font-weight:800; font-size:36px; line-height:1.25; margin:0; letter-spacing:-1px; }
 .character-label > div > span { display:none; }
 .mood { font-size:13px; color:#536447; display:flex; align-items:center; gap:7px; padding-bottom:5px; }
-.mood > span { width:6px; height:6px; background:#66823b; border-radius:50%; flex-shrink:0; }
 .play-stage { grid-column:1; grid-row:2; position:relative; min-width:0; min-height:330px; background:#e7f3cd; }
 .scene-host { position:absolute; inset:0; }
 .scene-host canvas { display:block; width:100%; height:100%; touch-action:none; cursor:grab; }
@@ -69,7 +68,7 @@
 .accessory-option img { width:100%; height:100%; object-fit:contain; mix-blend-mode:multiply; border-radius:7px; }
 .accessory-option[aria-pressed=true] { outline:2px solid var(--ink); outline-offset:2px; background:#e7f3cd; }
 .accessory-check { position:absolute; top:2px; right:2px; color:var(--ink); }
-.clear-accessories { font-size:12px; min-height:24px; padding:0; background:none; border:0; }
+.clear-accessories { font-size:12px; min-height:44px; padding:0; margin-block:-10px; background:none; border:0; }
 .slider-section { padding-top:18px; border-top:1px solid #dce2ce; }
 .slider-section [data-slot=slider] { width:calc(100% - 20px); margin-inline:10px; }
 .slider-section [data-slot=slider] > div { min-height:28px; }
@@ -160,7 +159,7 @@
   .page[data-settings=true] .actions { order:1; padding:16px 4px 0; background:var(--paper); }
   .page[data-settings=true] .play-instruction { display:none; }
   .page[data-settings=true] .control-panel { display:grid; order:2; align-self:stretch; }
-  .page[data-settings=true] .settings-back { position:absolute; right:12px; top:10px; z-index:3; display:flex; align-items:center; gap:4px; border:1px solid #c1cead; background:var(--paper); color:var(--ink); border-radius:10px; padding:0 9px; min-height:36px; font-size:12px; }
+  .page[data-settings=true] .settings-back { position:absolute; right:12px; top:10px; z-index:3; display:flex; align-items:center; gap:4px; border:1px solid #c1cead; background:var(--paper); color:var(--ink); border-radius:10px; padding:0 9px; min-height:44px; font-size:12px; }
   .page[data-settings=true] .preview-name { display:block; position:absolute; left:14px; top:19px; font-size:12px; margin:0; color:#536447; pointer-events:none; }
 }
 

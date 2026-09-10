@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Hand, RotateCcw, Check, ArrowUpRight, SlidersHorizontal, ArrowLeft } from 'lucide-react';
+import { Hand, RotateCcw, Check, ChevronRight, SlidersHorizontal, ArrowLeft } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Button } from '@/components/ui/button';
@@ -48,7 +48,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
   };
   const [stiffness, setStiffness] = useState(selected.defaults.stiffness * 100);
   const [damping, setDamping] = useState(selected.defaults.damping * 100);
-  const [status, setStatus] = useState('正在唤醒伙伴…');
+  const [status, setStatus] = useState('正在加载伙伴…');
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [engineReady, setEngineReady] = useState(false);
@@ -79,7 +79,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
       if (cancelled) { instance.dispose(); return; }
       game.current = instance;
       setEngineReady(true);
-    }).catch((reason: Error) => { if (!cancelled) { setError(reason.message); setStatus('暂时无法唤醒'); } });
+    }).catch((reason: Error) => { if (!cancelled) { setError(reason.message); setStatus('加载失败'); } });
     return () => { cancelled = true; instance?.dispose(); if (game.current === instance) game.current = null; };
   }, []);
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     void game.current!.switchCharacter(selected).then(shown => {
       if (cancelled || !shown) return;
       setDisplayedCharacter(selected); setHasScene(true); setReady(true);
-    }).catch((reason: Error) => { if (!cancelled) { setError(reason.message); setStatus('暂时无法唤醒'); } });
+    }).catch((reason: Error) => { if (!cancelled) { setError(reason.message); setStatus('加载失败'); } });
     return () => { cancelled = true; };
   }, [selected, engineReady, retry]);
   useEffect(() => { if (ready) game.current?.setParameters({ color, material, stiffness: stiffness / 100, damping: damping / 100 }); }, [color, material, stiffness, damping, ready]);
@@ -108,23 +108,23 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
     <main className={styles.page} data-pal={characterId} data-settings={settingsOpen}>
       <header className={styles.header}>
         <Link className={brand.brand} href="/" aria-label="Squishy Pals · 软软伙伴"><span aria-hidden="true">s</span><strong>Squishy Pals</strong></Link>
-        <Link className={brand.nav} href="/pals">小伙伴图鉴 <ArrowUpRight size={18} /></Link>
+        <Link className={brand.nav} href="/pals"><ArrowLeft size={18} />小伙伴图鉴</Link>
       </header>
       <section className={styles["experience"]} aria-label="软软伙伴互动区">
         <nav className={styles["companions"]} aria-label="选择伙伴"><span className={styles["companion-heading"]}>换个伙伴 <span>滑动查看更多 →</span></span><div>{characters.map(item => <button ref={item.id === characterId ? activeCompanion : undefined} className={styles.companion} key={item.id} aria-label={`${item.englishName} ${item.name}`} aria-pressed={item.id === characterId} onPointerEnter={() => preload(item)} onFocus={() => preload(item)} onClick={() => { if (item.id === characterId) { if (error) setRetry(value => value + 1); return; } router.push(`/pals/${item.id}`, { scroll: false }); }}><span className={styles["companion-icon"]} aria-hidden="true"><Image unoptimized src={`/art/catalogue/${item.id}-${['cuttlemochi', 'turtlemochi', 'crabmochi'].includes(item.id) ? 'v2' : 'v1'}.png`} alt="" width={44} height={44} /></span>{item.id === characterId && <span className={styles["selected-check"]}><Check size={12} /></span>}</button>)}</div></nav>
         <div className={styles["stage-caption"]}>
         <div className={styles["character-label"]}><div><h1>{displayedCharacter.name}</h1><span>{displayedCharacter.englishName}</span></div></div>
-        <div className={styles["mood"]} aria-live="polite"><span />{status}</div>
+        <div className={styles["mood"]} aria-live="polite">{status}</div>
         </div>
         <div className={styles["play-stage"]}>
 
         <div className={styles["scene-host"]} ref={host} />
         <p className={styles['preview-name']}>{displayedCharacter.name}</p>
         <button ref={settingsBack} className={styles['settings-back']} onClick={() => showSettings(false)}><ArrowLeft size={14} />回到捏玩</button>
-        {(!hasScene || error) && <div className={styles["loading-card"]} role="status">{error ? <><strong>{engineReady ? '暂时无法切换伙伴' : '需要支持 WebGPU 的浏览器'}</strong><p>{error}</p>{engineReady ? <Button onClick={() => setRetry(value => value + 1)}>再试一次</Button> : <small>请在开启硬件加速的新版 Chrome、Edge 或 Safari 中打开。</small>}</> : <><span className={styles["loading-dot"]} />正在揉好你的软软伙伴…</>}</div>}
+        {(!hasScene || error) && <div className={styles["loading-card"]} role="status">{error ? <><strong>{engineReady ? '暂时无法切换伙伴' : '需要支持 WebGPU 的浏览器'}</strong><p>{error}</p>{engineReady ? <Button onClick={() => setRetry(value => value + 1)}>再试一次</Button> : <small>请在开启硬件加速的新版 Chrome、Edge 或 Safari 中打开。</small>}</> : <><span className={styles["loading-dot"]} />正在加载伙伴…</>}</div>}
         </div>
           <div className={styles["actions"]}><p className={styles["play-instruction"]}>按住捏 · 拖动拉 · 松手弹</p><Button className={styles["poke-button"]} disabled={!ready} onClick={() => game.current?.poke()}><Hand size={20} />戳一下<kbd>SPACE</kbd></Button><Button className={styles["reset-button"]} variant="outline" disabled={!ready} onClick={reset}><RotateCcw size={17} />恢复原状</Button></div>
-        <button ref={settingsToggle} className={styles['settings-toggle']} aria-expanded={settingsOpen} aria-controls="pal-settings" onClick={() => showSettings(true)}><SlidersHorizontal size={18} />外观与手感<ArrowUpRight size={18} /></button>
+        <button ref={settingsToggle} className={styles['settings-toggle']} aria-expanded={settingsOpen} aria-controls="pal-settings" onClick={() => showSettings(true)}><SlidersHorizontal size={18} />外观与手感<ChevronRight size={18} /></button>
         <aside id="pal-settings" className={styles["control-panel"]} aria-label="伙伴设置">
           <div className={styles["settings-heading"]}><h2>外观与手感</h2></div>
           <div className={styles["color-section"]}><div className={styles["control-label"]}><span>颜色</span><span>{palette.find(item => item.color === color)?.name}</span></div><div className={styles["swatches"]}>{palette.map(item => <button key={item.color} className={styles.swatch} style={{ '--swatch': item.color } as React.CSSProperties} disabled={!ready} aria-label={item.name} aria-pressed={color === item.color} onClick={() => setColor(item.color)}>{color === item.color && <Check size={20} strokeWidth={2} />}</button>)}</div></div>
@@ -138,8 +138,8 @@ export default function PlaygroundPage({ characterId }: { characterId: string })
             <div className={styles["control-label"]}><span id="accessory-label">饰品</span><button className={styles["clear-accessories"]} disabled={!ready || accessories.length === 0} onClick={() => setAccessories([])}>全部摘下</button></div>
             <div className={styles["accessory-grid"]}>{accessoryOptions.map(item => { const worn = accessories.includes(item.id); return <button key={item.id} className={styles['accessory-option']} disabled={!ready} aria-label={item.name} aria-pressed={worn} onClick={() => setAccessories(current => toggleAccessory(current, item.id))}><Image unoptimized src={`/accessories/${item.id}.png`} alt="" width={48} height={48} />{worn && <Check className={styles["accessory-check"]} size={12} aria-hidden="true" />}</button>; })}</div>
           </section>
-          <div className={styles["slider-section"]}><div className={styles["control-label"]}><span id="stiffness-label">软硬</span><output>{stiffness < 34 ? '软乎乎' : stiffness < 68 ? '糯叽叽' : '紧实些'}</output></div><Slider thumbAlignment="center" disabled={!ready} aria-labelledby="stiffness-label" value={[stiffness]} min={0} max={100} onValueChange={value => setStiffness(Array.isArray(value) ? value[0] : value)} /><div className={styles["range-ends"]}><span>软</span><span>硬</span></div></div>
-          <div className={styles["slider-section"]}><div className={styles["control-label"]}><span id="damping-label">阻尼</span><output>{damping < 34 ? '晃一会儿' : damping < 68 ? '刚刚好' : '稳稳停住'}</output></div><Slider thumbAlignment="center" disabled={!ready} aria-labelledby="damping-label" value={[damping]} min={0} max={100} onValueChange={value => setDamping(Array.isArray(value) ? value[0] : value)} /><div className={styles["range-ends"]}><span>多晃几下</span><span>很快停稳</span></div></div>
+          <div className={styles["slider-section"]}><div className={styles["control-label"]}><span id="stiffness-label">软硬</span><output>{stiffness < 34 ? '偏软' : stiffness < 68 ? '适中' : '偏硬'}</output></div><Slider thumbAlignment="center" disabled={!ready} aria-labelledby="stiffness-label" value={[stiffness]} min={0} max={100} onValueChange={value => setStiffness(Array.isArray(value) ? value[0] : value)} /><div className={styles["range-ends"]}><span>软</span><span>硬</span></div></div>
+          <div className={styles["slider-section"]}><div className={styles["control-label"]}><span id="damping-label">阻尼</span><output>{damping < 34 ? '较低' : damping < 68 ? '适中' : '较高'}</output></div><Slider thumbAlignment="center" disabled={!ready} aria-labelledby="damping-label" value={[damping]} min={0} max={100} onValueChange={value => setDamping(Array.isArray(value) ? value[0] : value)} /><div className={styles["range-ends"]}><span>多晃几下</span><span>很快停稳</span></div></div>
 
         </aside>
       </section>

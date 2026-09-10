@@ -129,11 +129,11 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
           camera.updateMatrixWorld(true);
           resize();
           input = bindInput(canvas, camera, entry.character, callbacks.onStatus, onHand);
-          canvas.setAttribute('aria-label', `${source.name}，按住按压，拖动拉伸，空格弹跳`);
+          canvas.setAttribute('aria-label', `${source.name}，按住按压，拖动拉伸，按空格戳一下`);
           canvas.dataset.pal = source.id;
           canvas.dataset.diagnostics = JSON.stringify(entry.character.diagnostics());
           previous = performance.now(); elapsed = total = frames = 0;
-          callbacks.onStatus('今天也可以软软的');
+          callbacks.onStatus('已就绪');
         });
       } catch (error) {
         if (!disposed && current) input = bindInput(canvas, camera, current.character, callbacks.onStatus, onHand);
@@ -148,8 +148,8 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
       current?.character.setParameters(parameters);
       if (parameters.view !== undefined) resize();
     },
-    poke() { current?.character.poke(); callbacks.onStatus('啵！烦恼弹走了'); },
-    reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('又是一只蓬松小团子'); },
+    poke() { current?.character.poke(); callbacks.onStatus('戳了一下'); },
+    reset() { input?.release(); current?.character.reset(); selectedAccessories = []; accessories?.set([]); canvas.dataset.accessories = ''; callbacks.onStatus('已恢复原状'); },
     dispose() {
       if (disposed) return; disposed = true;
       void renderer.setAnimationLoop(null); observer.disconnect(); input?.dispose(); accessories?.dispose(); canvas.remove();

@@ -16,7 +16,7 @@ const STAGES = [
   {
     title: '拉一拉',
     start: 2,
-    detail: '拖住它，轻轻拉开',
+    detail: '拖动身体，轻轻拉开',
     image: '/art/palm-demo-pull.webp',
     Icon: MoveHorizontal,
   },
@@ -276,11 +276,7 @@ export default function HomeDemo({ children }: { children: ReactNode }) {
         </figure>
       </section>
       <section className={styles.how} aria-label="怎么玩：选择步骤观看演示">
-        <p>
-          不用学，
-          <br />
-          <strong>上手就会。</strong>
-        </p>
+        <h2>玩法演示</h2>
         {STAGES.map(({ title, detail, Icon }, index) => {
           const content = (
             <>
