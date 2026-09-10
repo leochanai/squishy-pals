@@ -3,7 +3,7 @@ import { Raycaster, Vector3, Mesh } from 'three/webgpu';
 import type { Character } from '../src/characters/types';
 
 const factories: Array<() => Character> = [];
-for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'], ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi']]) {
+for (const [file, factory] of [['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'], ['clownmochi', 'createClownMochi'], ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi']]) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);
   factories.push(characterModule[factory]);
 }
@@ -37,7 +37,7 @@ for (const create of factories) {
       }
     });
   };
-  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, character.object.name === 'WhaleMochi' ? 4 : 9); assert.equal(character.diagnostics().tailLobes, 2); }
+  if (character.diagnostics().finCount !== undefined) { assert.equal(character.diagnostics().finCount, character.object.name === 'WhaleMochi' ? 4 : character.object.name === 'ClownMochi' ? 7 : 9); assert.equal(character.diagnostics().tailLobes, character.object.name === 'ClownMochi' ? 1 : 2); }
   else assert.equal(Number(character.diagnostics().armCount) + Number(character.diagnostics().tentacleCount ?? 0), 10, 'eight arms plus two tentacles');
   if (character.object.name === 'SharkMochi') {
     const gills = character.object.children.filter(node => node.name === 'gill') as Mesh[];
@@ -90,7 +90,7 @@ for (const create of factories) {
   if (character.diagnostics().finCount !== undefined) {
     character.object.updateMatrixWorld(true);
     // Match the visible pectoral fan, which sweeps backwards from its root.
-    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.23 : 1.15, 6, character.object.name === 'GoldMochi' ? -0.03 : 0)), new Vector3(0, -1, 0)));
+    const finHit = character.pick(new Raycaster(character.object.localToWorld(['WhaleMochi', 'SharkMochi'].includes(character.object.name) ? new Vector3(0.2, 6, 1.12) : new Vector3(character.object.name === 'GoldMochi' ? 1.23 : character.object.name === 'ClownMochi' ? 0.98 : 1.15, 6, character.object.name === 'GoldMochi' ? -0.03 : character.object.name === 'ClownMochi' ? 0.33 : 0)), new Vector3(0, -1, 0)));
     assert.ok(finHit && finHit.handle >= 0, 'side fin must be independently pickable');
     character.beginGrab(finHit);
     character.moveGrab(finHit.point.clone().add(new Vector3(0.3, 0.5, 0)), true);

@@ -10,6 +10,7 @@ const fits: Record<string, Fit> = {
   octomochi: { center: [0, 1.6, -.12], width: 1.5, rise: 1.34, top: 2.76, hatSize: .85 },
   cuttlemochi: { center: [0, 1.15, -.2], width: 1.08, rise: .75, top: 1.8, hatSize: .65 },
   squidmochi: { center: [0, 1.75, .03], width: .78, rise: 1.7, top: 2.9, hatSize: .6 },
+  clownmochi: { center: [0, 1.42, .65], width: .76, rise: .76, top: 2.02, hatSize: .42 },
   goldmochi: { center: [0, 1.42, .1], width: 1.05, rise: 1.13, top: 2.35, hatSize: .64 },
   whalemochi: { center: [-.8, 1.5, 0], width: 1.07, rise: 1.03, top: 2.38, hatSize: .67, side: true },
   sharkmochi: { center: [-1.03, 1.42, 0], width: .79, rise: .86, top: 1.94, hatSize: .55, side: true },
@@ -54,7 +55,7 @@ export function createAccessories(character: Character, characterId: string) {
     const shell = new THREE.SphereGeometry(1, 20, 14).scale(fit.side ? .25 : .13, .29, fit.side ? .13 : .25);
     const outer = headPoint(sign * (fit.width + .14), .03); shell.translate(outer.x, outer.y, outer.z); add('headphones', shell, 0);
   }
-  const hatCenter = new THREE.Vector3(fit.center[0], fit.top + (characterId === 'whalemochi' ? .14 : 0), characterId === 'sealmochi' ? 1.15 : characterId === 'turtlemochi' ? 1.3 : fit.side ? 0 : .12);
+  const hatCenter = new THREE.Vector3(fit.center[0], fit.top + (characterId === 'whalemochi' ? .14 : 0), characterId === 'clownmochi' ? 1.12 : characterId === 'sealmochi' ? 1.15 : characterId === 'turtlemochi' ? 1.3 : fit.side ? 0 : .12);
   const size = fit.hatSize;
   // Seat the squid crown above the wide fin shoulders, around the tapered tip.
   const hatY = hatCenter.y + (characterId === 'squidmochi' ? .18 : 0);
@@ -72,7 +73,7 @@ export function createAccessories(character: Character, characterId: string) {
   const ringRadius = characterId === 'sealmochi' ? .25 : characterId === 'turtlemochi' ? .21 : characterId === 'squidmochi' ? .225 : characterId === 'cuttlemochi' ? .25 : .3;
   for (const eye of eyes) {
     const sign = fit.side ? Math.sign(eye.z) : 1;
-    eye.z += sign * .11;
+    eye.z += sign * (characterId === 'clownmochi' ? .28 : .11);
     add('glasses', new THREE.TorusGeometry(ringRadius, .033, 8, 36).translate(eye.x, eye.y, eye.z), 4);
   }
   if (fit.side) {

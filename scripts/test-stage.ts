@@ -12,7 +12,7 @@ assert.ok(softenPointer(.80001) - softenPointer(.8) < .000011, 'entering resista
 
 for (const [file, factory, mechanical] of [
   ['octopus', 'createOctopus', false], ['octomochi', 'createOctoMochi', true],
-  ['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'],
+  ['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'], ['goldmochi', 'createGoldMochi'], ['clownmochi', 'createClownMochi'],
   ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi'],
 ] as const) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);

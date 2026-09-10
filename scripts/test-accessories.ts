@@ -6,7 +6,7 @@ const { toggleAccessory } = await import(new URL('../src/core/accessory-options.
 
 assert.deepEqual(toggleAccessory(['headphones', 'hat', 'glasses'], 'bow'), ['headphones', 'glasses', 'bow']);
 assert.deepEqual(toggleAccessory(['headphones', 'glasses'], 'glasses'), ['headphones']);
-for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalemochi', 'sharkmochi', 'mechaocto']) {
+for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'clownmochi', 'whalemochi', 'sharkmochi', 'mechaocto']) {
   const moduleId = id === 'mechaocto' ? 'octomochi' : id;
   const characterModule = await import(new URL(`../src/characters/${moduleId}.ts`, import.meta.url).href);
   const create = Object.values(characterModule).find(value => typeof value === 'function') as (mechanical?: boolean) => Character;

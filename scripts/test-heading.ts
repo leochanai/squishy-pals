@@ -5,6 +5,7 @@ import type { Character, GrabHit } from '../src/characters/types';
 for (const [file, factory, headOrigin, tailOrigin, finOrigin, center] of [
   ['whalemochi', 'createWhaleMochi', [-0.95, 6, 0.35], [2.2, 6, 0.65], [0.2, 6, 1.12], [0, 1.24, 0]],
   ['sharkmochi', 'createSharkMochi', [-0.95, 6, 0.35], [1.95, 6, 0], [0.2, 6, 1.12], [0, 1.24, 0]],
+  ['clownmochi', 'createClownMochi', [0.25, 6, 1.25], [0, 6, -1.9], [0.98, 6, 0.33], [0, 1.28, 0.2]],
   ['goldmochi', 'createGoldMochi', [0, 6, 0.9], [0.2, 6, -1.9], [1.23, 6, -0.03], [0, 1.28, 0.2]],
 ] as const) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);

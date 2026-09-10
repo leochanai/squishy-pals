@@ -10,6 +10,7 @@ for (const [id, file, factory, front, side] of [
   ['sealmochi', 'coastalmochi', 'createSealMochi', 0, Math.PI / 2],
   ['turtlemochi', 'coastalmochi', 'createTurtleMochi', 0, Math.PI / 2],
   ['crabmochi', 'coastalmochi', 'createCrabMochi', 0, Math.PI / 2],
+  ['clownmochi', 'clownmochi', 'createClownMochi', 0, Math.PI / 2],
   ['goldmochi', 'goldmochi', 'createGoldMochi', -0.2, Math.PI / 2],
   ['whalemochi', 'whalemochi', 'createWhaleMochi', Math.PI / 2, 0],
   ['sharkmochi', 'sharkmochi', 'createSharkMochi', Math.PI / 2, 0],

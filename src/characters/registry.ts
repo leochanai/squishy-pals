@@ -54,6 +54,17 @@ export const characters: RegisteredCharacter[] = [{
   defaults: { view: 'front', material: 'original', color: '#f08610', stiffness: 0.48, damping: 0.42 },
   load: async () => (await import('./goldmochi')).createGoldMochi,
 }, {
+  id: 'clownmochi',
+  camera: { position: [0, 3.3, 9.6], target: [0, 1.4, 0] },
+  name: '橙橙小丑鱼',
+  englishName: 'ClownMochi',
+  description: '捏捏条纹 · 摇鳍弹起',
+  image: '/pals/clownmochi.png',
+  icon: '🐠',
+  color: '#f47825',
+  defaults: { view: 'front', material: 'original', color: '#f47825', stiffness: 0.48, damping: 0.42 },
+  load: async () => (await import('./clownmochi')).createClownMochi,
+}, {
   id: 'whalemochi',
   camera: { position: [0, 2.6, 10.8], target: [0, 1.25, 0] },
   name: '深海小鲸鱼',

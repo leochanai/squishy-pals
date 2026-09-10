@@ -3,7 +3,7 @@ import { Color, Mesh, MeshPhysicalNodeMaterial, Raycaster, Vector3, type Materia
 import type { Character } from '../src/characters/types';
 import { createAccessories } from '../src/core/accessories.ts';
 
-for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalemochi', 'sharkmochi', 'mechaocto']) {
+for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'clownmochi', 'whalemochi', 'sharkmochi', 'mechaocto']) {
   const moduleId = id === 'mechaocto' ? 'octomochi' : id;
   const characterModule = await import(new URL(`../src/characters/${moduleId}.ts`, import.meta.url).href);
   const create = Object.values(characterModule).find(value => typeof value === 'function') as (mechanical?: boolean) => Character;
@@ -95,7 +95,12 @@ for (const id of ['octomochi', 'cuttlemochi', 'squidmochi', 'goldmochi', 'whalem
   for (let i = 0; i < meshes.length; i++) if (changed[i]) {
     assert.ok(((meshes[i].getObjectByName('armor-panel') as Mesh | undefined)?.material as MeshPhysicalNodeMaterial ?? meshes[i].material as MeshPhysicalNodeMaterial).color.equals((originals[i] as MeshPhysicalNodeMaterial).color), `${id}: color follows cached presets`);
   }
-  assert.ok(meshes.some(mesh => (((mesh.getObjectByName('armor-panel') as Mesh | undefined)?.material ?? mesh.material) as MeshPhysicalNodeMaterial).color?.equals(new Color('#9cccbc'))), `${id}: color remains editable`);
+  if (id === 'clownmochi') {
+    const pigment = (character.object.getObjectByName('clownfish-body') as Mesh).geometry.getAttribute('color');
+    const green = new Color('#9cccbc'), white = new Color('#fff9eb'), sample = new Color();
+    assert.ok(Array.from({ length: pigment.count }, (_, i) => Math.abs(pigment.getX(i) - green.r) + Math.abs(pigment.getY(i) - green.g) + Math.abs(pigment.getZ(i) - green.b) < 1e-6).some(Boolean), 'clownfish: body pigment remains editable');
+    assert.ok(Array.from({ length: pigment.count }, (_, i) => { sample.fromBufferAttribute(pigment, i); return Math.abs(sample.r - white.r) + Math.abs(sample.g - white.g) + Math.abs(sample.b - white.b) < 1e-6; }).some(Boolean), 'clownfish: white bands survive recoloring');
+  } else assert.ok(meshes.some(mesh => (((mesh.getObjectByName('armor-panel') as Mesh | undefined)?.material ?? mesh.material) as MeshPhysicalNodeMaterial).color?.equals(new Color('#9cccbc'))), `${id}: color remains editable`);
   const armorBefore = armorPanels.map(panel => panel.geometry.getAttribute('position').array.slice());
   character.update(1 / 60, 1 / 60); wardrobe.update();
   armorPanels.forEach((panel, i) => {

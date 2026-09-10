@@ -6,7 +6,7 @@ import type { Character } from '../src/characters/types';
 for (const [file, factory, mechanical] of [
   ['octomochi', 'createOctoMochi', false], ['octomochi', 'createOctoMochi', true],
   ['cuttlemochi', 'createCuttleMochi'], ['squidmochi', 'createSquidMochi'],
-  ['goldmochi', 'createGoldMochi'], ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi'],
+  ['goldmochi', 'createGoldMochi'], ['clownmochi', 'createClownMochi'], ['whalemochi', 'createWhaleMochi'], ['sharkmochi', 'createSharkMochi'],
 ] as const) {
   const characterModule = await import(new URL(`../src/characters/${file}.ts`, import.meta.url).href);
   const character: Character = characterModule[factory](mechanical);
