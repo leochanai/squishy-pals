@@ -1,5 +1,6 @@
 import { MarchingCubes } from 'three/addons/objects/MarchingCubes.js';
-import { BufferGeometry, Float32BufferAttribute, CapsuleGeometry, Group, Mesh, MeshPhysicalNodeMaterial, SphereGeometry, Quaternion, Vector3, type PerspectiveCamera } from 'three/webgpu';
+import { BufferGeometry, Float32BufferAttribute, CapsuleGeometry, Group, Mesh, MeshPhysicalNodeMaterial, SphereGeometry, TorusGeometry, Quaternion, Vector3, type PerspectiveCamera } from 'three/webgpu';
+import { luminance, mix, output, vec3, vec4 } from 'three/tsl';
 import type { MaterialPreset } from '../characters/types';
 
 export type HandInteraction = { phase: 'hover' | 'grab' | 'hidden'; point?: Vector3 };
@@ -45,14 +46,16 @@ export function createGrabHand() {
   const object = new Group();
   object.name = 'play-glove'; object.visible = false;
   const soft = new MeshPhysicalNodeMaterial({ color: '#fff5df', roughness: .48, clearcoat: .12 });
-  const jelly = new MeshPhysicalNodeMaterial({ color: '#ffffff', roughness: .2, transmission: .26, thickness: .3, ior: 1.36, clearcoat: .4, attenuationColor: '#ffffff', attenuationDistance: 2.4 });
-  const shell = new MeshPhysicalNodeMaterial({ color: '#fff5df', metalness: .35, roughness: .3, clearcoat: .3 });
-  const jointMaterial = new MeshPhysicalNodeMaterial({ color: '#414b4b', metalness: .65, roughness: .4 });
+  const jelly = new MeshPhysicalNodeMaterial({ color: '#ffffff', roughness: .1, transmission: .8, thickness: .35, ior: 1.28, clearcoat: .35, attenuationColor: '#ffffff', attenuationDistance: 5, transparent: true, opacity: .52 });
+  jelly.outputNode = vec4(mix(output.rgb, vec3(luminance(output.rgb)), .6), output.a);
+  const shell = new MeshPhysicalNodeMaterial({ color: '#fff5df', metalness: .55, roughness: .38, clearcoat: .16 });
+  const jointMaterial = new MeshPhysicalNodeMaterial({ color: '#4a545b', metalness: .5, roughness: .48 });
   const sphere = new SphereGeometry(1, 24, 16);
   const capsule = new CapsuleGeometry(1, 1, 8, 16);
+  const seamGeometry = new TorusGeometry(1, .075, 8, 32);
+  seamGeometry.rotateY(Math.PI / 2);
   const glove: Mesh[] = [];
   const joints = new Group(); object.add(joints); joints.visible = false;
-  const digitGroups: Group[] = [];
   const add = (parent: Group, x: number, y: number, z: number, sx: number, sy: number, sz: number, rotation = 0) => {
     const mesh = new Mesh(sphere, soft);
     mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.rotation.z = rotation;
@@ -62,7 +65,7 @@ export function createGrabHand() {
   const cuff = new Mesh(capsule, soft); cuff.position.set(1.15, -.08, .015); cuff.scale.set(.2, .2, .23); cuff.rotation.z = 0; object.add(cuff); glove.push(cuff);
   // A curved index opposes a shorter thumb; the other two fingers fold into the palm.
   for (let i = 0; i < 3; i++) {
-    const digit = new Group(); object.add(digit); digitGroups.push(digit);
+    const digit = new Group(); object.add(digit);
     if (i === 0) {
       add(digit, .49, .27, .01, .32, .19, .18, .25);
       add(digit, .22, .25, .04, .25, .18, .18, -.45);
@@ -70,15 +73,17 @@ export function createGrabHand() {
     } else {
       add(digit, .72 + i * .1, -.16 - i * .12, -.08, .22, .19, .19, -.2);
     }
-    const joint = new Mesh(sphere, jointMaterial);
-    joint.position.set(i === 0 ? .34 : .72 + i * .1, i === 0 ? .27 : -.16 - i * .12, -.06);
-    joint.scale.set(.05,.18,.19); joint.rotation.z = i === 0 ? -.3 : -.2; joints.add(joint);
+
   }
   const thumb = new Group(); object.add(thumb);
   add(thumb, .49, -.31, .16, .33, .2, .2, .25);
   add(thumb, .2, -.31, .18, .23, .17, .19, .1);
   add(thumb, .06, -.22, .18, .17, .18, .18, -.5);
-  const thumbJoint = new Mesh(sphere,jointMaterial); thumbJoint.position.set(.32,-.31,.12); thumbJoint.scale.set(.05,.17,.19); thumbJoint.rotation.z=.1; thumb.add(thumbJoint);
+  const indexJoint = new Mesh(seamGeometry, jointMaterial);
+  indexJoint.position.set(.34, .27, .025); indexJoint.scale.set(.18,.18,.18); indexJoint.rotation.z = -.3; joints.add(indexJoint);
+  const wristJoint = new Mesh(seamGeometry, jointMaterial);
+  wristJoint.position.set(1.08, -.08, .015); wristJoint.scale.set(.24,.31,.24); joints.add(wristJoint);
+  const thumbJoint = new Mesh(seamGeometry,jointMaterial); thumbJoint.position.set(.3,-.31,.18); thumbJoint.scale.set(.18,.18,.18); thumbJoint.rotation.z=.1; thumb.add(thumbJoint);
   const smoothPalm = smoothGlove(glove.filter(mesh => mesh !== cuff && mesh.parent !== thumb), soft);
   const smoothThumb = smoothGlove(glove.filter(mesh => mesh.parent === thumb), soft);
   object.add(smoothPalm); thumb.add(smoothThumb); thumbJoint.visible = false;
@@ -96,17 +101,17 @@ export function createGrabHand() {
     },
     setMaterial(preset: MaterialPreset) {
       const material = preset === 'jelly' ? jelly : preset === 'mechanical' ? shell : soft;
-      for (const mesh of glove) { mesh.material = material; mesh.visible = mesh === cuff || preset === 'mechanical'; }
+      for (const mesh of glove) { mesh.material = material; mesh.visible = mesh === cuff; }
       smoothPalm.material = smoothThumb.material = material;
-      smoothPalm.visible = smoothThumb.visible = preset !== 'mechanical';
+      smoothPalm.visible = smoothThumb.visible = true;
+      smoothPalm.renderOrder = smoothThumb.renderOrder = cuff.renderOrder = preset === 'jelly' ? 2 : 0;
       joints.visible = thumbJoint.visible = preset === 'mechanical';
     },
     update(dt: number, camera: PerspectiveCamera, height: number) {
       if (!object.visible) return;
       amount += ((phase === 'grab' ? 1 : 0) - amount) * (1 - Math.exp(-24 * dt));
-      for (let i=0;i<digitGroups.length;i++) digitGroups[i].position.y = -.075 * amount;
       thumb.position.y = -.1 + .19 * amount;
-      smoothPalm.scale.y = 1 - .05 * amount;
+      smoothPalm.scale.y = joints.scale.y = 1 - .05 * amount;
       // Constant screen size across roles and viewports; preserve depth testing.
       const distance = camera.position.distanceTo(target);
       const scale = 2 * distance * Math.tan(camera.fov * Math.PI / 360) / Math.max(1,height) * 62;
@@ -119,6 +124,6 @@ export function createGrabHand() {
       object.quaternion.copy(camera.quaternion).multiply(rotation.setFromAxisAngle(axis,angle));
       object.position.copy(target).addScaledVector(camera.getWorldDirection(new Vector3()), -scale * .22);
     },
-    dispose() { object.removeFromParent(); sphere.dispose(); capsule.dispose(); smoothPalm.geometry.dispose(); smoothThumb.geometry.dispose(); for(const material of [soft,jelly,shell,jointMaterial]) material.dispose(); },
+    dispose() { object.removeFromParent(); sphere.dispose(); capsule.dispose(); seamGeometry.dispose(); smoothPalm.geometry.dispose(); smoothThumb.geometry.dispose(); for(const material of [soft,jelly,shell,jointMaterial]) material.dispose(); },
   };
 }
