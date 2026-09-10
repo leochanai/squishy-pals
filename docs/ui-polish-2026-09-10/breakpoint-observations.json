@@ -1,0 +1,50 @@
+[
+  {
+    "viewport": {
+      "width": 600,
+      "height": 900
+    },
+    "dom": {
+      "bodyWidth": 600,
+      "scrollWidth": 600,
+      "viewport": 600
+    },
+    "settingsVisible": false
+  },
+  {
+    "viewport": {
+      "width": 601,
+      "height": 900
+    },
+    "dom": {
+      "bodyWidth": 601,
+      "scrollWidth": 601,
+      "viewport": 601
+    },
+    "settingsVisible": true
+  },
+  {
+    "viewport": {
+      "width": 1000,
+      "height": 900
+    },
+    "dom": {
+      "bodyWidth": 1000,
+      "scrollWidth": 1000,
+      "viewport": 1000
+    },
+    "settingsVisible": true
+  },
+  {
+    "viewport": {
+      "width": 1001,
+      "height": 900
+    },
+    "dom": {
+      "bodyWidth": 1001,
+      "scrollWidth": 1001,
+      "viewport": 1001
+    },
+    "settingsVisible": true
+  }
+]

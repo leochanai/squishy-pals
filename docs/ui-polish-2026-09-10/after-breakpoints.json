@@ -1,0 +1,60 @@
+[
+  {
+    "page": "play",
+    "scroll": 600,
+    "settingsVisible": false,
+    "width": 600
+  },
+  {
+    "page": "play",
+    "scroll": 601,
+    "settingsVisible": true,
+    "width": 601
+  },
+  {
+    "page": "play",
+    "scroll": 1000,
+    "settingsX": 24,
+    "width": 1000
+  },
+  {
+    "page": "play",
+    "scroll": 1001,
+    "settingsX": 665,
+    "width": 1001
+  },
+  {
+    "page": "catalogue",
+    "columns": "338.602px 338.602px",
+    "scroll": 760,
+    "width": 760
+  },
+  {
+    "page": "catalogue",
+    "columns": "218.703px 218.711px 218.703px",
+    "scroll": 761,
+    "width": 761
+  },
+  {
+    "page": "home",
+    "columns": "552px",
+    "scroll": 600,
+    "width": 600
+  },
+  {
+    "page": "home",
+    "columns": "174.969px 174.977px 174.969px",
+    "scroll": 601,
+    "width": 601
+  },
+  {
+    "page": "home",
+    "scroll": 1100,
+    "width": 1100
+  },
+  {
+    "page": "home",
+    "scroll": 1101,
+    "width": 1101
+  }
+]
