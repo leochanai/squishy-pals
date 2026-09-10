@@ -94,14 +94,14 @@ npm run start
 | 命令 | 当前覆盖 |
 | --- | --- |
 | `npm run typecheck` / `npm run lint` | TypeScript 检查 / Oxlint 静态检查 |
-| `npm run test:physics` | 八爪鱼软体与机械实例，以及墨鱼、鱿鱼、金鱼、鲸鱼、鲨鱼的求解器、抓取、边界、重置和释放 |
+| `npm run test:physics` | 八爪鱼软体与机械实例，以及墨鱼、鱿鱼、金鱼、小丑鱼、鲸鱼、鲨鱼的求解器、抓取、边界、重置和释放 |
 | `npm run test:faces` | 鲸鱼眼睛、鱿鱼五官的真实顶点与身体同场形变，覆盖按压、拖动、材质切换、眨眼与恢复 |
 | `npm run test:coastal` | 海豹、海龟、螃蟹的形变、附肢、专属动作、材质、饰品、转向与视口约束 |
-| `npm run test:stage` | 原六类伙伴及机械八爪鱼的取景、拖动边界与释放 |
-| `npm run test:parameters` | 原六类伙伴及机械八爪鱼的软硬/阻尼差异 |
+| `npm run test:stage` | 原六类伙伴、小丑鱼及机械八爪鱼的取景、拖动边界与释放 |
+| `npm run test:parameters` | 原六类伙伴、小丑鱼及机械八爪鱼的软硬/阻尼差异 |
 | `npm run test:heading` | 头足类与鱼类的头部转向、材质/饰品跟随及不应转向的反例 |
-| `npm run test:views` | 九类伙伴的默认朝向、模型视角接口、各材质下的拖动与饰品 |
-| `npm run test:materials` / `npm run test:accessories` | 原六类伙伴及机械八爪鱼的材质切换、饰品互斥/跟随和资源释放 |
+| `npm run test:views` | 十类伙伴的默认朝向、模型视角接口、各材质下的拖动与饰品 |
+| `npm run test:materials` / `npm run test:accessories` | 原六类伙伴、小丑鱼及机械八爪鱼的材质切换、饰品互斥/跟随和资源释放 |
 | `npm run test:switching` | 缓存复用、过期选择、准备失败重试、关闭与几何准备耗时；编译回调为模拟 |
 | `node --experimental-strip-types scripts/test-smiles.ts` | 鲸鱼与鲨鱼嘴部网格、贴肤及变形；未注册 npm 别名 |
 | `npm run build` | Vinext / Vite / Cloudflare 构建链 |
