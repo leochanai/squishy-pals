@@ -223,7 +223,7 @@ export function createCuttleMochi(): Character {
     wobbleVelocity.addScaledVector(force, dt); wobble.addScaledVector(wobbleVelocity, dt).clampLength(0, 0.5);
   }
   function reset() { object.rotation.y = targetHeading = 0; object.updateMatrixWorld(true); stretch.set(0, 0, 0); stretchVelocity.set(0, 0, 0); wobble.set(0, 0, 0); wobbleVelocity.set(0, 0, 0); body.set(0, 0, 0); velocity.set(0, 0, 0); squash = squashVelocity = press = pressVelocity = pressTarget = 0; clock = -1; grab = null; for (const limb of limbs) { limb.shift.set(0, 0, 0); limb.velocity.set(0, 0, 0); } render(lastTime); mechanicalShell.update(); }
-  const materialVariants = createMaterialVariants(object, [{ material: gel, thickness: 1.1 }], [dark, blush]);
+  const materialVariants = createMaterialVariants(object, [{ material: gel, thickness: 1.1 }], [dark, blush], { opacity: 0.6, layered: true });
   const mechanicalShell = createMechanicalShell(parts.filter(surface => surface.mesh.material === gel).map((surface, i) => ({ mesh: surface.mesh, axis: 'y' as const, bands: i === 0 ? 4 : 5, sectors: i === 0 ? 6 : 1, progress: surface.handle >= 0 ? surface.along : undefined })));
   reset();
   return {

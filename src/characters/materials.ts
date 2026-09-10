@@ -5,9 +5,10 @@ import type { MaterialPreset } from './types';
 const white = new Color('white');
 
 /** Only explicitly registered body surfaces change; faces and accessories stay intact. */
-export function createMaterialVariants(object: Group, surfaces: { material: MeshPhysicalNodeMaterial; thickness: number }[], faces: Material[]) {
+export function createMaterialVariants(object: Group, surfaces: { material: MeshPhysicalNodeMaterial; thickness: number }[], faces: Material[], jellyOptions?: { opacity: number; layered: boolean }) {
   // Draw faces after the body, outside the opaque refraction buffer. The body's
-  // depth still hides far-side eyes and mouths instead of refracting duplicates.
+  // default depth still hides far-side eyes and mouths instead of refracting duplicates.
+
   object.traverse(child => {
     if (child instanceof Mesh && !Array.isArray(child.material) && faces.includes(child.material)) {
       child.material.transparent = true; child.renderOrder = 1;
@@ -19,9 +20,19 @@ export function createMaterialVariants(object: Group, surfaces: { material: Mesh
     object.traverse(child => { if (child instanceof Mesh && child.material === material) meshes.push(child); });
     return { original: material, thickness, meshes, variants: new Map<MaterialPreset, MeshPhysicalNodeMaterial>([['original', material]]) };
   });
+  const originalOrders = new Map(entries.flatMap(entry => entry.meshes.map(mesh => [mesh, mesh.renderOrder] as const)));
+  const layers = jellyOptions?.layered ? [...originalOrders.keys()].sort((a, b) => {
+    a.geometry.computeBoundingSphere(); b.geometry.computeBoundingSphere();
+    return a.geometry.boundingSphere!.radius - b.geometry.boundingSphere!.radius;
+  }) : [];
   return {
     materials,
     set(preset: MaterialPreset) {
+      // Draw small rear/overlapping parts before the enclosing mantle, then faces.
+      // Retain depth writes so far-side eyes do not show through as duplicate faces.
+      if (jellyOptions?.layered) layers.forEach((mesh, index) => {
+        mesh.renderOrder = preset === 'jelly' ? -1 + index / layers.length : originalOrders.get(mesh)!;
+      });
       for (const entry of entries) {
         let material = entry.variants.get(preset);
         if (!material) {
@@ -31,7 +42,8 @@ export function createMaterialVariants(object: Group, surfaces: { material: Mesh
             material.clearcoat = 0.55; material.clearcoatRoughness = 0.12;
             material.transmission = 0.96; material.thickness = entry.thickness * 0.65;
             // Draw both shell surfaces so the far contour remains visible through the front.
-            material.side = DoubleSide; material.transparent = true; material.opacity = 0.78;
+            material.side = DoubleSide; material.transparent = true; material.opacity = jellyOptions?.opacity ?? 0.78;
+
             material.forceSinglePass = false;
             // Keep refraction detail, but anchor its hue to the user's selected pigment.
             // A green stage must not turn every transparent character green.
