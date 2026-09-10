@@ -68,7 +68,7 @@ export async function createPlayground(host: HTMLElement, callbacks: { onStatus:
     renderer.setSize(width, height, false);
     if (!current) return;
     // Fit the actual play surface, keeping room around the resting silhouette.
-    const fill = Math.min(window.innerWidth > 1000 ? .9 : .84, 1 - 48 / height);
+    const fill = Math.min(window.innerWidth > 1000 ? .76 : .74, 1 - 48 / height);
     const maxPalHeight = height * fill;
     const viewBounds = current.bounds.clone().applyMatrix4(current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert()));
     const viewTransform = current.character.object.matrixWorld.clone().multiply(current.transform.clone().invert());

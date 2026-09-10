@@ -672,14 +672,14 @@ export function createOctoMochi(mechanical = false): Character & { rotateGrab(tu
       if (next.color || next.material !== undefined) {
         materialVariants.set(parameters.material);
         if (!mechanical && parameters.material === 'jelly') {
-          surface.material.transmission = 0.55;
-          surface.material.attenuationDistance = 0.8;
-          surface.material.roughness = 0.24;
+          surface.material.transmission = 0.96;
+          surface.material.attenuationDistance = 1.2;
+          surface.material.roughness = 0.08;
           surface.material.clearcoat = 0.25;
           surface.material.clearcoatRoughness = 0.3;
           const tint = surface.material.color.getHSL({ h: 0, s: 0, l: 0 });
-          surface.material.attenuationColor.setHSL(tint.h, 0.82, 0.64);
-          surface.material.thicknessNode ??= mix(0.9, 1.4, smoothstep(0.45, 1.65, positionLocal.y));
+          surface.material.attenuationColor.setHSL(tint.h, 0.75, 0.66);
+          surface.material.thicknessNode ??= mix(0.35, 0.9, smoothstep(0.45, 1.65, positionLocal.y));
         }
         if (mechanical && parameters.material === 'mechanical') {
           const shell = surface.material;

@@ -58,24 +58,30 @@ export function createGrabHand() {
     mesh.position.set(x, y, z); mesh.scale.set(sx, sy, sz); mesh.rotation.z = rotation;
     parent.add(mesh); glove.push(mesh); return mesh;
   };
-  add(object, .64, -.25, .02, .4, .43, .2, -.18);
-  const cuff = new Mesh(capsule, soft); cuff.position.set(.98, -.48, .015); cuff.scale.set(.24, .2, .2); cuff.rotation.z = -.8; object.add(cuff); glove.push(cuff);
-  // An extended index and opposing thumb make the pinch readable at cursor size.
+  add(object, .78, -.05, .01, .4, .42, .22, .12);
+  const cuff = new Mesh(capsule, soft); cuff.position.set(1.15, -.08, .015); cuff.scale.set(.2, .2, .23); cuff.rotation.z = 0; object.add(cuff); glove.push(cuff);
+  // A curved index opposes a shorter thumb; the other two fingers fold into the palm.
   for (let i = 0; i < 3; i++) {
     const digit = new Group(); object.add(digit); digitGroups.push(digit);
-    const x = i === 0 ? .12 : .47 + i * .16;
-    const y = i === 0 ? .12 : -.22 - i * .16;
-    add(digit, x + .2, y - .02, -.035 - i * .035, .3, .18, .15, -.1);
-    add(digit, x, y, .05 - i * .035, .19, .19, .16, -.2);
-    const joint = new Mesh(sphere, jointMaterial); joint.position.set(x+.17,y-.01,-.035-i*.035); joint.scale.set(.065,.18,.153); joint.rotation.z=-.1; joints.add(joint);
+    if (i === 0) {
+      add(digit, .49, .27, .01, .32, .19, .18, .25);
+      add(digit, .22, .25, .04, .25, .18, .18, -.45);
+      add(digit, .06, .1, .055, .17, .21, .18, -.35);
+    } else {
+      add(digit, .72 + i * .1, -.16 - i * .12, -.08, .22, .19, .19, -.2);
+    }
+    const joint = new Mesh(sphere, jointMaterial);
+    joint.position.set(i === 0 ? .34 : .72 + i * .1, i === 0 ? .27 : -.16 - i * .12, -.06);
+    joint.scale.set(.05,.18,.19); joint.rotation.z = i === 0 ? -.3 : -.2; joints.add(joint);
   }
   const thumb = new Group(); object.add(thumb);
-  add(thumb, .42, -.42, .2, .3, .2, .18, .2);
-  add(thumb, .12, -.4, .22, .21, .18, .18, .1);
-  const thumbJoint = new Mesh(sphere,jointMaterial); thumbJoint.position.set(.32,-.42,.2); thumbJoint.scale.set(.065,.18,.183); thumbJoint.rotation.z=.2; joints.add(thumbJoint);
+  add(thumb, .49, -.31, .16, .33, .2, .2, .25);
+  add(thumb, .2, -.31, .18, .23, .17, .19, .1);
+  add(thumb, .06, -.22, .18, .17, .18, .18, -.5);
+  const thumbJoint = new Mesh(sphere,jointMaterial); thumbJoint.position.set(.32,-.31,.12); thumbJoint.scale.set(.05,.17,.19); thumbJoint.rotation.z=.1; thumb.add(thumbJoint);
   const smoothPalm = smoothGlove(glove.filter(mesh => mesh !== cuff && mesh.parent !== thumb), soft);
   const smoothThumb = smoothGlove(glove.filter(mesh => mesh.parent === thumb), soft);
-  object.add(smoothPalm); thumb.add(smoothThumb);
+  object.add(smoothPalm); thumb.add(smoothThumb); thumbJoint.visible = false;
   for (const mesh of glove) if (mesh !== cuff) mesh.visible = false;
   const target = new Vector3();
   const axis = new Vector3(0,0,1), rotation = new Quaternion();
@@ -93,13 +99,13 @@ export function createGrabHand() {
       for (const mesh of glove) { mesh.material = material; mesh.visible = mesh === cuff || preset === 'mechanical'; }
       smoothPalm.material = smoothThumb.material = material;
       smoothPalm.visible = smoothThumb.visible = preset !== 'mechanical';
-      joints.visible = preset === 'mechanical';
+      joints.visible = thumbJoint.visible = preset === 'mechanical';
     },
     update(dt: number, camera: PerspectiveCamera, height: number) {
       if (!object.visible) return;
       amount += ((phase === 'grab' ? 1 : 0) - amount) * (1 - Math.exp(-24 * dt));
       for (let i=0;i<digitGroups.length;i++) digitGroups[i].position.y = -.075 * amount;
-      thumb.position.y = -.04 + .3 * amount;
+      thumb.position.y = -.1 + .19 * amount;
       smoothPalm.scale.y = 1 - .05 * amount;
       // Constant screen size across roles and viewports; preserve depth testing.
       const distance = camera.position.distanceTo(target);

@@ -17,7 +17,7 @@ export function frameCharacter(camera: PerspectiveCamera, bounds: Box3, width: n
   camera.fov = 32;
   const tangent = Math.tan(camera.fov * Math.PI / 360);
   const verticalFill = Math.min(fill, maxProjectedHeight / height);
-  const horizontalFill = .76;
+  const horizontalFill = .66;
   let distance = 0;
   for (const point of envelope) {
     const corner = point.clone().sub(center);

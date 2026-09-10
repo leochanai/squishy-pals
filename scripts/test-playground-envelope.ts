@@ -10,12 +10,12 @@ for (const [file, factory] of [['octopus','createOctopus'],['whalemochi','create
   const source = { id:file, defaults:{color:'#c6a0df',material:'original',stiffness:.48,damping:.42}, load:async()=>characterModule[factory] } as RegisteredCharacter;
   const entry = await cache.prepare(source);
   assert.ok(entry.framingPoints.length > 8, 'curved shapes must retain more than box corners');
-  for (const [width,height,fill] of [[1188,589,.9],[888,426.5,.887455],[786,500.4,.84],[358,303.84,.84],[288,303.84,.84],[358,220,1-48/220],[288,220,1-48/220]]) {
+  for (const [width,height,fill] of [[1188,589,.76],[888,426.5,.76],[786,500.4,.74],[358,303.84,.74],[288,303.84,.74],[358,220,.74],[288,220,.74]]) {
     const camera = new PerspectiveCamera(); camera.position.set(0,5.7,10.1); camera.lookAt(0,1.35,0); camera.updateMatrixWorld(true);
     frameCharacter(camera,entry.bounds,width,height,height*fill,entry.framingPoints,fill);
     for (const point of entry.framingPoints) {
       const projected = point.clone().project(camera);
-      assert.ok(Math.abs(projected.x)<=.7601 && Math.abs(projected.y)<=fill+.0001,`${file}: resting silhouette must fit`);
+      assert.ok(Math.abs(projected.x)<=.6601 && Math.abs(projected.y)<=fill+.0001,`${file}: resting silhouette must fit`);
     }
     const constrain = createMovementConstraint(camera,entry.character.object,entry.bounds,width,height,entry.transform,entry.framingPoints);
     const origin = new Vector3(); constrain(origin);
